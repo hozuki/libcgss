@@ -35,7 +35,7 @@ corrupted, verifying the checksum will expose the corrupted frame. Changing the 
 is very likely for the decoder to recognize the frame is corrupted, causing an error.
 We are not able to bypass the security check, so we must calculate the checksum ourselves.
 
-Luckily, the algorithm is interesting. It is based on an XOR table. Have you notice that,
+Luckily, the algorithm is interesting. It is based on an XOR table. Have you noticed that,
 this table is carefully designed, and it has a great characteristic:
 
 > For byte sequence *S*(*b<sub>1</sub>*, *b<sub>2</sub>*, ..., *b<sub>n</sub>*), use the checksum function *f* to calculate
