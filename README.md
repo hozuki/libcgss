@@ -41,7 +41,7 @@ Usage:
 
 ```cmd
 hcacc.exe <input HCA> <output HCA> [-ot <output HCA cipher type>]
-          [-i1 <input HCA key 1 (if any)>] [-i2 <input HCA key 2 (if any)>]
+          [-i1 <input HCA key 1 (if necessary)>] [-i2 <input HCA key 2 (if necessary)>]
           [-o1 <output HCA key 1>] [-o2 <output HCA key 2>]
 ```
 
@@ -50,6 +50,9 @@ The valid cipher types are:
 - `0` (not encrypted);
 - `1` (statically encrypted);
 - `56` (encrypted with a key pair)
+
+The cipher type of the input HCA file is automatically detected, and it cannot be
+set by code.
 
 Example:
 
@@ -75,10 +78,10 @@ and solve this problem.
 
 ## Notes
 
-Suggested compiling toolchain is MSVC, because you will have to invoke a
-function in a DLL.
+Suggested compiling toolchains are MSVC, MinGW/gcc, and Cygwin/gcc, because you will
+have to invoke a function in a DLL.
 
 There is no plan porting these tools to C# at this point,
 though it is easy. Maybe it will be done in the future.
 
-More tech details can be found in [Behind the Scenes](BEHIND_THE_SCENES.md) (later).
+More tech details can be found in [Behind the Scenes](BEHIND_THE_SCENES.md).
