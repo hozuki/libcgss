@@ -81,7 +81,7 @@ and solve this problem.
 Suggested compiling toolchains are MSVC, MinGW/gcc, and Cygwin/gcc, because you will
 have to invoke a function in a DLL.
 
-There is no plan porting these tools to C# at this point,
-though it is easy. Maybe it will be done in the future.
+C# version of **hcacc** can be found as an example usage of `DereTore.HCA` [here](https://github.com/Hozuki/DereTore/blob/master/DereTore.HCA.Test/Program.cs),
+built on `HcaCipherConverter`.
 
 More tech details can be found in [Behind the Scenes](BEHIND_THE_SCENES.md).
