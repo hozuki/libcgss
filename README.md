@@ -5,8 +5,11 @@
 - **hcaenc**: HCA encoder utility.
 - **hcacc**: HCA cipher conversion utility.
 
-In addition, [kawashima](https//github.com/Hozuki/kawashima) is a separated
+In addition, [kawashima](https://github.com/Hozuki/kawashima) is a separated
 library for decoding HCA audio.
+
+The C# version of **hcaenc** and **hcacc** can be found in [DereTore](https://github.com/Hozuki/DereTore)
+as applications.
 
 ## hcaenc
 
@@ -58,6 +61,7 @@ Example:
 
 ```cmd
 hcacc.exe input.hca output.hca -ot 0
+hcacc.exe input.hca output.hca -ot 56 -o1 AABBCCDD -o2 01020304
 ```
 
 Assume we are using an HCA file encoded by **hcaenc** (or `hcaenc_lite.dll`),
@@ -66,9 +70,9 @@ cipher type 0, and write to the new file `output.hca`.
 
 This utility is extremly useful when creating HCA files for games. Since
 `hcaenc_lite.dll` is hardcoded as type 1-only, the encoded HCA may not be
-accepted by games that use type 56 (which also have an independent
-key pair) or type 0 HCA audio files. A little conversion should do the magic
-and solve this problem.
+accepted by games that use type 56 (which also have independent key pairs)
+or type 0 HCA audio files. A little conversion should do the magic and
+solve this problem.
 
 ## License & Disclaimer
 
@@ -80,8 +84,5 @@ and solve this problem.
 
 Suggested compiling toolchains are MSVC, MinGW/gcc, and Cygwin/gcc, because you will
 have to invoke a function in a DLL.
-
-The C# version of **hcaenc** and **hcacc** can be found in [DereTore](https://github.com/Hozuki/DereTore),
-as presentational applications.
 
 More tech details can be found in [Behind the Scenes](BEHIND_THE_SCENES.md).
