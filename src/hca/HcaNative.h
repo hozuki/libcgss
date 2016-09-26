@@ -259,7 +259,17 @@ struct HCA_COMMENT {
      * Comment length?
      */
     uint8 len;
+#ifdef _MSC_VER
+	// "not a standard: zero sized object array"
+#pragma warning(disable:4200)
+#endif
+	/**
+	 * Comment?
+	 */
     char comment[0];
+#ifdef _MSC_VER
+#pragma warning(default:4200)
+#endif
 };
 
 /**

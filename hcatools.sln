@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hcacc", "hcacc.vcxproj", "{72A0512D-0013-40E3-A1F2-4992B0F578F0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hcaenc", "hcaenc.vcxproj", "{C1A6F335-DD39-459B-856D-191144CEDB0E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{80130872-5B2B-4C03-BE48-453D769AC445}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		BEHIND_THE_SCENES.md = BEHIND_THE_SCENES.md
+		CMakeLists.txt = CMakeLists.txt
+		DISCLAIMER.md = DISCLAIMER.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72A0512D-0013-40E3-A1F2-4992B0F578F0}.Debug|x64.ActiveCfg = Debug|x64
+		{72A0512D-0013-40E3-A1F2-4992B0F578F0}.Debug|x64.Build.0 = Debug|x64
+		{72A0512D-0013-40E3-A1F2-4992B0F578F0}.Debug|x86.ActiveCfg = Debug|Win32
+		{72A0512D-0013-40E3-A1F2-4992B0F578F0}.Debug|x86.Build.0 = Debug|Win32
+		{72A0512D-0013-40E3-A1F2-4992B0F578F0}.Release|x64.ActiveCfg = Release|x64
+		{72A0512D-0013-40E3-A1F2-4992B0F578F0}.Release|x64.Build.0 = Release|x64
+		{72A0512D-0013-40E3-A1F2-4992B0F578F0}.Release|x86.ActiveCfg = Release|Win32
+		{72A0512D-0013-40E3-A1F2-4992B0F578F0}.Release|x86.Build.0 = Release|Win32
+		{C1A6F335-DD39-459B-856D-191144CEDB0E}.Debug|x64.ActiveCfg = Debug|Win32
+		{C1A6F335-DD39-459B-856D-191144CEDB0E}.Debug|x64.Build.0 = Debug|Win32
+		{C1A6F335-DD39-459B-856D-191144CEDB0E}.Debug|x86.ActiveCfg = Debug|Win32
+		{C1A6F335-DD39-459B-856D-191144CEDB0E}.Debug|x86.Build.0 = Debug|Win32
+		{C1A6F335-DD39-459B-856D-191144CEDB0E}.Release|x64.ActiveCfg = Release|Win32
+		{C1A6F335-DD39-459B-856D-191144CEDB0E}.Release|x64.Build.0 = Release|Win32
+		{C1A6F335-DD39-459B-856D-191144CEDB0E}.Release|x86.ActiveCfg = Release|Win32
+		{C1A6F335-DD39-459B-856D-191144CEDB0E}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,5 +1,7 @@
-#include <stdio.h>
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <memory.h>
+#include <string>
 #include "CHCA.h"
 #include "HcaNative.h"
 #include "Magic.h"
@@ -364,7 +366,7 @@ KS_RESULT CHCA::ConvertData(uint8 *pData, uint32 dwAudioDataSize, uint32 dwDataC
 
     if (!_hcaInfo.loopExists) {
         KS_RESULT result;
-        for (auto i = 0; i < totalBlockCount; ++i) {
+        for (uint32 i = 0; i < totalBlockCount; ++i) {
             if (processedDataSize >= dwAudioDataSize) {
                 return KS_ERR_BUFFER_TOO_SMALL;
             }

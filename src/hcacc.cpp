@@ -1,7 +1,13 @@
+#ifndef _MBCS
+#define _MBCS
+#endif
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
+#include <algorithm>
 #include "hca/hca_info.h"
 #include "hca/CHCA.h"
 

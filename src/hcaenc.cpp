@@ -1,5 +1,8 @@
+#ifndef _MBCS
 #define _MBCS
+#endif
 
+#include "targetver.h"
 #include <iostream>
 #include <windows.h>
 
