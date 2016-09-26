@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 project(hcatools)
 
-set(TARGET_ARCH "x64") # x86 x64
+set(TARGET_ARCH "x86") # x86 x64
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 if (${TARGET_ARCH} STREQUAL "x86")

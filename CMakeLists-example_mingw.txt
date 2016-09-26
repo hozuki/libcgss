@@ -1,18 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 project(hcatools)
 
-set(TARGET_ARCH "x64") # x86 x64
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-if (${TARGET_ARCH} STREQUAL "x86")
-    message(STATUS "Compiling 32-bit (x86) library/executable.")
-    set(CMAKE_C_COMPILER "/usr/bin/i686-pc-cygwin-gcc")
-    set(CMAKE_CXX_COMPILER "/usr/bin/i686-pc-cygwin-g++")
-elseif (${TARGET_ARCH} STREQUAL "x64")
-    message(STATUS "Compiling 64-bit (x64) library/executable.")
-else ()
-    message(FATAL_ERROR "Unsupported architecture: ${TARGET_ARCH}")
-endif ()
 
 #set(COMPILE_WITH_CGSS 1)
 

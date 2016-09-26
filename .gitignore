@@ -5,4 +5,4 @@ _ReSharper*
 /obj/
 src/cgssh.h
 *.VC.db
-*.VC.opendb
+CMakeLists.txt
