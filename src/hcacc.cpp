@@ -7,7 +7,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
+#ifndef __MINGW_H
 #include <algorithm>
+#endif
 #include "hca/hca_info.h"
 #include "hca/CHCA.h"
 
