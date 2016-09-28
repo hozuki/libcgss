@@ -6,7 +6,7 @@
 The project consists of a library (*libcgss*) and several other applications.
 
 - Library
-  - *kawashima*: HCA decoding sub-library.
+  - *kawashima*: HCA decoding sub-library. (transferred from [kawashima](https://github.com/hozuki/kawashima))
 - Applications
   - *hcaenc*: HCA encoding utility.
   - *hcacc*: HCA cipher conversion utility.
