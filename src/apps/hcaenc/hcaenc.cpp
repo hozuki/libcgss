@@ -60,4 +60,12 @@ int main(int argc, const char *argv[]) {
 
 #else
 #warning hcaenc is only supported in 32-bit environments because of hcaenc_lite.dll.
+
+#include <stdio.h>
+
+int main() {
+    printf("hcaenc is only supported in 32-bit environments because of hcaenc_lite.dll.");
+    return 0;
+}
+
 #endif
