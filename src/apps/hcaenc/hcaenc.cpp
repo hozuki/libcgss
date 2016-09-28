@@ -8,8 +8,10 @@
 
 #if (defined(_WIN32) || defined(__CYGWIN__))
 #define __ON_WINDOWS__
+
 #include "../../win_header.h"
 #include <windows.h>
+
 #else
 #define __ON_UNIX__
 #include <dlfcn.h>
@@ -51,7 +53,7 @@ inline HMODULE _LoadLibrary(LPCSTR moduleName) {
 
 inline void *_GetProcAddress(HMODULE module, LPCSTR functionName) {
 #if defined(__ON_WINDOWS__)
-    return GetProcAddress(module, functionName);
+    return (void *)GetProcAddress(module, functionName);
 #elif defined(__ON_UNIX__)
     return dlsym(module, functionName);
 #endif
