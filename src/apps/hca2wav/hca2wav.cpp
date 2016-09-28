@@ -27,12 +27,12 @@ int main(int argc, const char *argv[]) {
     LPWSTR *args = CommandLineToArgvW(commandline, &argc0);
     argv0 = new char *[argc0];
     for (auto i = 0; i < argc0; ++i) {
-        auto num = WideCharToMultiByte(CP_OEMCP, 0, args[i], -1, NULL, 0, NULL, FALSE);
+        auto num = WideCharToMultiByte(CP_OEMCP, 0, args[i], -1, nullptr, 0, nullptr, FALSE);
         argv0[i] = new char[num];
         if (!argv0[i]) {
             delete[] argv0[i];
         }
-        WideCharToMultiByte(CP_OEMCP, 0, args[i], -1, argv0[i], num, NULL, FALSE);
+        WideCharToMultiByte(CP_OEMCP, 0, args[i], -1, argv0[i], num, nullptr, FALSE);
     }
 #else
     argc0 = argc;
