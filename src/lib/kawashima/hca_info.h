@@ -1,14 +1,21 @@
+/*
+ * This program is free software. It comes without any warranty, to
+ * the extent permitted by applicable law. You can redistribute it
+ * and/or modify it under the terms of the Do What The Fuck You Want
+ * To Public License, Version 2, as published by Sam Hocevar. See
+ * http://www.wtfpl.net/ for more details.
+ */
+
 #ifndef KAWASHIMA_HCA_INFO_H
 #define KAWASHIMA_HCA_INFO_H
 
 #include "kstypedef.h"
-#include "hca_info.h"
 
 typedef enum {
     HCA_CIPHER_TYPE_NO_CIPHER = 0,
     HCA_CIPHER_TYPE_STATIC = 1,
     HCA_CIPHER_TYPE_WITH_KEY = 0x38,
-    HCA_CIPHER_TYPE_FORCE_DWORD = (uint32)0xffffffff
+    HCA_CIPHER_TYPE_FORCE_DWORD = 0xffffffff
 } HCA_CIPHER_TYPE;
 
 typedef struct _HCA_INFO {
@@ -76,7 +83,14 @@ typedef struct _HCA_INFO {
     uint16 loopR01, loopR02;
 } HCA_INFO;
 
-typedef struct _HCA_CRYPT_CONFIG {
+typedef struct _HCA_CIPHER_CONFIG {
+
+    _HCA_CIPHER_CONFIG();
+
+    _HCA_CIPHER_CONFIG(uint32 key1, uint32 key2);
+
+    _HCA_CIPHER_CONFIG(uint64 key);
+
     union {
         struct {
             uint32 key2;
@@ -84,7 +98,9 @@ typedef struct _HCA_CRYPT_CONFIG {
         } keyParts;
         uint64 key;
     };
+
     HCA_CIPHER_TYPE cipherType;
+
 } HCA_CIPHER_CONFIG;
 
 #endif //KAWASHIMA_HCA_INFO_H

@@ -2,14 +2,30 @@
 
 #include <memory.h>
 #include <string>
-#include "CHCA.h"
+#include "CHcaDecoder.h"
 #include "HcaNative.h"
 #include "Magic.h"
-#include "internal/CHcaData.h"
+#include "WaveGen.h"
+#include "../wave/WaveNative.h"
+
+typedef struct _WAVE_SETTINGS {
+    /**
+     * Bit per channel. Future acceptable values will be 8, 16, 24, 32 and 0 (floating point wave data).
+     */
+    uint32 bitPerChannel;
+    ubool useLoop;
+} WAVE_SETTINGS;
+
+static WAVE_SETTINGS waveSettings = {16, FALSE};
 
 template<typename T>
 void clone(const T &src, T &dst) {
     memcpy(&dst, &src, sizeof(T));
+}
+
+template<typename T>
+T clamp(T value, T min, T max) {
+    return value < min ? min : (value > max ? max : value);
 }
 
 inline int16 bswap(int16 v) {
@@ -117,7 +133,7 @@ inline uint32 ceil2(uint32 a, uint32 b) {
     return (b > 0) ? (a / b + ((a % b) ? 1 : 0)) : 0;
 }
 
-const uint16 *CHCA::ChecksumTable = new uint16[256]{
+const uint16 *CHcaDecoder::ChecksumTable = new uint16[256]{
         0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
         0x8033, 0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022,
         0x8063, 0x0066, 0x006C, 0x8069, 0x0078, 0x807D, 0x8077, 0x0072,
@@ -152,14 +168,22 @@ const uint16 *CHCA::ChecksumTable = new uint16[256]{
         0x8213, 0x0216, 0x021C, 0x8219, 0x0208, 0x820D, 0x8207, 0x0202,
 };
 
-CHCA::CHCA(HCA_CIPHER_CONFIG &cryptFrom, HCA_CIPHER_CONFIG &cryptTo) :
-        _cipherFrom(), _cipherTo() {
+CHcaDecoder::CHcaDecoder()
+        : CHcaDecoder(HCA_CIPHER_CONFIG()) {
+}
+
+CHcaDecoder::CHcaDecoder(const HCA_CIPHER_CONFIG &crypt)
+        : CHcaDecoder(crypt, HCA_CIPHER_CONFIG()) {
+}
+
+CHcaDecoder::CHcaDecoder(const HCA_CIPHER_CONFIG &cryptFrom, const HCA_CIPHER_CONFIG &cryptTo)
+        : _cipherFrom(), _cipherTo() {
     clone(cryptFrom, _ccFrom);
     clone(cryptTo, _ccTo);
     memset(&_hcaInfo, 0, sizeof(HCA_INFO));
 }
 
-uint16 CHCA::Checksum(void *pData, uint32 dwDataSize, uint16 wInitSum) {
+uint16 CHcaDecoder::Checksum(void *pData, uint32 dwDataSize, uint16 wInitSum) {
     uint8 *p = (uint8 *)pData;
     for (uint32 i = 0; i < dwDataSize; ++i, ++p) {
         wInitSum = (wInitSum << 8) ^ ChecksumTable[(wInitSum >> 8) ^ *p];
@@ -167,23 +191,31 @@ uint16 CHCA::Checksum(void *pData, uint32 dwDataSize, uint16 wInitSum) {
     return wInitSum;
 }
 
-KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffset) {
-    if (!pData || !pdwDataOffset) {
+KS_RESULT CHcaDecoder::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffset) {
+    KS_DECODE_STATUS decodeStatus;
+    memset(&decodeStatus, 0, sizeof(KS_DECODE_STATUS));
+    auto result = ReadHeader(pData, dwFileSize, &decodeStatus);
+    *pdwDataOffset = KS_CALL_SUCCESSFUL(result) ? decodeStatus.dataCursor : 0;
+    return result;
+}
+
+KS_RESULT CHcaDecoder::ReadHeader(uint8 *pFileData, uint32 dwDataSize, KS_DECODE_STATUS *pStatus) {
+    if (!pFileData || !pStatus) {
         return KS_ERR_INVALID_PARAMETER;
     }
-    if (dwFileSize < sizeof(HCA_HEADER)) {
+    if (dwDataSize < sizeof(HCA_HEADER)) {
         return KS_ERR_INVALID_PARAMETER;
     }
-    uint32 cursor = 0;
+    uint32 cursor = pStatus->dataCursor;
 
     // Check HCA header (of the whole file).
-    HCA_HEADER *hca = (HCA_HEADER *)(pData + cursor);
+    HCA_HEADER *hca = (HCA_HEADER *)(pFileData + cursor);
     if (!Magic::Match(hca->hca, Magic::HCA)) {
         return KS_ERR_MAGIC_NOT_MATCH;
     }
     // The file must be bigger than a raw HCA header.
     uint32 dataOffset = bswap(hca->dataOffset);
-    if (dwFileSize < dataOffset) {
+    if (dwDataSize < dataOffset) {
         return KS_ERR_INVALID_PARAMETER;
     }
     uint16 fileVersion = bswap(hca->version);
@@ -196,7 +228,7 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
     cursor += sizeof(HCA_HEADER);
 
     // FMT
-    HCA_FORMAT *fmt = (HCA_FORMAT *)(pData + cursor);
+    HCA_FORMAT *fmt = (HCA_FORMAT *)(pFileData + cursor);
     if (!Magic::Match(fmt->fmt, Magic::FORMAT)) {
         return KS_ERR_MAGIC_NOT_MATCH;
     }
@@ -214,8 +246,8 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
     cursor += sizeof(HCA_FORMAT);
 
     // COMP or DEC
-    if (Magic::Match(*((uint32 *)(pData + cursor)), Magic::COMPRESS)) {
-        HCA_COMPRESS *comp = (HCA_COMPRESS *)(pData + cursor);
+    if (Magic::Match(*((uint32 *)(pFileData + cursor)), Magic::COMPRESS)) {
+        HCA_COMPRESS *comp = (HCA_COMPRESS *)(pFileData + cursor);
         _hcaInfo.blockSize = bswap(comp->blockSize);
         _hcaInfo.compR01 = comp->r01;
         _hcaInfo.compR02 = comp->r02;
@@ -232,8 +264,8 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
             return KS_ERR_INVALID_INTERNAL_STATE;
         }
         cursor += sizeof(HCA_COMPRESS);
-    } else if (Magic::Match(*((uint32 *)(pData + cursor)), Magic::DECODE)) {
-        HCA_DECODE *dec = (HCA_DECODE *)(pData + cursor);
+    } else if (Magic::Match(*((uint32 *)(pFileData + cursor)), Magic::DECODE)) {
+        HCA_DECODE *dec = (HCA_DECODE *)(pFileData + cursor);
         _hcaInfo.blockSize = bswap(dec->blockSize);
         _hcaInfo.compR01 = dec->r01;
         _hcaInfo.compR02 = dec->r02;
@@ -258,7 +290,7 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
     }
 
     // VBR
-    HCA_VBR *vbr = (HCA_VBR *)(pData + cursor);
+    HCA_VBR *vbr = (HCA_VBR *)(pFileData + cursor);
     if (Magic::Match(vbr->vbr, Magic::VBR)) {
         _hcaInfo.vbrR01 = bswap(vbr->r01);
         _hcaInfo.vbrR02 = bswap(vbr->r02);
@@ -268,7 +300,7 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
     }
 
     // ATH
-    HCA_ATH *ath = (HCA_ATH *)(pData + cursor);
+    HCA_ATH *ath = (HCA_ATH *)(pFileData + cursor);
     if (Magic::Match(ath->ath, Magic::ATH)) {
         _hcaInfo.athType = ath->type;
         cursor += sizeof(HCA_ATH);
@@ -277,7 +309,7 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
     }
 
     // LOOP
-    HCA_LOOP *loop = (HCA_LOOP *)(pData + cursor);
+    HCA_LOOP *loop = (HCA_LOOP *)(pFileData + cursor);
     if (Magic::Match(loop->loop, Magic::LOOP)) {
         _hcaInfo.loopExists = TRUE;
         _hcaInfo.loopStart = bswap(loop->loopStart);
@@ -297,7 +329,7 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
     }
 
     // CIPH
-    HCA_CIPHER *ciph = (HCA_CIPHER *)(pData + cursor);
+    HCA_CIPHER *ciph = (HCA_CIPHER *)(pFileData + cursor);
     if (Magic::Match(ciph->ciph, Magic::CIPHER)) {
         _hcaInfo.cipherType = (HCA_CIPHER_TYPE)bswap(ciph->type);
         if (!(_hcaInfo.cipherType == HCA_CIPHER_TYPE_NO_CIPHER || _hcaInfo.cipherType == HCA_CIPHER_TYPE_STATIC ||
@@ -310,7 +342,7 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
     }
 
     // RVA
-    HCA_RVA *rva = (HCA_RVA *)(pData + cursor);
+    HCA_RVA *rva = (HCA_RVA *)(pFileData + cursor);
     if (Magic::Match(rva->rva, Magic::RVA)) {
         _hcaInfo.rvaVolume = bswap(rva->volume);
         cursor += sizeof(HCA_RVA);
@@ -319,7 +351,7 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
     }
 
     // COMM
-    HCA_COMMENT *comment = (HCA_COMMENT *)(pData + cursor);
+    HCA_COMMENT *comment = (HCA_COMMENT *)(pFileData + cursor);
     if (Magic::Match(comment->comm, Magic::COMMENT)) {
         _hcaInfo.commentLength = comment->len;
         memset(_hcaInfo.comment, 0, 0x100);
@@ -330,7 +362,10 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
         memset(_hcaInfo.comment, 0, 0x100);
     }
 
-    // Initialize cipher tables.
+    // Initialize adjustment and cipher tables.
+    if (!_ath.Init(_hcaInfo.athType, _hcaInfo.samplingRate)) {
+        return KS_ERR_ATH_INIT_FAILED;
+    }
     if (!_cipherFrom.Init((HCA_CIPHER_TYPE)_hcaInfo.cipherType, _ccFrom.keyParts.key1, _ccFrom.keyParts.key2)) {
         return KS_ERR_CIPH_INIT_FAILED;
     }
@@ -343,17 +378,264 @@ KS_RESULT CHCA::ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffse
     }
 
     // Prepare the channel decoders.
+    memset(_channels, 0, sizeof(_channels));
     if (!(_hcaInfo.compR01 == 1 && _hcaInfo.compR02 == 0xf)) {
         return KS_ERR_INVALID_INTERNAL_STATE;
     }
     _hcaInfo.compR09 = ceil2(_hcaInfo.compR05 - (_hcaInfo.compR06 + _hcaInfo.compR07), _hcaInfo.compR08);
+    uint8 r[0x10];
+    memset(r, 0, 0x10);
+    uint32 b = _hcaInfo.channelCount / _hcaInfo.compR03;
+    if (_hcaInfo.compR07 && b > 1) {
+        uint8 *c = r;
+        for (auto i = 0; i < _hcaInfo.compR03; ++i, c += b) {
+            switch (b) {
+                case 2:
+                case 3:
+                    c[0] = 1;
+                    c[1] = 2;
+                    break;
+                case 4:
+                    c[0] = 1;
+                    c[1] = 2;
+                    if (_hcaInfo.compR04 == 0) {
+                        c[2] = 1;
+                        c[3] = 2;
+                    }
+                    break;
+                case 5:
+                    c[0] = 1;
+                    c[1] = 2;
+                    if (_hcaInfo.compR04 <= 2) {
+                        c[3] = 1;
+                        c[4] = 2;
+                    }
+                    break;
+                case 6:
+                case 7:
+                    c[0] = 1;
+                    c[1] = 2;
+                    c[4] = 1;
+                    c[5] = 2;
+                    // Fall through
+                case 8:
+                    c[6] = 1;
+                    c[7] = 2;
+                    break;
+                default:
+                    return KS_ERR_STATE_OUT_OF_RANGE;
+            }
+        }
+    }
+    for (auto i = 0; i < _hcaInfo.channelCount; ++i) {
+        _channels[i].type = r[i];
+        _channels[i].value3 = &_channels[i].value[_hcaInfo.compR06 + _hcaInfo.compR07];
+        _channels[i].count = _hcaInfo.compR06 + ((r[i] != 2) ? _hcaInfo.compR07 : 0);
+    }
 
-    *pdwDataOffset = dataOffset;
+    pStatus->dataCursor = dataOffset;
+    return KS_ERR_OK;
+}
+
+KS_RESULT CHcaDecoder::GetInfo(HCA_INFO &info) const {
+    return GetInfo(&info);
+}
+
+KS_RESULT CHcaDecoder::GetInfo(HCA_INFO *pInfo) const {
+    if (pInfo == nullptr) {
+        return KS_ERR_INVALID_PARAMETER;
+    }
+    memcpy(pInfo, &_hcaInfo, sizeof(HCA_INFO));
+    return KS_ERR_OK;
+}
+
+KS_RESULT CHcaDecoder::GetWaveHeader(uint8 *pBuffer, uint32 *pdwWaveHeaderSize) {
+    if (!pdwWaveHeaderSize) {
+        return KS_ERR_INVALID_PARAMETER;
+    }
+
+    int loopCount = 0;
+    WaveRiffSection wavRiff = {'R', 'I', 'F', 'F', 0, 'W', 'A', 'V', 'E', 'f', 'm', 't', ' ', 0x10, 0, 0, 0, 0, 0, 0};
+    WaveSampleSection wavSmpl = {'s', 'm', 'p', 'l', 0x3C, 0, 0, 0, 0x3C, 0, 0, 0, 1, 0x18, 0, 0, 0, 0, 0, 0};
+    WaveNoteSection wavNote = {'n', 'o', 't', 'e', 0, 0};
+    WaveDataSection wavData = {'d', 'a', 't', 'a', 0};
+    wavRiff.fmtType = (uint16)((waveSettings.bitPerChannel > 0) ? 1 : 3);
+    wavRiff.fmtChannelCount = (uint16)_hcaInfo.channelCount;
+    wavRiff.fmtBitCount = (uint16)((waveSettings.bitPerChannel > 0) ? waveSettings.bitPerChannel : 32);
+    wavRiff.fmtSamplingRate = _hcaInfo.samplingRate;
+    wavRiff.fmtSamplingSize = (uint16)(wavRiff.fmtBitCount / 8 * wavRiff.fmtChannelCount);
+    wavRiff.fmtSamplesPerSec = wavRiff.fmtSamplingRate * wavRiff.fmtSamplingSize;
+    if (_hcaInfo.loopExists) {
+        wavSmpl.samplePeriod = (uint32)(1 / (double)wavRiff.fmtSamplingRate * 1000000000);
+        wavSmpl.loopStart = _hcaInfo.loopStart * 0x80 * 8 * wavRiff.fmtSamplingSize;
+        wavSmpl.loopEnd = _hcaInfo.loopEnd * 0x80 * 8 * wavRiff.fmtSamplingSize;
+        wavSmpl.loopPlayCount = (_hcaInfo.loopR01 == 0x80) ? 0 : _hcaInfo.loopR01;
+    } else if (waveSettings.useLoop) {
+        wavSmpl.loopStart = 0;
+        wavSmpl.loopEnd = _hcaInfo.blockCount * 0x80 * 8 * wavRiff.fmtSamplingSize;
+        _hcaInfo.loopStart = 0;
+        _hcaInfo.loopEnd = _hcaInfo.blockCount;
+    }
+    if (_hcaInfo.commentLength > 0) {
+        wavNote.noteSize = 4 + _hcaInfo.commentLength + 1;
+        if (wavNote.noteSize & 3) {
+            wavNote.noteSize += 4 - (wavNote.noteSize & 3);
+        }
+    }
+    wavData.dataSize = _hcaInfo.blockCount * 0x80 * 8 * wavRiff.fmtSamplingSize +
+                       (wavSmpl.loopEnd - wavSmpl.loopStart) * loopCount;
+    wavRiff.riffSize = (uint32)(0x1C + ((_hcaInfo.loopExists && !waveSettings.useLoop) ? sizeof(wavSmpl) : 0) +
+                                (_hcaInfo.commentLength > 0 ? 8 + wavNote.noteSize : 0) + sizeof(wavData) +
+                                wavData.dataSize);
+
+    uint32 sizeNeeded = (uint32)sizeof(WaveRiffSection);
+    if (_hcaInfo.loopExists && !waveSettings.useLoop) {
+        sizeNeeded += sizeof(WaveSampleSection);
+    }
+    if (_hcaInfo.commentLength > 0) {
+        sizeNeeded += 8 + wavNote.noteSize;
+    }
+    sizeNeeded += sizeof(WaveDataSection);
+
+    // Only computes the needed size of the buffer, and returns.
+    if (pBuffer == NULL) {
+        *pdwWaveHeaderSize = sizeNeeded;
+        return KS_ERR_OK;
+    } else {
+        ubool bufferLargeEnough = (ubool)(*pdwWaveHeaderSize >= sizeNeeded);
+        if (bufferLargeEnough) {
+            uint32 cursor = 0;
+#define WRITE_STRUCT(src, size) memcpy(pBuffer + cursor, src, size); cursor += size
+            WRITE_STRUCT(&wavRiff, sizeof(WaveRiffSection));
+            if (_hcaInfo.loopExists && !waveSettings.useLoop) {
+                WRITE_STRUCT(&wavSmpl, sizeof(WaveSampleSection));
+            }
+            if (_hcaInfo.commentLength > 0) {
+                uint32 address = cursor;
+                WRITE_STRUCT(&wavNote, sizeof(WaveNoteSection));
+                strcpy((char *)(pBuffer + cursor), _hcaInfo.comment);
+                pBuffer[cursor + _hcaInfo.commentLength] = '\0';
+                cursor = address + 8 + wavNote.noteSize;
+            }
+            WRITE_STRUCT(&wavData, sizeof(WaveDataSection));
+#undef WRITE_STRUCT
+        }
+        *pdwWaveHeaderSize = sizeNeeded;
+        return bufferLargeEnough ? KS_ERR_OK : KS_ERR_BUFFER_TOO_SMALL;
+    }
+}
+
+KS_RESULT CHcaDecoder::DecodeData(uint8 *pData, uint32 dwDataSize, KS_DECODE_STATUS *status, uint8 *pWaveData,
+                                  uint32 *pdwWaveDataSize, ubool *pbHasMore) {
+    if (!pData || !status || !pdwWaveDataSize || !pbHasMore) {
+        return KS_ERR_INVALID_PARAMETER;
+    }
+    uint32 audioBPC = waveSettings.bitPerChannel != 0 ? waveSettings.bitPerChannel : sizeof(float);
+    uint32 waveBlockSize = 0x80 * (audioBPC / sizeof(uint8)) * _hcaInfo.channelCount;
+
+    // The consumer just want to check the minimum acceptable buffer size.
+    if (pWaveData == NULL) {
+        *pdwWaveDataSize = waveBlockSize;
+        *pbHasMore = FALSE;
+        return KS_ERR_OK;
+    }
+
+    if (*pdwWaveDataSize <= waveBlockSize) {
+        return KS_ERR_BUFFER_TOO_SMALL;
+    }
+    if (status->blockIndex >= _hcaInfo.blockCount) {
+        return KS_ERR_DECODE_ALREADY_COMPLETED;
+    }
+    uint32 blocksProcessableThisRound = *pdwWaveDataSize / waveBlockSize;
+
+    if (!waveSettings.useLoop && !_hcaInfo.loopExists) {
+        uint32 bufferCursor = 0;
+        if (status->blockIndex + blocksProcessableThisRound >= _hcaInfo.blockCount) {
+            blocksProcessableThisRound = _hcaInfo.blockCount - status->blockIndex;
+            *pbHasMore = FALSE;
+        } else {
+            *pbHasMore = TRUE;
+        }
+        KS_RESULT result;
+        for (auto i = 0; i < blocksProcessableThisRound; ++i) {
+            result = GenerateWaveDataBlock(pData, _hcaInfo.blockSize, &status->dataCursor, pWaveData, &bufferCursor,
+                                           WaveGen::Decode16Bit);
+            if (!KS_CALL_SUCCESSFUL(result)) {
+                return result;
+            }
+        }
+        status->blockIndex += blocksProcessableThisRound;
+        *pdwWaveDataSize = bufferCursor;
+    } else {
+        return KS_ERR_NOT_IMPLEMENTED;
+    }
 
     return KS_ERR_OK;
 }
 
-KS_RESULT CHCA::ConvertData(uint8 *pData, uint32 dwAudioDataSize, uint32 dwDataCursor) {
+KS_RESULT CHcaDecoder::GenerateWaveDataBlock(uint8 *pData, uint32 dwBlockSize, uint32 *pDataCursor, uint8 *pBuffer,
+                                             uint32 *pBufferCursor, DecodeFunc pfnDecodeFunc) {
+    if (!pData || !pDataCursor || !pBuffer || !pBufferCursor || !pfnDecodeFunc) {
+        return KS_ERR_INVALID_PARAMETER;
+    }
+    KS_RESULT result = DecodeBlock(pData, dwBlockSize, pDataCursor);
+    if (!KS_CALL_SUCCESSFUL(result)) {
+        return result;
+    }
+    float f;
+    for (auto i = 0; i < 8; ++i) {
+        for (auto j = 0; j < 0x80; ++j) {
+            for (auto k = 0; k < _hcaInfo.channelCount; ++k) {
+                f = _channels[k].wave[i][j] * _hcaInfo.rvaVolume;
+                f = clamp(f, -1.0f, 1.0f);
+                pfnDecodeFunc(f, pBuffer, pBufferCursor);
+            }
+        }
+    }
+    return KS_ERR_OK;
+}
+
+KS_RESULT CHcaDecoder::DecodeBlock(uint8 *pData, uint32 dwBlockSize, uint32 *pDataCursor) {
+    if (!pData || !pDataCursor) {
+        return KS_ERR_INVALID_PARAMETER;
+    }
+    if (dwBlockSize != _hcaInfo.blockSize) {
+        return KS_ERR_INVALID_PARAMETER;
+    }
+    if (Checksum(pData + *pDataCursor, dwBlockSize, 0) != 0) {
+        return KS_ERR_CHECKSUM_NOT_MATCH;
+    }
+    _cipherFrom.Decrypt(pData + *pDataCursor, dwBlockSize);
+    CHcaData data(pData + *pDataCursor, dwBlockSize);
+    int32 magic = data.GetBit(16);
+    if (magic == 0xffff) {
+        int32 a = (data.GetBit(9) << 8) - data.GetBit(7);
+        for (auto i = 0; i < _hcaInfo.channelCount; ++i) {
+            _channels[i].Decode1(&data, _hcaInfo.compR09, a, _ath.GetTable());
+        }
+        for (auto i = 0; i < 8; ++i) {
+            for (auto j = 0; j < _hcaInfo.channelCount; ++j) {
+                _channels[j].Decode2(&data);
+            }
+            for (auto j = 0; j < _hcaInfo.channelCount; ++j) {
+                _channels[j].Decode3(_hcaInfo.compR09, _hcaInfo.compR08, _hcaInfo.compR07 + _hcaInfo.compR06,
+                                     _hcaInfo.compR05);
+            }
+            for (auto j = 0; j < _hcaInfo.channelCount - 1; ++j) {
+                _channels[j].Decode4(i, _hcaInfo.compR05 - _hcaInfo.compR06, _hcaInfo.compR06, _hcaInfo.compR07);
+            }
+            for (auto j = 0; j < _hcaInfo.channelCount; ++j) {
+                _channels[j].Decode5(i);
+            }
+        }
+    } else {
+        return KS_ERR_MAGIC_NOT_MATCH;
+    }
+    *pDataCursor += dwBlockSize;
+    return KS_ERR_OK;
+}
+
+KS_RESULT CHcaDecoder::ConvertData(uint8 *pData, uint32 dwAudioDataSize, uint32 dwDataCursor) {
     if (!pData) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -384,7 +666,7 @@ KS_RESULT CHCA::ConvertData(uint8 *pData, uint32 dwAudioDataSize, uint32 dwDataC
     return KS_ERR_OK;
 }
 
-KS_RESULT CHCA::ConvertBlock(uint8 *pData, uint32 dwBlockSize) {
+KS_RESULT CHcaDecoder::ConvertBlock(uint8 *pData, uint32 dwBlockSize) {
     if (!pData) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -409,7 +691,7 @@ KS_RESULT CHCA::ConvertBlock(uint8 *pData, uint32 dwBlockSize) {
     return KS_ERR_OK;
 }
 
-KS_RESULT CHCA::FixBlock(uint8 *pData, uint32 dwBlockSize) {
+KS_RESULT CHcaDecoder::FixBlock(uint8 *pData, uint32 dwBlockSize) {
     if (!pData) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -421,7 +703,8 @@ KS_RESULT CHCA::FixBlock(uint8 *pData, uint32 dwBlockSize) {
     return KS_ERR_OK;
 }
 
-KS_RESULT CHCA::SetNewCipherType(uint8 *pData, uint32 dwFileSize, HCA_CIPHER_TYPE cipherType, uint32 dwDataOffset) {
+KS_RESULT
+CHcaDecoder::SetNewCipherType(uint8 *pData, uint32 dwFileSize, HCA_CIPHER_TYPE cipherType, uint32 dwDataOffset) {
     if (!pData) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -491,7 +774,7 @@ KS_RESULT CHCA::SetNewCipherType(uint8 *pData, uint32 dwFileSize, HCA_CIPHER_TYP
     return FixHeader(pData, dwFileSize, dwDataOffset);
 }
 
-KS_RESULT CHCA::FixHeader(uint8 *pData, uint32 dwFileSize, uint32 dwDataOffset) {
+KS_RESULT CHcaDecoder::FixHeader(uint8 *pData, uint32 dwFileSize, uint32 dwDataOffset) {
     if (dwFileSize < dwDataOffset) {
         return KS_ERR_INVALID_PARAMETER;
     }

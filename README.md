@@ -6,8 +6,9 @@
 The project consists of a library (*libcgss*) and several other applications.
 
 - Library
+  - *kawashima*: HCA decoding sub-library.
 - Applications
-  - *hcaenc*: HCA encoder utility.
+  - *hcaenc*: HCA encoding utility.
   - *hcacc*: HCA cipher conversion utility.
 
 This project is written in C/C++, compared to C# of its sister project [**DereTore**](https://github.com/hozuki/DereTore),

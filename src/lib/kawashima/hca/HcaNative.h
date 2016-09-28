@@ -1,7 +1,15 @@
+/*
+ * This program is free software. It comes without any warranty, to
+ * the extent permitted by applicable law. You can redistribute it
+ * and/or modify it under the terms of the Do What The Fuck You Want
+ * To Public License, Version 2, as published by Sam Hocevar. See
+ * http://www.wtfpl.net/ for more details.
+ */
+
 #ifndef KAWASHIMA_HCANATIVE_H
 #define KAWASHIMA_HCANATIVE_H
 
-#include "kstypedef.h"
+#include "../kstypedef.h"
 
 /**
  * File information (required)
@@ -259,17 +267,7 @@ struct HCA_COMMENT {
      * Comment length?
      */
     uint8 len;
-#ifdef _MSC_VER
-	// "not a standard: zero sized object array"
-#pragma warning(disable:4200)
-#endif
-	/**
-	 * Comment?
-	 */
     char comment[0];
-#ifdef _MSC_VER
-#pragma warning(default:4200)
-#endif
 };
 
 /**

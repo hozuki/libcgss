@@ -1,20 +1,41 @@
 cmake_minimum_required(VERSION 3.3)
-project(libcgss)
+project(cgss)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(HCA_SOURCE_FILES
-        src/apps/hca/CHCA.cpp src/apps/hca/CHCA.h src/apps/hca/hca_info.h src/apps/hca/HcaNative.h src/apps/hca/kstypedef.h
-        src/apps/hca/Magic.cpp src/apps/hca/Magic.h src/apps/hca/internal/CHcaCipher.cpp src/apps/hca/internal/CHcaCipher.h
-        src/apps/hca/internal/CHcaData.cpp src/apps/hca/internal/CHcaData.h)
-set(HCACC_SOURCE_FILES src/apps/hcacc/hcacc.cpp src/apps/hcacc/cgssh.h ${HCA_SOURCE_FILES})
-set(HCAENC_SOURCE_FILES src/apps/hcaenc/hcaenc.cpp src/win_header.h)
+set(POLYFILL_SOURCE_FILES
+        src/polyfill/io.h src/polyfill/io.cpp src/polyfill/dl.h src/polyfill/dl.cpp src/polyfill/polyfill.h)
+set(LIBCGSS_SOURCE_FILES
+        # kawashima
+        src/lib/kawashima/kstypedef.h src/lib/kawashima/hca/CHcaDecoder.h src/lib/kawashima/hca/CHcaDecoder.cpp src/lib/kawashima/hca/HcaNative.h
+        src/lib/kawashima/hca/internal/CHcaCipher.cpp src/lib/kawashima/hca/internal/CHcaCipher.h src/lib/kawashima/hca/internal/CHcaAth.cpp
+        src/lib/kawashima/hca/internal/CHcaAth.h src/lib/kawashima/hca/internal/CHcaData.cpp src/lib/kawashima/hca/internal/CHcaData.h
+        src/lib/kawashima/hca/internal/HcaChannel.cpp src/lib/kawashima/hca/internal/HcaChannel.h src/lib/kawashima/hca/Magic.cpp
+        src/lib/kawashima/hca/Magic.h src/lib/kawashima/hca/WaveGen.h src/lib/kawashima/hca/WaveGen.cpp
+        src/lib/kawashima/wave/WaveNative.h src/lib/kawashima/api/ksapi.cpp src/lib/kawashima/api/hca_info.cpp
+        src/lib/kawashima/ksapi.h src/lib/kawashima/api/ks_decode.h src/lib/kawashima/hca_info.h
+        ${POLYFILL_SOURCE_FILES})
+set(HCACC_SOURCE_FILES
+        src/apps/hcacc/hcacc.cpp src/apps/cgssh.h ${LIBCGSS_SOURCE_FILES})
+set(HCAENC_SOURCE_FILES
+        src/apps/hcaenc/hcaenc.cpp ${POLYFILL_SOURCE_FILES})
+set(HCA2WAV_SOURCE_FILES
+        src/apps/hca2wav/hca2wav.cpp ${LIBCGSS_SOURCE_FILES})
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
 set(PROJECT_VERSION_TWEAK 0)
 set(PROJECT_VERSION_PATCH 0)
 
+# http://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
+if (${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS})
+    # using GCC
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--kill-at")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--kill-at")
+endif ()
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${TARGET_ARCH}/${CMAKE_BUILD_TYPE}")
 add_executable(hcacc ${HCACC_SOURCE_FILES})
 add_executable(hcaenc ${HCAENC_SOURCE_FILES})
+add_executable(hca2wav ${HCA2WAV_SOURCE_FILES})
+add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})

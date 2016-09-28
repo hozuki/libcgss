@@ -1,3 +1,11 @@
+/*
+ * This program is free software. It comes without any warranty, to
+ * the extent permitted by applicable law. You can redistribute it
+ * and/or modify it under the terms of the Do What The Fuck You Want
+ * To Public License, Version 2, as published by Sam Hocevar. See
+ * http://www.wtfpl.net/ for more details.
+ */
+
 #ifndef KAWASHIMA_KSTYPEDEF_H
 #define KAWASHIMA_KSTYPEDEF_H
 
@@ -48,30 +56,5 @@ typedef uint32 ubool;
 #ifndef FALSE
 #define FALSE ((ubool)0)
 #endif
-
-typedef enum {
-    KS_OP_HAS_MORE_DATA = 1,
-    KS_ERR_OK = 0,
-    KS_ERR_INVALID_HANDLE = (int32)-1,
-    KS_ERR_MAGIC_NOT_MATCH = (int32)-2,
-    KS_ERR_ALREADY_CLOSED = (int32)-3,
-    KS_ERR_INVALID_PARAMETER = (int32)-4,
-    KS_ERR_INVALID_STAGE = (int32)-5,
-    KS_ERR_FILE_OP_FAILED = (int32)-6,
-    KS_ERR_INVALID_FILE_PROP = (int32)-7,
-    KS_ERR_INVALID_OPERATION = (int32)-8,
-    KS_ERR_DECODE_FAILED = (int32)-9,
-    KS_ERR_BUFFER_TOO_SMALL = (int32)-10,
-    KS_ERR_CHECKSUM_NOT_MATCH = (int32)-11,
-    KS_ERR_INVALID_INTERNAL_STATE = (int32)-12,
-    KS_ERR_ATH_INIT_FAILED = (int32)-13,
-    KS_ERR_CIPH_INIT_FAILED = (int32)-14,
-    KS_ERR_STATE_OUT_OF_RANGE = (int32)-15,
-    KS_ERR_NOT_IMPLEMENTED = (int32)-16,
-    KS_ERR_DECODE_ALREADY_COMPLETED = (int32)-17,
-    KS_ERR_FORCE_DWORD = (int32)0xffffffff
-} KS_RESULT;
-
-#define KS_CALL_SUCCESSFUL(x) ((ubool)(((int32)x) >= 0))
 
 #endif //KAWASHIMA_COMMON_H

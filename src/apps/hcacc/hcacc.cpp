@@ -14,15 +14,15 @@
 
 #endif
 
-#include "../hca/hca_info.h"
-#include "../hca/CHCA.h"
+#include "../../lib/kawashima/hca_info.h"
+#include "../../lib/kawashima/hca/CHcaDecoder.h"
 
 using namespace std;
 
 #define COMPILE_WITH_CGSS
 #ifdef COMPILE_WITH_CGSS
 
-#include "cgssh.h"
+#include "../cgssh.h"
 
 #endif
 
@@ -53,7 +53,7 @@ int main(int argc, const char *argv[]) {
     FILE *fp;
     long fileSize;
     uint8 *buf = nullptr;
-    CHCA *hca;
+    CHcaDecoder *hca;
     const char *fileFrom, *fileTo;
 
     memset(&ccFrom, 0, sizeof(HCA_CIPHER_CONFIG));
@@ -85,10 +85,10 @@ int main(int argc, const char *argv[]) {
     fread(buf, (size_t)fileSize, 1, fp);
     fclose(fp);
 
-    hca = new CHCA(ccFrom, ccTo);
+    hca = new CHcaDecoder(ccFrom, ccTo);
 
-    uint32 dataOffset = 0;
     KS_RESULT result = KS_ERR_OK;
+    uint32 dataOffset = 0;
     if (KS_CALL_SUCCESSFUL(result)) {
         result = hca->ReadHeader(buf, (uint32)fileSize, &dataOffset);
     }
