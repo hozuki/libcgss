@@ -2,7 +2,7 @@
 #define CGSS_IO_H
 
 #include "polyfill.h"
-#include <stdlib.h>
+#include <stdio.h>
 
 #ifdef __ON_UNIX__
 

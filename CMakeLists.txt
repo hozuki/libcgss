@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.3)
 project(cgss)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(TARGET_ARCH x64)
-#set(TARGET_ARCH x86)
+#set(TARGET_ARCH x64)
+set(TARGET_ARCH x86)
 
 set(POLYFILL_SOURCE_FILES
         src/polyfill/io.h src/polyfill/io.cpp src/polyfill/dl.h src/polyfill/dl.cpp src/polyfill/polyfill.h)
@@ -30,29 +30,42 @@ set(PROJECT_VERSION_TWEAK 0)
 set(PROJECT_VERSION_PATCH 0)
 
 if ("${CYGWIN}" OR "${MINGW}")
+    # http://stackoverflow.com/questions/12921911/mingw-libgcc-s-sjlj-1-dll-is-missing
+    # However, these options will only work if putting them here, not in 'compiler is gnu c' section.
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libgcc")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
-    # Force using MinGW even though compiling via Cygwin (please install the packages)
-    if (${TARGET_ARCH} STREQUAL "x86")
-        set(CMAKE_C_COMPILER /usr/bin/i686-w64-mingw32-gcc)
-        set(CMAKE_CXX_COMPILER /usr/bin/i686-w64-mingw32-g++)
-    elseif (${TARGET_ARCH} STREQUAL "x64")
-        set(CMAKE_C_COMPILER /usr/bin/x86_64-w64-mingw32-gcc)
-        set(CMAKE_CXX_COMPILER /usr/bin/x86_64-w64-mingw32-g++)
+    if ("${CYGWIN}")
+        # Force using MinGW even though compiling via Cygwin (please install the packages)
+        if (${TARGET_ARCH} STREQUAL "x86")
+            set(CMAKE_C_COMPILER /usr/bin/i686-w64-mingw32-gcc)
+            set(CMAKE_CXX_COMPILER /usr/bin/i686-w64-mingw32-g++)
+        elseif (${TARGET_ARCH} STREQUAL "x64")
+            set(CMAKE_C_COMPILER /usr/bin/x86_64-w64-mingw32-gcc)
+            set(CMAKE_CXX_COMPILER /usr/bin/x86_64-w64-mingw32-g++)
+        else ()
+            message(FATAL_ERROR "Unrecognized target architecture '${TARGET_ARCH}'.")
+        endif ()
     else ()
-        message(FATAL_ERROR "Unrecognized target architecture '${TARGET_ARCH}'.")
+        if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
+            set(TARGET_ARCH x86)
+        elseif (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+            set(TARGET_ARCH x64)
+        else ()
+            message(FATAL_ERROR "Unknown pointer size: ${CMAKE_SIZEOF_VOID_P}")
+        endif ()
     endif ()
 endif ("${CYGWIN}" OR "${MINGW}")
 # http://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
-if (${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS} OR ${CMAKE_COMPILER_IS_GNUC})
+if ("${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS}" OR "${CMAKE_COMPILER_IS_GNUC}")
     # using GCC
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--kill-at")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--kill-at")
+    # https://gcc.gnu.org/onlinedocs/gcc/Link-Options.html
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
     set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -s")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
     set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -s")
-endif (${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS} OR ${CMAKE_COMPILER_IS_GNUC})
+endif ("${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS}" OR "${CMAKE_COMPILER_IS_GNUC}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${TARGET_ARCH}/${CMAKE_BUILD_TYPE}")
 add_executable(hcacc ${HCACC_SOURCE_FILES})
@@ -60,6 +73,8 @@ add_executable(hcaenc ${HCAENC_SOURCE_FILES})
 add_executable(hca2wav ${HCA2WAV_SOURCE_FILES})
 add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})
 
+# https://cmake.org/cmake/help/v3.0/command/add_custom_command.html
+# http://stackoverflow.com/questions/9994045/copy-target-file-to-another-location-in-a-post-build-step-in-cmake
 add_custom_command(TARGET hcacc
         POST_BUILD
         COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hcacc>

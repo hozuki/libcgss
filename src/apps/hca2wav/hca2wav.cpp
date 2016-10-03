@@ -36,7 +36,7 @@ int main(int argc, const char *argv[]) {
     }
 #else
     argc0 = argc;
-    argv0 = argv;
+    argv0 = const_cast<char **>(argv);
 #endif
 
     if (argc0 < 3 || argc0 > 5) {

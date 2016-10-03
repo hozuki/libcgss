@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <memory.h>
-#include <string>
+#include <string.h>
 #include "CHcaDecoder.h"
 #include "HcaNative.h"
 #include "Magic.h"
