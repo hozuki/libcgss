@@ -24,6 +24,8 @@ set(HCAENC_SOURCE_FILES
 set(HCA2WAV_SOURCE_FILES
         src/apps/hca2wav/hca2wav.cpp ${LIBCGSS_SOURCE_FILES})
 
+set(DEF_FILE src/libcgss.def)
+
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
 set(PROJECT_VERSION_TWEAK 0)
@@ -54,18 +56,18 @@ if ("${CYGWIN}" OR "${MINGW}")
             message(FATAL_ERROR "Unknown pointer size: ${CMAKE_SIZEOF_VOID_P}")
         endif ()
     endif ()
-endif ("${CYGWIN}" OR "${MINGW}")
+endif ()
 # http://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
-if ("${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS}" OR "${CMAKE_COMPILER_IS_GNUC}")
+if ("${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS}" OR "${CMAKE_COMPILER_IS_GNUC}" OR "${CYGWIN}" OR "${MINGW}")
     # using GCC
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--kill-at")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--kill-at")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--kill-at,--enable-stdcall-fixup")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--kill-at,--enable-stdcall-fixup")
     # https://gcc.gnu.org/onlinedocs/gcc/Link-Options.html
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
     set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -s")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
     set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -s")
-endif ("${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS}" OR "${CMAKE_COMPILER_IS_GNUC}")
+endif ()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${TARGET_ARCH}/${CMAKE_BUILD_TYPE}")
 add_executable(hcacc ${HCACC_SOURCE_FILES})

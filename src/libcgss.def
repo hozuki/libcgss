@@ -1,0 +1,17 @@
+LIBRARY cgss
+
+EXPORTS
+KsOpenFile
+KsOpenBuffer
+KsSetParamI32
+KsSetParamI64
+KsBeginDecode
+KsGetWaveHeader
+KsDecodeData
+KsEndDecode
+KsCloseHandle
+KsGetHcaInfo
+KsIsActiveHandle
+KsIsHcaCheckPassed
+KsHasMoreData
+KsTest
