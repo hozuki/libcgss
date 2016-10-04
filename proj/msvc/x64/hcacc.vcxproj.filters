@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Source\C\libcgss\src\apps\hcacc\hcacc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\hca\CHcaDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\hca\internal\CHcaCipher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\hca\internal\CHcaAth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\hca\internal\CHcaData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\hca\internal\HcaChannel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\hca\Magic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\hca\WaveGen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\api\ks_api.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\ext\ks_ext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\kawashima\ext\ks_ext_streaming.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\takamori\polyfill\tm_io.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Source\C\libcgss\src\lib\takamori\polyfill\tm_dylib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Source\C\libcgss\src\apps\cgssh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\ks_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\cgss_typedef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\hca_info.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\api\ks_decode_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\hca\CHcaDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\hca\HcaNative.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\hca\internal\CHcaCipher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\hca\internal\CHcaAth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\hca\internal\CHcaData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\hca\internal\HcaChannel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\hca\Magic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\hca\WaveGen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\wave\WaveNative.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\api\ks_decode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\common\cgss_building_dll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\kawashima\ext\ks_ext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\tm_io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\tm_dylib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Source\C\libcgss\src\lib\tm_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Source\C\libcgss\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0A4BCE86-27F0-32B4-8239-7FD63A9D21F9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{4377979C-2654-3356-B582-A1363BC596AF}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

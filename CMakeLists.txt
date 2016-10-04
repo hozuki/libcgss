@@ -2,8 +2,16 @@ cmake_minimum_required(VERSION 3.3)
 project(cgss)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_USE_RELATIVE_PATHS TRUE)
 #set(TARGET_ARCH x64)
-set(TARGET_ARCH x86)
+#set(TARGET_ARCH x86)
+if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
+    set(TARGET_ARCH x86)
+elseif (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+    set(TARGET_ARCH x64)
+else ()
+    message(FATAL_ERROR "Unknown pointer size: ${CMAKE_SIZEOF_VOID_P}")
+endif ()
 
 if ("${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS}" OR "${CMAKE_COMPILER_IS_GNUC}" OR "${CYGWIN}" OR "${MINGW}")
     set(GNU_COMPILER 1)
@@ -40,10 +48,8 @@ set(HCAENC_SOURCE_FILES
 set(HCA2WAV_SOURCE_FILES
         src/apps/hca2wav/hca2wav.cpp ${LIBCGSS_KS_API_FILES} ${LIBCGSS_TM_API_FILES})
 
-set(DEF_FILE src/libcgss.def)
-if (${GNU_COMPILER})
-    set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${DEF_FILE})
-endif ()
+set(LIBCGSS_DEF_FILE src/cgss.def)
+set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE})
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
@@ -67,15 +73,17 @@ if ("${CYGWIN}" OR "${MINGW}")
             message(FATAL_ERROR "Unrecognized target architecture '${TARGET_ARCH}'.")
         endif ()
     else ()
-        if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
-            set(TARGET_ARCH x86)
-        elseif (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-            set(TARGET_ARCH x64)
-        else ()
-            message(FATAL_ERROR "Unknown pointer size: ${CMAKE_SIZEOF_VOID_P}")
-        endif ()
+        # MinGW
     endif ()
 endif ()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/${TARGET_ARCH}/${CMAKE_BUILD_TYPE})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+add_executable(hcacc ${HCACC_SOURCE_FILES})
+add_executable(hcaenc ${HCAENC_SOURCE_FILES})
+add_executable(hca2wav ${HCA2WAV_SOURCE_FILES})
+add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})
+
 # http://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
 if (${GNU_COMPILER})
     # using GCC
@@ -89,37 +97,42 @@ if (${GNU_COMPILER})
     #set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} -s)
     #set(CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS} -s)
 elseif (${MSVC})
-    set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} /DEF:${DEF_FILE})
+    # http://stackoverflow.com/questions/34659795/cmake-how-to-add-a-def-file-which-is-not-a-module-definition-file
+    # http://stackoverflow.com/questions/18786690/cmake-for-def-and-nodefaultlib
+    set_target_properties(cgss
+            PROPERTIES
+            ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 endif ()
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/${TARGET_ARCH}/${CMAKE_BUILD_TYPE})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-add_executable(hcacc ${HCACC_SOURCE_FILES})
-add_executable(hcaenc ${HCAENC_SOURCE_FILES})
-add_executable(hca2wav ${HCA2WAV_SOURCE_FILES})
-add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})
-if ("${WIN32}")
+if (${WIN32})
     # http://stackoverflow.com/questions/31038963/how-do-you-rename-a-library-filename-in-cmake
-    set_target_properties(cgss PROPERTIES PREFIX "")
+    #set_target_properties(cgss PROPERTIES PREFIX "")
+    set(CMAKE_SHARED_LIBRARY_PREFIX "")
+    set_target_properties(cgss
+            PROPERTIES
+            LINK_DEF_FILE_FLAG ${LIBCGSS_DEF_FILE})
 endif ()
+
 target_link_libraries(hca2wav cgss)
 target_link_libraries(hcaenc cgss)
 
 # https://cmake.org/cmake/help/v3.0/command/add_custom_command.html
 # http://stackoverflow.com/questions/9994045/copy-target-file-to-another-location-in-a-post-build-step-in-cmake
-add_custom_command(TARGET hcacc
-        POST_BUILD
-        COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hcacc>
-        WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-add_custom_command(TARGET hcaenc
-        POST_BUILD
-        COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hcaenc>
-        WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-add_custom_command(TARGET hca2wav
-        POST_BUILD
-        COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hca2wav>
-        WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-add_custom_command(TARGET cgss
-        POST_BUILD
-        COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss>
-        WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+if (${GNU_COMPILER})
+    add_custom_command(TARGET hcacc
+            POST_BUILD
+            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hcacc>
+            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    add_custom_command(TARGET hcaenc
+            POST_BUILD
+            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hcaenc>
+            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    add_custom_command(TARGET hca2wav
+            POST_BUILD
+            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hca2wav>
+            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    add_custom_command(TARGET cgss
+            POST_BUILD
+            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss>
+            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif ()
