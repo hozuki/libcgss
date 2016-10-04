@@ -16,7 +16,7 @@ set(LIBCGSS_TM_API_FILES
         src/lib/tm_io.h src/lib/tm_dylib.h src/lib/tm_api.h)
 set(LIBCGSS_KS_API_FILES
         #kawashima
-        src/lib/ks_api.h src/lib/cgss_typedef.h src/lib/hca_info.hpp src/lib/kawashima/api/ks_decode_magic.h)
+        src/lib/ks_api.h src/lib/cgss_typedef.h src/lib/hca_info.hpp src/lib/kawashima/api/ks_decode_helper.h)
 set(LIBCGSS_SOURCE_FILES
         # kawashima
         ${LIBCGSS_KS_API_FILES}
@@ -26,10 +26,10 @@ set(LIBCGSS_SOURCE_FILES
         src/lib/kawashima/hca/internal/HcaChannel.cpp src/lib/kawashima/hca/internal/HcaChannel.h src/lib/kawashima/hca/Magic.cpp
         src/lib/kawashima/hca/Magic.h src/lib/kawashima/hca/WaveGen.h src/lib/kawashima/hca/WaveGen.cpp
         src/lib/kawashima/wave/WaveNative.h src/lib/kawashima/api/ks_api.cpp
-        src/lib/kawashima/api/ks_decode.h src/lib/common/libcgss_building_dll.h
-        # kawashima features
-        src/lib/kawashima/features/ks_features.h src/lib/kawashima/features/ks_features.cpp
-        src/lib/kawashima/features/ks_feat_streaming.cpp
+        src/lib/kawashima/api/ks_decode.h src/lib/common/cgss_building_dll.h
+        # kawashima extensions
+        src/lib/kawashima/ext/ks_ext.h src/lib/kawashima/ext/ks_ext.cpp
+        src/lib/kawashima/ext/ks_ext_streaming.cpp
         # takamori
         ${LIBCGSS_TM_API_FILES}
         src/lib/takamori/polyfill/tm_io.cpp src/lib/takamori/polyfill/tm_dylib.cpp)

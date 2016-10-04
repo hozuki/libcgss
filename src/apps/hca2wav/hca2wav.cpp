@@ -44,7 +44,7 @@ int main(int argc, const char *argv[]) {
         return 0;
     }
 
-    HKDECODE hDecode = nullptr;
+    KS_DECODE_HANDLE hDecode = nullptr;
     KS_RESULT result = KS_ERR_OK;
     uint8 *buffer = nullptr;
     uint32 bufferSize = 0;
@@ -75,6 +75,10 @@ int main(int argc, const char *argv[]) {
         KsSetParamI32(hDecode, KS_PARAM_KEY2, key2);
     }
     KsBeginDecode(hDecode);
+    // An example to use extensions. You must call KsEnableExtension() and KsPrepareExtensions() right after KsBeginDecode().
+    //KsEnableExtension(hDecode, KS_EXTENSION_STREAMING, TRUE);
+    //KsPrepareExtensions(hDecode);
+
     fp = TmOpenFile(argv0[2], GENERIC_WRITE, CREATE_ALWAYS);
 
     // Write the WAVE header. KsGetWaveHeader() calls are optional.

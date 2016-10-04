@@ -11,12 +11,6 @@ typedef enum _HCA_CIPHER_TYPE {
     HCA_CIPHER_TYPE_FORCE_DWORD = 0xffffffff
 } HCA_CIPHER_TYPE;
 
-typedef enum _HCA_DECODE_FEATURE {
-    HCA_DECODE_FEATURE_NONE = 0,
-    HCA_DECODE_FEATURE_STREAMING = 1,
-    HCA_DECODE_FEATURE_FORCE_DWORD = 0xffffffff
-} HCA_DECODE_FEATURE;
-
 typedef struct _HCA_INFO {
     /**
      * Major part of version number.
@@ -80,6 +74,10 @@ typedef struct _HCA_INFO {
     uint32 compR09;
     uint16 vbrR01, vbrR02;
     uint16 loopR01, loopR02;
+    /**
+     * Offset of audio data. It usually equals to the size of HCA header.
+     */
+    uint32 dataOffset;
 } HCA_INFO;
 
 typedef struct _HCA_CIPHER_CONFIG {

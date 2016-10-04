@@ -4,7 +4,13 @@
 #include "cgss_typedef.h"
 #include "hca_info.hpp"
 
-typedef void *HKDECODE;
+typedef void *KS_DECODE_HANDLE;
+
+typedef enum _KS_DECODE_EXTENSION {
+    KS_EXTENSION_NONE = 0,
+    KS_EXTENSION_STREAMING = 1,
+    KS_EXTENSION_FORCE_DWORD = 0xffffffff
+} KS_DECODE_EXTENSION;
 
 typedef enum _KS_PARAM_TYPE {
     KS_PARAM_BUFFER_SIZE,
@@ -34,35 +40,38 @@ typedef enum _KS_RESULT {
     KS_ERR_STATE_OUT_OF_RANGE = -15,
     KS_ERR_NOT_IMPLEMENTED = -16,
     KS_ERR_DECODE_ALREADY_COMPLETED = -17,
-    KS_ERR_FEATURE_UNAVAILABLE = -18,
-    KS_ERR_FEATURE_NOT_ENABLED = -19,
+    KS_ERR_EXTENSION_NOT_AVAILABLE = -18,
+    KS_ERR_EXTENSION_NOT_ENABLED = -19,
     KS_ERR_FORCE_DWORD = 0xffffffff
 } KS_RESULT;
 
 #define KS_CALL_SUCCESSFUL(x) ((ubool)(((int32)x) >= 0))
 
-DECL_CGSS_API(KS_RESULT, KsOpenFile, (const char *pFileName, HKDECODE *ppHandle));
-DECL_CGSS_API(KS_RESULT, KsOpenBuffer, (uint8 *pData, uint32 dwDataSize, ubool bClone, HKDECODE *ppHandle));
-DECL_CGSS_API(KS_RESULT, KsSetParamI32, (HKDECODE hDecode, KS_PARAM_TYPE dwParamType, uint32 dwParam));
-DECL_CGSS_API(KS_RESULT, KsSetParamI64, (HKDECODE hDecode, KS_PARAM_TYPE dwParamType, uint64 qwParam));
-DECL_CGSS_API(KS_RESULT, KsBeginDecode, (HKDECODE hDecode));
-DECL_CGSS_API(KS_RESULT, KsGetWaveHeader, (HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize));
-DECL_CGSS_API(KS_RESULT, KsDecodeData, (HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize));
-DECL_CGSS_API(KS_RESULT, KsEndDecode, (HKDECODE hDecode));
-DECL_CGSS_API(KS_RESULT, KsCloseHandle, (HKDECODE hDecode));
-DECL_CGSS_API(KS_RESULT, KsGetHcaInfo, (HKDECODE hDecode, HCA_INFO *pInfo));
-DECL_CGSS_API(ubool, KsIsActiveHandle, (HKDECODE hDecode));
-DECL_CGSS_API(ubool, KsIsHcaCheckPassed, (HKDECODE hDecode));
-DECL_CGSS_API(KS_RESULT, KsHasMoreData, (HKDECODE hDecode, ubool *pbHasMore));
+DECL_CGSS_API(KS_RESULT, KsOpenFile, (const char *pFileName, KS_DECODE_HANDLE *ppHandle));
+DECL_CGSS_API(KS_RESULT, KsOpenBuffer, (uint8 *pData, uint32 dwDataSize, ubool bClone, KS_DECODE_HANDLE *ppHandle));
+DECL_CGSS_API(KS_RESULT, KsSetParamI32, (KS_DECODE_HANDLE hDecode, KS_PARAM_TYPE dwParamType, uint32 dwParam));
+DECL_CGSS_API(KS_RESULT, KsSetParamI64, (KS_DECODE_HANDLE hDecode, KS_PARAM_TYPE dwParamType, uint64 qwParam));
+DECL_CGSS_API(KS_RESULT, KsBeginDecode, (KS_DECODE_HANDLE hDecode));
+DECL_CGSS_API(KS_RESULT, KsGetWaveHeader, (KS_DECODE_HANDLE hDecode, uint8 *pBuffer, uint32 *pdwDataSize));
+DECL_CGSS_API(KS_RESULT, KsDecodeData, (KS_DECODE_HANDLE hDecode, uint8 *pBuffer, uint32 *pdwDataSize));
+DECL_CGSS_API(KS_RESULT, KsEndDecode, (KS_DECODE_HANDLE hDecode));
+DECL_CGSS_API(KS_RESULT, KsCloseHandle, (KS_DECODE_HANDLE hDecode));
+DECL_CGSS_API(KS_RESULT, KsGetHcaInfo, (KS_DECODE_HANDLE hDecode, HCA_INFO *pInfo));
+DECL_CGSS_API(ubool, KsIsActiveHandle, (KS_DECODE_HANDLE hDecode));
+DECL_CGSS_API(ubool, KsIsHcaCheckPassed, (KS_DECODE_HANDLE hDecode));
+DECL_CGSS_API(KS_RESULT, KsHasMoreData, (KS_DECODE_HANDLE hDecode, ubool *pbHasMore));
 DECL_CGSS_API(void, KsTest, ());
 // v1.1
-DECL_CGSS_API(KS_RESULT, KsGetWaveSize, (HKDECODE hDecode, ubool bWithHeader, uint32 *pdwSize));
-DECL_CGSS_API(KS_RESULT, KsDecodeAllData, (HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize));
-DECL_CGSS_API(KS_RESULT, KsEnableFeature, (HKDECODE hDecode, HCA_DECODE_FEATURE dwFeature, ubool bEnabled));
-DECL_CGSS_API(KS_RESULT, KsIsFeatureEnabled, (HKDECODE hDecode, HCA_DECODE_FEATURE dwFeature, ubool *pbIsEnabled));
-DECL_CGSS_API(KS_RESULT, KsFeatStreamingGetSize, (HKDECODE hDecode,uint32 *pdwSizeInBytes));
-DECL_CGSS_API(KS_RESULT, KsFeatStreamingRead, (HKDECODE hDecode, uint8 *pBuffer, uint32 dwBufferSize, uint32 *pdwBytesRead));
-DECL_CGSS_API(KS_RESULT, KsFeatStreamingSeek, (HKDECODE hDecode, uint32 dwPosition));
-DECL_CGSS_API(KS_RESULT, KsFeatStreamingTell, (HKDECODE hDecode, uint32 *pdwPosition));
+DECL_CGSS_API(KS_RESULT, KsGetFullWaveSize, (KS_DECODE_HANDLE hDecode, ubool bWithHeader, uint32 * pdwSize));
+DECL_CGSS_API(KS_RESULT, KsDecodeAllData, (KS_DECODE_HANDLE hDecode, uint8 *pBuffer, uint32 *pdwDataSize));
+DECL_CGSS_API(KS_RESULT, KsPrepareExtensions, (KS_DECODE_HANDLE hDecode));
+DECL_CGSS_API(KS_RESULT, KsGetAvailableExtensions, (KS_DECODE_HANDLE *hDecode, KS_DECODE_EXTENSION *pdwExtensions));
+DECL_CGSS_API(KS_RESULT, KsEnableExtension, (KS_DECODE_HANDLE hDecode, KS_DECODE_EXTENSION dwExtension, ubool bEnabled));
+DECL_CGSS_API(KS_RESULT, KsIsExtensionEnabled, (KS_DECODE_HANDLE hDecode, KS_DECODE_EXTENSION dwExtension, ubool *pbIsEnabled));
+DECL_CGSS_API(KS_RESULT, KsIsExtensionAvailable, (KS_DECODE_HANDLE hDecode, KS_DECODE_EXTENSION dwExtension, ubool *pbIsAvailable));
+DECL_CGSS_API(KS_RESULT, KsExtStreamingGetSize, (KS_DECODE_HANDLE hDecode, uint32 * pdwSizeInBytes));
+DECL_CGSS_API(KS_RESULT, KsExtStreamingRead, (KS_DECODE_HANDLE hDecode, uint8 *pBuffer, uint32 dwBufferSize, uint32 *pdwBytesRead));
+DECL_CGSS_API(KS_RESULT, KsExtStreamingSeek, (KS_DECODE_HANDLE hDecode, uint32 dwPosition));
+DECL_CGSS_API(KS_RESULT, KsExtStreamingTell, (KS_DECODE_HANDLE hDecode, uint32 *pdwPosition));
 
 #endif //KAWASHIMA_API_H

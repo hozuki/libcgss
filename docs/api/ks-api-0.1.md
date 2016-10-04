@@ -28,7 +28,7 @@ Version: v0.1
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsOpenFile(const char *pFileName, HKDECODE *ppHandle);
+KS_API KS_RESULT KsOpenFile(const char *pFileName, KS_DECODE_HANDLE *ppHandle);
 ```
 
 **Description:**
@@ -38,14 +38,14 @@ Opens an HCA file and returns its decoder handle.
 **Parameters:**
 
 - `pFileName`: name of the HCA file.
-- `ppHandle`: pointer to an `HKDECODE`, to receive the decoder handle if succeeded.
+- `ppHandle`: pointer to an `KS_DECODE_HANDLE`, to receive the decoder handle if succeeded.
 
 ### KsOpenBuffer
 
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsOpenBuffer(uint8 *pData, uint32 dwDataSize, ubool bClone, HKDECODE *ppHandle);
+KS_API KS_RESULT KsOpenBuffer(uint8 *pData, uint32 dwDataSize, ubool bClone, KS_DECODE_HANDLE *ppHandle);
 ```
 
 **Description:**
@@ -58,14 +58,14 @@ Uses the data in a buffer and creates a decoder handle for that data.
 - `dwDataSize`: size of data, in bytes.
 - `bClone`: whether to reuse the original buffer, or to copy the data to a new buffer. If you reuse the
 original buffer, please keep the data in it unchanged until the whole decoding process is finished.
-- `ppHandle`: pointer to an `HKDECODE`, to receive the decoder handle if succeeded.
+- `ppHandle`: pointer to an `KS_DECODE_HANDLE`, to receive the decoder handle if succeeded.
 
 ### KsSetParamI32
 
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsSetParamI32(HKDECODE hDecode, KS_PARAM_TYPE dwParamType, uint32 dwParam);
+KS_API KS_RESULT KsSetParamI32(KS_DECODE_HANDLE hDecode, KS_PARAM_TYPE dwParamType, uint32 dwParam);
 ```
 
 **Description:**
@@ -83,7 +83,7 @@ Sets a 32-bit decoding parameter before starting to decode.
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsSetParamI64(HKDECODE hDecode, KS_PARAM_TYPE dwParamType, uint64 qwParam);
+KS_API KS_RESULT KsSetParamI64(KS_DECODE_HANDLE hDecode, KS_PARAM_TYPE dwParamType, uint64 qwParam);
 ```
 
 **Description:**
@@ -101,7 +101,7 @@ Sets a 64-bit decoding parameter before starting to decode.
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsBeginDecode(HKDECODE hDecode);
+KS_API KS_RESULT KsBeginDecode(KS_DECODE_HANDLE hDecode);
 ```
 
 **Description:**
@@ -117,7 +117,7 @@ Prepares the decoder for the decoding process.
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsGetWaveHeader(HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize);
+KS_API KS_RESULT KsGetWaveHeader(KS_DECODE_HANDLE hDecode, uint8 *pBuffer, uint32 *pdwDataSize);
 ```
 
 **Description:**
@@ -140,7 +140,7 @@ When an HCA file is set, the WAVE header size is determined.
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsDecodeData(HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize);
+KS_API KS_RESULT KsDecodeData(KS_DECODE_HANDLE hDecode, uint8 *pBuffer, uint32 *pdwDataSize);
 ```
 
 **Description:**
@@ -164,7 +164,7 @@ of the size of 3.7 blocks, the decoder will decode 3 blocks if there is more tha
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsEndDecode(HKDECODE hDecode);
+KS_API KS_RESULT KsEndDecode(KS_DECODE_HANDLE hDecode);
 ```
 
 **Description:**
@@ -180,7 +180,7 @@ Ends the decode process. After this function is called, no more decoding operati
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsCloseHandle(HKDECODE hDecode);
+KS_API KS_RESULT KsCloseHandle(KS_DECODE_HANDLE hDecode);
 ```
 
 **Description:**
@@ -196,7 +196,7 @@ Closes the decoder handle, and frees all resources used by the decoder.
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsGetHcaInfo(HKDECODE hDecode, HCA_INFO *pInfo);
+KS_API KS_RESULT KsGetHcaInfo(KS_DECODE_HANDLE hDecode, HCA_INFO *pInfo);
 ```
 
 **Description:**
@@ -214,7 +214,7 @@ Gets key information of the HCA file. This function can only be called after the
 **Declaration:**
 
 ```cpp
-KS_API ubool KsIsActiveHandle(HKDECODE hDecode);
+KS_API ubool KsIsActiveHandle(KS_DECODE_HANDLE hDecode);
 ```
 
 **Description:**
@@ -230,7 +230,7 @@ Checks whether a decoder handle is still active.
 **Declaration:**
 
 ```cpp
-KS_API ubool KsIsHcaCheckPassed(HKDECODE hDecode);
+KS_API ubool KsIsHcaCheckPassed(KS_DECODE_HANDLE hDecode);
 ```
 
 **Description:**
@@ -246,7 +246,7 @@ Checks whether the current decoder has validated the HCA file and the file is va
 **Declaration:**
 
 ```cpp
-KS_API KS_RESULT KsHasMoreData(HKDECODE hDecode, ubool *pbHasMore);
+KS_API KS_RESULT KsHasMoreData(KS_DECODE_HANDLE hDecode, ubool *pbHasMore);
 ```
 
 **Description:**

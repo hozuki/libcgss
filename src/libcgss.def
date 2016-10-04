@@ -1,6 +1,7 @@
 LIBRARY cgss
 
 EXPORTS
+
 KsOpenFile
 KsOpenBuffer
 KsSetParamI32
@@ -15,14 +16,17 @@ KsIsActiveHandle
 KsIsHcaCheckPassed
 KsHasMoreData
 KsTest
-KsGetWaveSize
+KsGetFullWaveSize
 KsDecodeAllData
-KsEnableFeature
-KsIsFeatureEnabled
-KsFeatStreamingGetSize
-KsFeatStreamingRead
-KsFeatStreamingSeek
-KsFeatStreamingTell
+KsPrepareExtensions
+KsGetAvailableExtensions
+KsEnableExtension
+KsIsExtensionEnabled
+KsIsExtensionAvailable
+KsExtStreamingGetSize
+KsExtStreamingRead
+KsExtStreamingSeek
+KsExtStreamingTell
 
 TmOpenFile
 TmGetFileSize

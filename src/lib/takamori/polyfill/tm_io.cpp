@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../../common/libcgss_building_dll.h"
+#include "../../common/cgss_building_dll.h"
 #include "../../tm_io.h"
 
 CGSS_API_TYPE(TM_HFILE) TmOpenFile(LPCSTR lpcFileName, uint32 dwDesiredAccess, uint32 dwCreationDisposition) {

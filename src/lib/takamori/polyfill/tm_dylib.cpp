@@ -1,4 +1,4 @@
-#include "../../common/libcgss_building_dll.h"
+#include "../../common/cgss_building_dll.h"
 #include "../../tm_dylib.h"
 
 CGSS_API_TYPE(TM_HMODULE) TmLoadLibrary(LPCSTR lpstrModuleName) {
