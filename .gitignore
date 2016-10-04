@@ -2,11 +2,4 @@
 .vs
 _ReSharper*
 /bin/
-*.VC.db
-*.VC.opendb
-CMakeFiles/
-*.vcxproj.user
-CMakeCache.txt
-/proj/**/*.dir/
-/proj/**/[Dd]ebug/
-/proj/**/*[Rr]el*/
+/proj/
