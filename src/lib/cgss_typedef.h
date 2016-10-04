@@ -1,8 +1,8 @@
 #ifndef KAWASHIMA_KSTYPEDEF_H
 #define KAWASHIMA_KSTYPEDEF_H
 
-#if defined _WIN32 || defined __CYGWIN__
-#ifdef BUILDING_DLL
+#if defined(_WIN32) || defined(__CYGWIN__) || defined(__MINGW__)
+#ifdef LIBCGSS_BUILDING_DLL
 #ifdef __GNUC__
 #define DLL_PUBLIC __attribute__ ((dllexport))
 #else
@@ -48,5 +48,12 @@ typedef uint32 ubool;
 #ifndef FALSE
 #define FALSE ((ubool)0)
 #endif
+
+#ifdef _MSC_VER
+#define DECL_CGSS_API(ret_type, name, params) EXTERN_C DLL_PUBLIC ret_type STDCALL name params
+#else
+#define DECL_CGSS_API(ret_type, name, params) EXTERN_C DLL_PUBLIC STDCALL ret_type name params
+#endif
+#define CGSS_API_TYPE(ret_type) EXTERN_C ret_type STDCALL
 
 #endif //KAWASHIMA_COMMON_H

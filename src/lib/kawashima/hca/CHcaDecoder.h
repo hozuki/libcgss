@@ -1,10 +1,10 @@
 #ifndef KAWASHIMA_HCA_H
 #define KAWASHIMA_HCA_H
 
-#include "../kstypedef.h"
-#include "../hca_info.h"
+#include "../../cgss_typedef.h"
+#include "../../hca_info.hpp"
 #include "../api/ks_decode.h"
-#include "../ksapi.h"
+#include "../../ks_api.h"
 #include "internal/CHcaCipher.h"
 #include "internal/CHcaAth.h"
 #include "internal/HcaChannel.h"

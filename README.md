@@ -6,7 +6,8 @@
 The project consists of a library (*libcgss*) and several other applications.
 
 - Library
-  - *kawashima*: HCA decoding sub-library. (transferred from [kawashima](https://github.com/hozuki/kawashima))
+  - [*kawashima*](http://www.project-imas.com/wiki/Mizuki_Kawashima): HCA decoding sub-library, transferred from [kawashima](https://github.com/hozuki/kawashima).
+  - [*takamori*](http://www.project-imas.com/wiki/Aiko_Takamori): Sub-library for polyfill.
 - Applications
   - *hcaenc*: HCA encoding utility.
   - *hcacc*: HCA cipher conversion utility.

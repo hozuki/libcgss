@@ -1,7 +1,7 @@
 #ifndef KAWASHIMA_WAVEGEN_H
 #define KAWASHIMA_WAVEGEN_H
 
-#include "../kstypedef.h"
+#include "../../cgss_typedef.h"
 
 struct WaveGen final {
 

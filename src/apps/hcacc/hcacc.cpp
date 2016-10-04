@@ -14,7 +14,7 @@
 
 #endif
 
-#include "../../lib/kawashima/hca_info.h"
+#include "../../lib/hca_info.hpp"
 #include "../../lib/kawashima/hca/CHcaDecoder.h"
 
 using namespace std;
@@ -36,7 +36,7 @@ static const char *msg_help = ""
         "Remarks:\n"
         "  - Valid crypto types are: 0, 1, 56.\n"
         "  - Keys are entered in 4 byte hex form, e.g.: 0403F18B.\n"
-        "  - Default value of all arguments is 0.\n"
+        "  - Default value of all arguments is 0.\n\n"
         "Example:\n"
         "  hcacc.exe C:\\in.hca C:\\out.hca -ot 1\n"
         "  * This command will convert an HCA file from cipher type 0 (no cipher) to type 1 (with static cipher key).";

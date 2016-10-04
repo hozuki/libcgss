@@ -1,16 +1,17 @@
 #ifndef KAWASHIMA_KS_DECODE_H
 #define KAWASHIMA_KS_DECODE_H
 
-#include "../kstypedef.h"
+#include <set>
+#include "../../cgss_typedef.h"
+#include "../../hca_info.hpp"
 #include "../hca/CHcaDecoder.h"
 
 typedef enum _KS_DECODE_STAGE {
     KS_STAGE_INVALID = 0,
     KS_STAGE_INITIALIZED = 1,
     KS_STAGE_DECODE_STARTED = 2,
-    KS_STAGE_HEADER_DECODED = 3,
-    KS_STAGE_DATA_DECODING = 4,
-    KS_STAGE_DECODING_COMPLETE = 5,
+    KS_STAGE_DATA_DECODING = 3,
+    KS_STAGE_DECODING_COMPLETE = 4,
     KS_STAGE_FORCE_DWORD = (uint32)0xffffffff
 } KS_DECODE_STAGE;
 
@@ -32,6 +33,13 @@ typedef struct _KS_DECODE_STATUS {
 
 class CHcaDecoder;
 
+typedef struct _HCA_FEAT_STREAMING_STATUS {
+    uint8 *streamingData;
+    uint32 streamingDataSize;
+    uint32 cursorPosition;
+    std::set<uint32> decodedBlocks;
+} HCA_FEAT_STREAMING_STATUS;
+
 typedef struct _KS_DECODE {
     uint32 cb;
     uint32 magic;
@@ -42,6 +50,10 @@ typedef struct _KS_DECODE {
     ubool dataIsCopy;
     KS_DECODE_STATUS status;
     KS_DECODE_PARAM params;
+    // v1.1
+    HCA_DECODE_FEATURE availableFeatures;
+    HCA_DECODE_FEATURE enabledFeatures;
+    HCA_FEAT_STREAMING_STATUS *streamingStatus;
 } KS_DECODE;
 
 #endif //KAWASHIMA_KS_DECODE_H

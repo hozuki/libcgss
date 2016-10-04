@@ -1,7 +1,7 @@
 #ifndef KAWASHIMA_HCACHANNEL_H
 #define KAWASHIMA_HCACHANNEL_H
 
-#include "../../kstypedef.h"
+#include "../../../cgss_typedef.h"
 #include "CHcaData.h"
 
 struct HcaChannel {

@@ -1,14 +1,21 @@
 #ifndef KAWASHIMA_HCA_INFO_H
 #define KAWASHIMA_HCA_INFO_H
 
-#include "kstypedef.h"
+#include "cgss_typedef.h"
+#include <string.h>
 
-typedef enum {
+typedef enum _HCA_CIPHER_TYPE {
     HCA_CIPHER_TYPE_NO_CIPHER = 0,
     HCA_CIPHER_TYPE_STATIC = 1,
     HCA_CIPHER_TYPE_WITH_KEY = 0x38,
     HCA_CIPHER_TYPE_FORCE_DWORD = 0xffffffff
 } HCA_CIPHER_TYPE;
+
+typedef enum _HCA_DECODE_FEATURE {
+    HCA_DECODE_FEATURE_NONE = 0,
+    HCA_DECODE_FEATURE_STREAMING = 1,
+    HCA_DECODE_FEATURE_FORCE_DWORD = 0xffffffff
+} HCA_DECODE_FEATURE;
 
 typedef struct _HCA_INFO {
     /**
@@ -77,11 +84,23 @@ typedef struct _HCA_INFO {
 
 typedef struct _HCA_CIPHER_CONFIG {
 
-    _HCA_CIPHER_CONFIG();
+    _HCA_CIPHER_CONFIG() {
+        memset(this, 0, sizeof(_HCA_CIPHER_CONFIG));
+    }
 
-    _HCA_CIPHER_CONFIG(uint32 key1, uint32 key2);
+    _HCA_CIPHER_CONFIG(uint32 key1, uint32 key2) {
+        if (key1 == 0 && key2 == 0) {
+            cipherType = HCA_CIPHER_TYPE_NO_CIPHER;
+        } else {
+            cipherType = HCA_CIPHER_TYPE_WITH_KEY;
+        }
+        keyParts.key1 = key1;
+        keyParts.key2 = key2;
+    }
 
-    _HCA_CIPHER_CONFIG(uint64 key);
+    _HCA_CIPHER_CONFIG(uint64 key)
+            : _HCA_CIPHER_CONFIG((uint32)(key >> 32), (uint32)(key & 0xffffffff)) {
+    };
 
     union {
         struct {

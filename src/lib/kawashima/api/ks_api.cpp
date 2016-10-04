@@ -17,16 +17,19 @@
 
 #endif
 
-#include "../ksapi.h"
+#include "../../common/libcgss_building_dll.h"
 #include "ks_decode.h"
+#include "../features/ks_features.h"
+#include "ks_decode_magic.h"
+#include "../../ks_api.h"
 
-static const uint32 KS_DECODE_MAGIC = 0x491c39a6;
+const uint32 KS_DECODE_MAGIC = 0x491c39a6;
 
 inline ubool check_magic(KS_DECODE *hDecode) {
     return hDecode->magic == KS_DECODE_MAGIC ? TRUE : FALSE;
 }
 
-EXTERN_C KS_RESULT STDCALL KsOpenFile(const char *pFileName, HKDECODE *ppHandle) {
+CGSS_API_TYPE(KS_RESULT) KsOpenFile(const char *pFileName, HKDECODE *ppHandle) {
     if (!pFileName || !pFileName[0]) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -76,7 +79,7 @@ EXTERN_C KS_RESULT STDCALL KsOpenFile(const char *pFileName, HKDECODE *ppHandle)
     return result;
 }
 
-EXTERN_C KS_RESULT STDCALL KsOpenBuffer(uint8 *pData, uint32 dwDataSize, ubool bClone, HKDECODE *ppHandle) {
+CGSS_API_TYPE(KS_RESULT) KsOpenBuffer(uint8 *pData, uint32 dwDataSize, ubool bClone, HKDECODE *ppHandle) {
     if (!pData || dwDataSize <= 0 || !ppHandle) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -100,7 +103,7 @@ EXTERN_C KS_RESULT STDCALL KsOpenBuffer(uint8 *pData, uint32 dwDataSize, ubool b
     return KS_ERR_OK;
 }
 
-EXTERN_C KS_RESULT STDCALL KsSetParamI32(HKDECODE hDecode, KS_PARAM_TYPE dwParamType, uint32 dwParam) {
+CGSS_API_TYPE(KS_RESULT) KsSetParamI32(HKDECODE hDecode, KS_PARAM_TYPE dwParamType, uint32 dwParam) {
     if (!hDecode) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -108,7 +111,10 @@ EXTERN_C KS_RESULT STDCALL KsSetParamI32(HKDECODE hDecode, KS_PARAM_TYPE dwParam
     if (!check_magic(decode)) {
         return KS_ERR_MAGIC_NOT_MATCH;
     }
-    if (decode->closed || decode->status.stage != KS_STAGE_INITIALIZED) {
+    if (decode->closed) {
+        return KS_ERR_ALREADY_CLOSED;
+    }
+    if (decode->status.stage != KS_STAGE_INITIALIZED) {
         return KS_ERR_INVALID_OPERATION;
     }
     switch (dwParamType) {
@@ -127,7 +133,7 @@ EXTERN_C KS_RESULT STDCALL KsSetParamI32(HKDECODE hDecode, KS_PARAM_TYPE dwParam
     return KS_ERR_OK;
 }
 
-EXTERN_C KS_RESULT STDCALL KsSetParamI64(HKDECODE hDecode, KS_PARAM_TYPE dwParamType, uint64 qwParam) {
+CGSS_API_TYPE(KS_RESULT) KsSetParamI64(HKDECODE hDecode, KS_PARAM_TYPE dwParamType, uint64 qwParam) {
     if (!hDecode) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -135,7 +141,10 @@ EXTERN_C KS_RESULT STDCALL KsSetParamI64(HKDECODE hDecode, KS_PARAM_TYPE dwParam
     if (!check_magic(decode)) {
         return KS_ERR_MAGIC_NOT_MATCH;
     }
-    if (decode->closed || decode->status.stage != KS_STAGE_INITIALIZED) {
+    if (decode->closed) {
+        return KS_ERR_ALREADY_CLOSED;
+    }
+    if (decode->status.stage != KS_STAGE_INITIALIZED) {
         return KS_ERR_INVALID_OPERATION;
     }
     switch (dwParamType) {
@@ -149,7 +158,7 @@ EXTERN_C KS_RESULT STDCALL KsSetParamI64(HKDECODE hDecode, KS_PARAM_TYPE dwParam
     return KS_ERR_OK;
 }
 
-EXTERN_C KS_RESULT STDCALL KsBeginDecode(HKDECODE hDecode) {
+CGSS_API_TYPE(KS_RESULT) KsBeginDecode(HKDECODE hDecode) {
     if (!hDecode) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -157,7 +166,10 @@ EXTERN_C KS_RESULT STDCALL KsBeginDecode(HKDECODE hDecode) {
     if (!check_magic(decode)) {
         return KS_ERR_MAGIC_NOT_MATCH;
     }
-    if (decode->closed || decode->status.stage != KS_STAGE_INITIALIZED) {
+    if (decode->closed) {
+        return KS_ERR_ALREADY_CLOSED;
+    }
+    if (decode->status.stage != KS_STAGE_INITIALIZED) {
         return KS_ERR_INVALID_OPERATION;
     }
     CHcaDecoder *pHCA = new CHcaDecoder(decode->params.key1, decode->params.key2);
@@ -168,10 +180,15 @@ EXTERN_C KS_RESULT STDCALL KsBeginDecode(HKDECODE hDecode) {
     if (KsIsHcaCheckPassed(hDecode)) {
         decode->status.stage = KS_STAGE_DECODE_STARTED;
     }
+
+    KsFeatureRegisterInitializer(KsFeatureStreamingInitializer);
+    KsFeatureRegisterFinalizer(KsFeatureStreamingFinalizer);
+
+    KsFeatureCallInitializers(decode);
     return r;
 }
 
-EXTERN_C KS_RESULT STDCALL KsGetWaveHeader(HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize) {
+CGSS_API_TYPE(KS_RESULT) KsGetWaveHeader(HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize) {
     if (!hDecode) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -185,17 +202,14 @@ EXTERN_C KS_RESULT STDCALL KsGetWaveHeader(HKDECODE hDecode, uint8 *pBuffer, uin
     if (!KsIsHcaCheckPassed(hDecode)) {
         return KS_ERR_INVALID_OPERATION;
     }
-    if (decode->status.stage != KS_STAGE_DECODE_STARTED) {
+    if (decode->status.stage < KS_STAGE_DECODE_STARTED) {
         return KS_ERR_INVALID_OPERATION;
     }
     KS_RESULT result = decode->hca->GetWaveHeader(pBuffer, pdwDataSize);
-    if (KS_CALL_SUCCESSFUL(result) && pBuffer) {
-        decode->status.stage = KS_STAGE_HEADER_DECODED;
-    }
     return result;
 }
 
-EXTERN_C KS_RESULT STDCALL KsDecodeData(HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize) {
+CGSS_API_TYPE(KS_RESULT) KsDecodeData(HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize) {
     if (!hDecode) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -209,7 +223,7 @@ EXTERN_C KS_RESULT STDCALL KsDecodeData(HKDECODE hDecode, uint8 *pBuffer, uint32
     if (!KsIsHcaCheckPassed(hDecode) || decode->closed) {
         return KS_ERR_INVALID_OPERATION;
     }
-    if (decode->status.stage != KS_STAGE_HEADER_DECODED && decode->status.stage != KS_STAGE_DATA_DECODING) {
+    if (decode->status.stage != KS_STAGE_DECODE_STARTED && decode->status.stage != KS_STAGE_DATA_DECODING) {
         return KS_ERR_INVALID_OPERATION;
     }
     ubool hasMore;
@@ -227,7 +241,7 @@ EXTERN_C KS_RESULT STDCALL KsDecodeData(HKDECODE hDecode, uint8 *pBuffer, uint32
     return result;
 }
 
-EXTERN_C KS_RESULT STDCALL KsEndDecode(HKDECODE hDecode) {
+CGSS_API_TYPE(KS_RESULT) KsEndDecode(HKDECODE hDecode) {
     if (!hDecode) {
         return KS_ERR_INVALID_HANDLE;
     }
@@ -241,10 +255,11 @@ EXTERN_C KS_RESULT STDCALL KsEndDecode(HKDECODE hDecode) {
     if (decode->status.stage != KS_STAGE_INVALID) {
         decode->status.stage = KS_STAGE_DECODING_COMPLETE;
     }
+    KsFeatureCallFinalizers(decode);
     return KS_ERR_OK;
 }
 
-EXTERN_C KS_RESULT STDCALL KsCloseHandle(HKDECODE hDecode) {
+CGSS_API_TYPE(KS_RESULT) KsCloseHandle(HKDECODE hDecode) {
     if (!hDecode) {
         return KS_ERR_INVALID_HANDLE;
     }
@@ -268,7 +283,7 @@ EXTERN_C KS_RESULT STDCALL KsCloseHandle(HKDECODE hDecode) {
     return KS_ERR_OK;
 }
 
-EXTERN_C KS_RESULT STDCALL KsGetHcaInfo(HKDECODE hDecode, HCA_INFO *pInfo) {
+CGSS_API_TYPE(KS_RESULT) KsGetHcaInfo(HKDECODE hDecode, HCA_INFO *pInfo) {
     if (!hDecode || !pInfo) {
         return KS_ERR_INVALID_PARAMETER;
     }
@@ -283,7 +298,7 @@ EXTERN_C KS_RESULT STDCALL KsGetHcaInfo(HKDECODE hDecode, HCA_INFO *pInfo) {
     return decode->hca->GetInfo(pInfo);
 }
 
-EXTERN_C ubool STDCALL KsIsActiveHandle(HKDECODE hDecode) {
+CGSS_API_TYPE(ubool) KsIsActiveHandle(HKDECODE hDecode) {
     if (!hDecode) {
         return FALSE;
     }
@@ -295,14 +310,13 @@ EXTERN_C ubool STDCALL KsIsActiveHandle(HKDECODE hDecode) {
         return FALSE;
     }
     if (!(decode->status.stage == KS_STAGE_INITIALIZED || decode->status.stage == KS_STAGE_DECODE_STARTED ||
-          decode->status.stage == KS_STAGE_HEADER_DECODED || decode->status.stage == KS_STAGE_DATA_DECODING ||
-          decode->status.stage == KS_STAGE_DECODING_COMPLETE)) {
+          decode->status.stage == KS_STAGE_DATA_DECODING || decode->status.stage == KS_STAGE_DECODING_COMPLETE)) {
         return FALSE;
     }
     return TRUE;
 }
 
-EXTERN_C ubool STDCALL KsIsHcaCheckPassed(HKDECODE hDecode) {
+CGSS_API_TYPE(ubool) KsIsHcaCheckPassed(HKDECODE hDecode) {
     if (!hDecode) {
         return FALSE;
     }
@@ -316,7 +330,7 @@ EXTERN_C ubool STDCALL KsIsHcaCheckPassed(HKDECODE hDecode) {
     return decode->status.hcaChecked ? (ubool)!decode->status.hcaCheckFailed : FALSE;
 }
 
-EXTERN_C KS_RESULT STDCALL KsHasMoreData(HKDECODE hDecode, ubool *pbHasMore) {
+CGSS_API_TYPE(KS_RESULT) KsHasMoreData(HKDECODE hDecode, ubool *pbHasMore) {
     if (!hDecode) {
         return KS_ERR_INVALID_HANDLE;
     }
@@ -331,7 +345,7 @@ EXTERN_C KS_RESULT STDCALL KsHasMoreData(HKDECODE hDecode, ubool *pbHasMore) {
     if (decode->closed) {
         return KS_ERR_ALREADY_CLOSED;
     }
-    if (decode->status.stage == KS_STAGE_DATA_DECODING || decode->status.stage == KS_STAGE_HEADER_DECODED) {
+    if (decode->status.stage == KS_STAGE_DATA_DECODING || decode->status.stage == KS_STAGE_DECODE_STARTED) {
         *pbHasMore = TRUE;
         return KS_ERR_OK;
     } else if (decode->status.stage == KS_STAGE_DECODING_COMPLETE) {
@@ -343,5 +357,81 @@ EXTERN_C KS_RESULT STDCALL KsHasMoreData(HKDECODE hDecode, ubool *pbHasMore) {
     }
 }
 
-EXTERN_C void STDCALL KsTest() {
+CGSS_API_TYPE(void) KsTest() {
+}
+
+CGSS_API_TYPE(KS_RESULT) KsGetWaveSize(HKDECODE hDecode, ubool bWithHeader, uint32 *pdwSize) {
+    if (!hDecode) {
+        return KS_ERR_INVALID_HANDLE;
+    }
+    KS_DECODE *decode = (KS_DECODE *)hDecode;
+    if (!check_magic(decode)) {
+        return KS_ERR_MAGIC_NOT_MATCH;
+    }
+    if (decode->closed) {
+        return KS_ERR_ALREADY_CLOSED;
+    }
+    if (decode->status.stage < KS_STAGE_DECODE_STARTED) {
+        return KS_ERR_INVALID_OPERATION;
+    }
+    HCA_INFO info;
+    auto hca = decode->hca->GetInfo(info);
+    if (info.loopExists) {
+        return KS_ERR_NOT_IMPLEMENTED;
+    }
+    uint32 totalSize = 0;
+    if (bWithHeader) {
+        uint32 waveHeaderSize;
+        KsGetWaveHeader(hDecode, nullptr, &waveHeaderSize);
+        totalSize += waveHeaderSize;
+    }
+    uint32 waveDataBlockSize;
+    KsDecodeData(hDecode, nullptr, &waveDataBlockSize);
+    totalSize += waveDataBlockSize * info.blockCount;
+    *pdwSize = totalSize;
+    return KS_ERR_OK;
+}
+
+CGSS_API_TYPE(KS_RESULT) KsDecodeAllData(HKDECODE hDecode, uint8 *pBuffer, uint32 *pdwDataSize) {
+    if (!hDecode) {
+        return KS_ERR_INVALID_HANDLE;
+    }
+    if (!pdwDataSize) {
+        return KS_ERR_INVALID_PARAMETER;
+    }
+    KS_DECODE *decode = (KS_DECODE *)hDecode;
+    if (!check_magic(decode)) {
+        return KS_ERR_MAGIC_NOT_MATCH;
+    }
+    if (decode->status.stage != KS_STAGE_DECODE_STARTED) {
+        return KS_ERR_INVALID_OPERATION;
+    }
+    uint32 waveHeaderSize = 0, waveTotalDataSize = 0, waveBlockSize = 0;
+    auto r = KsGetWaveHeader(hDecode, nullptr, &waveHeaderSize);
+    if (KS_CALL_SUCCESSFUL(r)) {
+        r = KsGetWaveSize(hDecode, FALSE, &waveTotalDataSize);
+    }
+    if (KS_CALL_SUCCESSFUL(r)) {
+        r = KsDecodeData(hDecode, nullptr, &waveBlockSize);
+    }
+    if (!pBuffer) {
+        if (KS_CALL_SUCCESSFUL(r)) {
+            *pdwDataSize = waveHeaderSize + waveTotalDataSize;
+        } else {
+            *pdwDataSize = 0;
+        }
+        return r;
+    }
+    if (*pdwDataSize < waveHeaderSize + waveTotalDataSize) {
+        return KS_ERR_BUFFER_TOO_SMALL;
+    }
+    uint32 cursor = 0;
+    KsGetWaveHeader(hDecode, pBuffer, &waveHeaderSize);
+    cursor += waveHeaderSize;
+    do {
+        r = KsDecodeData(hDecode, pBuffer + cursor, &waveBlockSize);
+        cursor += waveBlockSize;
+    } while (r > 0);
+    decode->status.stage = KS_STAGE_DECODING_COMPLETE;
+    return r;
 }

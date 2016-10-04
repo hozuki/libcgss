@@ -1,7 +1,7 @@
 #ifndef KAWASHIMA_WAVENATIVE_H
 #define KAWASHIMA_WAVENATIVE_H
 
-#include "../kstypedef.h"
+#include "../../cgss_typedef.h"
 
 struct WaveRiffSection {
     uint8 riff[4];

@@ -1,7 +1,7 @@
 #ifndef KAWASHIMA_HCADATA_H
 #define KAWASHIMA_HCADATA_H
 
-#include "../../kstypedef.h"
+#include "../../../cgss_typedef.h"
 
 class CHcaData {
 

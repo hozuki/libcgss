@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <iostream>
-#include "../../lib/kawashima/ksapi.h"
-#include "../../polyfill/polyfill.h"
+#include "../../lib/ks_api.h"
+#include "../../lib/tm_api.h"
 
 #define COMPILE_WITH_CGSS
 
@@ -49,7 +49,7 @@ int main(int argc, const char *argv[]) {
     uint8 *buffer = nullptr;
     uint32 bufferSize = 0;
     uint32 dataSize = 0;
-    HANDLE fp = nullptr;
+    TM_HFILE fp = nullptr;
 
     // Open the file and get a handle.
     result = KsOpenFile(argv0[1], &hDecode);
@@ -75,13 +75,13 @@ int main(int argc, const char *argv[]) {
         KsSetParamI32(hDecode, KS_PARAM_KEY2, key2);
     }
     KsBeginDecode(hDecode);
-    fp = _OpenFile(argv0[2], GENERIC_WRITE, CREATE_ALWAYS);
+    fp = TmOpenFile(argv0[2], GENERIC_WRITE, CREATE_ALWAYS);
 
-    // Write the WAVE header.
+    // Write the WAVE header. KsGetWaveHeader() calls are optional.
     KsGetWaveHeader(hDecode, nullptr, &bufferSize);
     buffer = new uint8[bufferSize];
     KsGetWaveHeader(hDecode, buffer, &bufferSize);
-    _WriteFile(fp, buffer, bufferSize);
+    TmWriteFile(fp, buffer, bufferSize);
     delete[] buffer;
 
     // Write WAVE data blocks.
@@ -93,13 +93,13 @@ int main(int argc, const char *argv[]) {
             dataSize = bufferSize * 10;
             buffer = new uint8[dataSize];
             result = KsDecodeData(hDecode, buffer, &dataSize);
-            _WriteFile(fp, buffer, dataSize);
+            TmWriteFile(fp, buffer, dataSize);
             delete[] buffer;
         }
     }
 
     // Clean up.
-    _CloseFile(fp);
+    TmCloseFile(fp);
     KsEndDecode(hDecode);
     KsCloseHandle(hDecode);
 
@@ -115,8 +115,9 @@ void PrintHelp() {
     k1 = cgssKey1;
     k2 = cgssKey2;
 #endif
-    cout << "Usage:\r\nhca2wav <in file> <out file> "
-         << "[<key1 = " << hex << k1 << "> <key2 = " << hex << k2 << ">]"
+    cout << "Utility for decoding HCA to WAVE\n\n"
+         << "Usage:\n"
+         << "hca2wav <in file> <out file> [<key1 = " << hex << k1 << "> <key2 = " << hex << k2 << ">]"
          << endl;
 }
 

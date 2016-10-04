@@ -1,7 +1,7 @@
 #ifndef KAWASHIMA_HCANATIVE_H
 #define KAWASHIMA_HCANATIVE_H
 
-#include "../kstypedef.h"
+#include "../../cgss_typedef.h"
 
 /**
  * File information (required)

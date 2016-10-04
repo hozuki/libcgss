@@ -1,8 +1,8 @@
 #ifndef KAWASHIMA_HCAATH_H
 #define KAWASHIMA_HCAATH_H
 
-#include "../../kstypedef.h"
-#include "../../hca_info.h"
+#include "../../../cgss_typedef.h"
+#include "../../../hca_info.hpp"
 
 class CHcaAth {
 

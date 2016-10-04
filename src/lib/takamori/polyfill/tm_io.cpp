@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include "io.h"
+#include "../../common/libcgss_building_dll.h"
+#include "../../tm_io.h"
 
-HANDLE _OpenFile(LPCSTR lpcFileName, DWORD dwDesiredAccess, DWORD dwCreationDisposition) {
+CGSS_API_TYPE(TM_HFILE) TmOpenFile(LPCSTR lpcFileName, uint32 dwDesiredAccess, uint32 dwCreationDisposition) {
 #ifdef __ON_WINDOWS__
     return CreateFile(lpcFileName, dwDesiredAccess, 0, nullptr, dwCreationDisposition, 0, nullptr);
 #else
@@ -22,7 +23,7 @@ HANDLE _OpenFile(LPCSTR lpcFileName, DWORD dwDesiredAccess, DWORD dwCreationDisp
 #endif
 }
 
-long _GetFileSize(HANDLE hFile) {
+CGSS_API_TYPE(size_t) TmGetFileSize(TM_HFILE hFile) {
 #ifdef __ON_WINDOWS__
     DWORD dwFileSize;
     GetFileSize(hFile, &dwFileSize);
@@ -36,7 +37,7 @@ long _GetFileSize(HANDLE hFile) {
 #endif
 }
 
-size_t _ReadFile(HANDLE hFile, void *pBuffer, DWORD dwBufferSize) {
+CGSS_API_TYPE(size_t) TmReadFile(TM_HFILE hFile, uint8 *pBuffer, uint32 dwBufferSize) {
 #ifdef __ON_WINDOWS__
     DWORD read;
     auto b = ReadFile(hFile, pBuffer, dwBufferSize, &read, nullptr);
@@ -47,7 +48,7 @@ size_t _ReadFile(HANDLE hFile, void *pBuffer, DWORD dwBufferSize) {
 #endif
 }
 
-size_t _WriteFile(HANDLE hFile, void *pBuffer, DWORD dwBufferSize) {
+CGSS_API_TYPE(size_t) TmWriteFile(TM_HFILE hFile, uint8 *pBuffer, uint32 dwBufferSize) {
 #ifdef __ON_WINDOWS__
     DWORD read;
     auto b = WriteFile(hFile, pBuffer, dwBufferSize, &read, nullptr);
@@ -58,7 +59,7 @@ size_t _WriteFile(HANDLE hFile, void *pBuffer, DWORD dwBufferSize) {
 #endif
 }
 
-void _CloseFile(HANDLE hFile) {
+CGSS_API_TYPE(void) TmCloseFile(TM_HFILE hFile) {
 #ifdef __ON_WINDOWS__
     CloseHandle(hFile);
 #else

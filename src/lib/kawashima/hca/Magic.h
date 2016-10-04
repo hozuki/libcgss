@@ -1,7 +1,7 @@
 #ifndef KAWASHIMA_MAGIC_H
 #define KAWASHIMA_MAGIC_H
 
-#include "../kstypedef.h"
+#include "../../cgss_typedef.h"
 
 struct Magic {
 

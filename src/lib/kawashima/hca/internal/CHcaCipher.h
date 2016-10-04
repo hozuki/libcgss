@@ -1,8 +1,8 @@
 #ifndef KAWASHIMA_HCACIPHER_H
 #define KAWASHIMA_HCACIPHER_H
 
-#include "../../kstypedef.h"
-#include "../../hca_info.h"
+#include "../../../cgss_typedef.h"
+#include "../../../hca_info.hpp"
 
 class CHcaCipher {
 

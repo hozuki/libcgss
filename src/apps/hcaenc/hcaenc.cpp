@@ -1,6 +1,8 @@
-#include "../../polyfill/polyfill.h"
+#include <stdio.h>
+#include "../../lib/tm_api.h"
 
 #ifdef __ARCH_X86__
+
 #include <iostream>
 
 #ifndef __ON_WINDOWS__
@@ -41,17 +43,17 @@ int main(int argc, const char *argv[]) {
         outputFile = argv[2];
     }
 
-    hHcaEncDll = _LoadLibrary(lib_dllName);
+    hHcaEncDll = TmLoadLibrary(lib_dllName);
     LONG ret = 0;
     if (hHcaEncDll) {
-        hcaencEncodeToFile = HCA_ENC_ENCODE_TO_FILE(_GetProcAddress(hHcaEncDll, fn_hcaencEncodeToFile));
+        hcaencEncodeToFile = HCA_ENC_ENCODE_TO_FILE(TmGetProcAddress(hHcaEncDll, fn_hcaencEncodeToFile));
         if (hcaencEncodeToFile) {
             ret = hcaencEncodeToFile(inputFile, outputFile, quality, cutoff, key);
             cout << "Encoder Returns: %d" << (int)ret << endl;
         } else {
             cerr << "ERROR: Failed to locate function " << fn_hcaencEncodeToFile << endl;
         }
-        _FreeLibrary(hHcaEncDll);
+        TmFreeLibrary(hHcaEncDll);
     } else {
         cerr << "ERROR: Failed to load <" << lib_dllName << ">" << endl;
     }
