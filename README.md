@@ -11,6 +11,7 @@ The project consists of a library (*libcgss*) and several other applications.
 - Applications
   - *hcaenc*: HCA encoding utility.
   - *hcacc*: HCA cipher conversion utility.
+  - *hca2wav*: HCA decoding utility.
 
 This project is written in C/C++, compared to C# of its sister project [**DereTore**](https://github.com/hozuki/DereTore),
 for a better interoperability with other languages or libraries. The C# version of *hcaenc* and *hcacc*
