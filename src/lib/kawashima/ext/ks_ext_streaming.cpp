@@ -193,6 +193,7 @@ KS_RESULT KsExtensionStreamingInitializer(KS_DECODE *hDecode) {
         return KS_ERR_INVALID_INTERNAL_STATE;
     }
     auto streamingStatus = new KS_EXT_STREAMING_STATUS();
+    streamingStatus->cursorPosition = 0;
     streamingStatus->streamingDataSize = waveTotalSize;
     streamingStatus->streamingData = new uint8[waveTotalSize];
     hDecode->extStreamingStatus = streamingStatus;
