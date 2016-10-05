@@ -10,6 +10,8 @@
 
 #endif
 
+using namespace std;
+
 #define GENERAL_CHECK() \
             KS_DECODE *decode = (KS_DECODE *)hDecode; \
             do { \
@@ -34,14 +36,14 @@
             } while (0)
 
 inline uint32 safe_read(uint8 *destination, uint8 *src, uint32 destination_len, uint32 src_max_len) {
-    auto len = std::min(destination_len, src_max_len);
+    auto len = min(destination_len, src_max_len);
     memcpy(destination, src, len);
     return len;
 }
 
 uint32 KsExtStreamingGetMappedPosition(KS_DECODE *hDecode, uint32 requestedPosition);
 
-void KsExtStreamingEnsureDecoded(KS_DECODE *hDecode, uint32 offset, uint32 count);
+KS_RESULT KsExtStreamingEnsureDecoded(KS_DECODE *hDecode, uint32 offset, uint32 count);
 
 CGSS_API_TYPE(KS_RESULT) KsExtStreamingGetSize(KS_DECODE_HANDLE hDecode, uint32 *pdwSizeInBytes) {
     if (!pdwSizeInBytes) {
@@ -71,7 +73,6 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
     auto headerCrossData = FALSE;
     uint32 origPosInStream = 0;
     auto waveHeaderSize = KsGetWaveHeaderDataSize(decode);
-    auto waveBlockSize = KsGetWaveBlockDataSize(decode);
 
     if (positionInWaveStream + dwBufferSize < waveHeaderSize) {
         read = safe_read(pBuffer, streamingStatus->streamingData + streamingStatus->cursorPosition, dwBufferSize,
@@ -88,7 +89,13 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
             headerCrossData = TRUE;
         }
     }
-    KsExtStreamingEnsureDecoded(decode, streamingStatus->cursorPosition, dwBufferSize);
+    auto r = KsExtStreamingEnsureDecoded(decode, streamingStatus->cursorPosition, dwBufferSize);
+    if (!KS_CALL_SUCCESSFUL(r)) {
+        if (pdwBytesRead) {
+            *pdwBytesRead = 0;
+        }
+        return r;
+    }
     if (headerCrossData) {
         positionInWaveStream = origPosInStream;
     }
@@ -96,8 +103,9 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
     HCA_INFO hcaInfo;
     decode->hca->GetInfo(hcaInfo);
     if (hcaInfo.loopExists) {
+        auto waveBlockSize = KsGetWaveBlockDataSize(decode);
         auto endLoopDataPositionIncludingHeader = hcaInfo.loopEnd * waveBlockSize + waveHeaderSize;
-        auto shouldRead = std::min(dwBufferSize, endLoopDataPositionIncludingHeader - positionInWaveStream);
+        auto shouldRead = min(dwBufferSize, endLoopDataPositionIncludingHeader - positionInWaveStream);
         read = safe_read(pBuffer, streamingStatus->streamingData + streamingStatus->cursorPosition, shouldRead,
                          streamingStatus->streamingDataSize - streamingStatus->cursorPosition);
     } else {
@@ -114,7 +122,7 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
 CGSS_API_TYPE(KS_RESULT) KsExtStreamingSeek(KS_DECODE_HANDLE hDecode, uint32 dwPosition) {
     GENERAL_CHECK();
     auto streamingStatus = decode->extStreamingStatus;
-    auto position = std::min(dwPosition, streamingStatus->streamingDataSize);
+    auto position = min(dwPosition, streamingStatus->streamingDataSize);
     streamingStatus->cursorPosition = position;
     return KS_ERR_OK;
 }
@@ -128,33 +136,37 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingTell(KS_DECODE_HANDLE hDecode, uint32 *pd
     return KS_ERR_OK;
 }
 
-void KsExtStreamingEnsureDecoded(KS_DECODE *hDecode, uint32 offset, uint32 count) {
+KS_RESULT KsExtStreamingEnsureDecoded(KS_DECODE *hDecode, uint32 offset, uint32 count) {
     auto &decodeStatus = hDecode->status;
     auto streamingStatus = hDecode->extStreamingStatus;
-    auto null = streamingStatus->decodedBlocks.end();
+    auto notFound = streamingStatus->decodedBlocks.end();
     auto waveHeaderSize = KsGetWaveHeaderDataSize(hDecode);
     auto waveBlockSize = KsGetWaveBlockDataSize(hDecode);
     auto startBlockIndex = (offset - waveHeaderSize) / waveBlockSize;
     auto endBlockIndex = (offset + count - waveHeaderSize) / waveBlockSize;
     HCA_INFO hcaInfo;
     hDecode->hca->GetInfo(hcaInfo);
-    endBlockIndex = std::min(endBlockIndex, hcaInfo.blockCount - 1);
+    endBlockIndex = min(endBlockIndex, hcaInfo.blockCount - 1);
     auto decodeBuffer = new uint8[waveBlockSize];
-    auto streamingData = streamingStatus->streamingData;
+    KS_RESULT result = KS_ERR_OK;
     for (auto i = startBlockIndex; i <= endBlockIndex; ++i) {
-        if (streamingStatus->decodedBlocks.find(i) != null) {
+        if (streamingStatus->decodedBlocks.find(i) != notFound) {
             continue;
         }
         decodeStatus.blockIndex = i;
         decodeStatus.dataCursor = i * hcaInfo.blockSize + hcaInfo.dataOffset;
         decodeStatus.loopNumber = 0;
         uint32 decodeBufferSize = waveBlockSize;
-        auto r = KsDecodeData(hDecode, decodeBuffer, &decodeBufferSize);
+        result = KsDecodeData(hDecode, decodeBuffer, &decodeBufferSize);
+        if (!KS_CALL_SUCCESSFUL(result)) {
+            break;
+        }
         auto positionInOutputStream = waveHeaderSize + i * waveBlockSize;
-        memcpy(streamingData + positionInOutputStream, decodeBuffer, decodeBufferSize);
+        memcpy(streamingStatus->streamingData + positionInOutputStream, decodeBuffer, decodeBufferSize);
         streamingStatus->decodedBlocks.insert(i);
     }
     delete[] decodeBuffer;
+    return result;
 }
 
 // Actually the HCA should be decoded to a finite length wave stream. If there are loops,
