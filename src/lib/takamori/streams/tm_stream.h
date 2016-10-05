@@ -32,11 +32,11 @@ public:
 
     virtual uint64 GetPosition() const = 0;
 
-    virtual void SetPosition(const uint64 value) = 0;
+    virtual void SetPosition(uint64 value) = 0;
 
     virtual uint64 GetLength() const = 0;
 
-    virtual void SetLength(const uint64 value) = 0;
+    virtual void SetLength(uint64 value) = 0;
 
     uint8 ReadByte();
 
