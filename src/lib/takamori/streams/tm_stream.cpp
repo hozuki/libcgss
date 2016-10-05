@@ -1,12 +1,6 @@
 #include <stdexcept>
 #include "tm_stream.h"
 
-#ifndef __MINGW_H
-
-#include <algorithm>
-
-#endif
-
 Stream::Stream() {
 }
 

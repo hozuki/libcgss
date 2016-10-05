@@ -1,6 +1,12 @@
 #include <stdexcept>
 #include "tm_memory_stream.h"
 
+#ifndef __MINGW_H
+
+#include <algorithm>
+
+#endif
+
 // TODO: FILE: size_t vs. uint64
 
 static const float MemoryStreamGrowFactor = 1.25f;
