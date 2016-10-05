@@ -59,7 +59,7 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
     uint32 read;
     ubool hasMoreData;
     KsHasMoreData(hDecode, &hasMoreData);
-    if (!hasMoreData || (pdwBytesRead && !*pdwBytesRead)) {
+    if (!hasMoreData) {
         if (pdwBytesRead) {
             *pdwBytesRead = 0;
         }
@@ -80,7 +80,7 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
         if (pdwBytesRead) {
             *pdwBytesRead = read;
         }
-        return KS_ERR_OK;
+        return streamingStatus->cursorPosition < streamingStatus->streamingDataSize ? KS_OP_HAS_MORE_DATA : KS_ERR_OK;
     } else {
         if (positionInWaveStream < waveHeaderSize) {
             origPosInStream = positionInWaveStream;
@@ -108,7 +108,7 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
     if (pdwBytesRead) {
         *pdwBytesRead = read;
     }
-    return KS_ERR_OK;
+    return streamingStatus->cursorPosition < streamingStatus->streamingDataSize ? KS_OP_HAS_MORE_DATA : KS_ERR_OK;
 }
 
 CGSS_API_TYPE(KS_RESULT) KsExtStreamingSeek(KS_DECODE_HANDLE hDecode, uint32 dwPosition) {
