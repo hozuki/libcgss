@@ -7,6 +7,8 @@
 
 #endif
 
+using namespace std;
+
 // TODO: FILE: size_t vs. uint64
 
 static const float MemoryStreamGrowFactor = 1.25f;
@@ -49,16 +51,16 @@ MemoryStream::~MemoryStream() {
 
 uint32 MemoryStream::Read(uint8 *buffer, uint32 bufferSize, size_t offset, uint32 count) {
     if (!buffer) {
-        throw std::invalid_argument("MemoryStream::Read()");
+        throw invalid_argument("MemoryStream::Read()");
     }
     if (!IsReadable()) {
-        throw std::runtime_error("MemoryStream::Read()");
+        throw runtime_error("MemoryStream::Read()");
     }
-    count = std::min(bufferSize - offset, count);
+    count = min(bufferSize - offset, count);
     size_t maxRead = 0;
     if (count > 0) {
         auto position = (uint64)GetPosition();
-        maxRead = (size_t)std::min(GetLength() - position, (uint64)count);
+        maxRead = (size_t)min(GetLength() - position, (uint64)count);
         if (maxRead > 0) {
             memcpy(buffer, _buffer + position, maxRead);
             position += maxRead;
@@ -70,12 +72,12 @@ uint32 MemoryStream::Read(uint8 *buffer, uint32 bufferSize, size_t offset, uint3
 
 uint32 MemoryStream::Write(const uint8 *buffer, uint32 bufferSize, uint32 offset, uint32 count) {
     if (!buffer) {
-        throw std::invalid_argument("MemoryStream::Read()");
+        throw invalid_argument("MemoryStream::Read()");
     }
     if (!IsWritable()) {
-        throw std::runtime_error("MemoryStream::Write()");
+        throw runtime_error("MemoryStream::Write()");
     }
-    count = std::min(bufferSize - offset, count);
+    count = min(bufferSize - offset, count);
     if (count > 0) {
         auto position = (uint64)GetPosition();
         auto expectedLength = position + count;
@@ -139,13 +141,13 @@ void MemoryStream::SetCapacity(uint64 value) {
         return;
     }
     if (!IsResizable()) {
-        throw std::runtime_error("MemoryStream::SetCapacity()");
+        throw runtime_error("MemoryStream::SetCapacity()");
     }
     auto newBuffer = new uint8[value];
     auto oldBuffer = _buffer;
     auto length = (size_t)GetLength();
     auto newCapacity = (size_t)value;
-    length = std::min(length, newCapacity);
+    length = min(length, newCapacity);
     if (length > 0) {
         memcpy(newBuffer, oldBuffer, length);
         if (newCapacity > length) {
@@ -187,7 +189,7 @@ void MemoryStream::EnsureCapacity(uint64 requestedLength) {
         return;
     }
     if (!IsResizable()) {
-        throw std::runtime_error("MemoryStream::EnsureCapacity()");
+        throw runtime_error("MemoryStream::EnsureCapacity()");
     }
     do {
         capacity = (uint64)(capacity * MemoryStreamGrowFactor);
