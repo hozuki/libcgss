@@ -7,6 +7,7 @@
 #include "Magic.h"
 #include "WaveGen.h"
 #include "../wave/WaveNative.h"
+#include "../../hca_info.hpp"
 
 typedef struct _WAVE_SETTINGS {
     /**
@@ -170,6 +171,13 @@ const uint16 *CHcaDecoder::ChecksumTable = new uint16[256]{
 
 CHcaDecoder::CHcaDecoder()
         : CHcaDecoder(HCA_CIPHER_CONFIG()) {
+}
+
+CHcaDecoder::CHcaDecoder(uint32 key1, uint32 key2) {
+    _ccFrom.cipherType = !(key1 | key2) ? HCA_CIPHER_TYPE_NO_CIPHER : HCA_CIPHER_TYPE_WITH_KEY;
+    _ccFrom.keyParts.key1 = key1;
+    _ccFrom.keyParts.key2 = key2;
+    memset(&_ccTo, 0, sizeof(HCA_CIPHER_CONFIG));
 }
 
 CHcaDecoder::CHcaDecoder(const HCA_CIPHER_CONFIG &crypt)
@@ -368,6 +376,7 @@ KS_RESULT CHcaDecoder::ReadHeader(uint8 *pFileData, uint32 dwDataSize, KS_DECODE
     if (!_ath.Init(hcaInfo.athType, hcaInfo.samplingRate)) {
         return KS_ERR_ATH_INIT_FAILED;
     }
+    _ccFrom.cipherType = hcaInfo.cipherType;
     if (!_cipherFrom.Init((HCA_CIPHER_TYPE)hcaInfo.cipherType, _ccFrom.keyParts.key1, _ccFrom.keyParts.key2)) {
         return KS_ERR_CIPH_INIT_FAILED;
     }

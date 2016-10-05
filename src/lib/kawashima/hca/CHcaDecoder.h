@@ -20,6 +20,8 @@ public:
 
     CHcaDecoder();
 
+    CHcaDecoder(uint32 key1, uint32 key2);
+
     CHcaDecoder(const HCA_CIPHER_CONFIG &crypt);
 
     CHcaDecoder(const HCA_CIPHER_CONFIG &cryptFrom, const HCA_CIPHER_CONFIG &cryptTo);
