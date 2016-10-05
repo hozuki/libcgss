@@ -542,7 +542,7 @@ KS_RESULT CHcaDecoder::DecodeData(uint8 *pData, uint32 dwDataSize, KS_DECODE_STA
         return KS_ERR_OK;
     }
 
-    if (*pdwWaveDataSize <= waveBlockSize) {
+    if (*pdwWaveDataSize < waveBlockSize) {
         return KS_ERR_BUFFER_TOO_SMALL;
     }
     if (status->blockIndex >= _hcaInfo.blockCount) {
