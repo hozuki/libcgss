@@ -102,7 +102,7 @@ CGSS_API_TYPE(KS_RESULT) KsIsExtensionAvailable(KS_DECODE_HANDLE hDecode, KS_DEC
     return KS_ERR_OK;
 }
 
-CGSS_API_TYPE(KS_RESULT) KsGetAvailableExtensions(KS_DECODE_HANDLE *hDecode, KS_DECODE_EXTENSION *pdwExtensions) {
+CGSS_API_TYPE(KS_RESULT) KsGetAvailableExtensions(KS_DECODE_HANDLE hDecode, KS_DECODE_EXTENSION *pdwExtensions) {
     if (!hDecode) {
         return KS_ERR_INVALID_HANDLE;
     }

@@ -177,6 +177,10 @@ CGSS_API_TYPE(KS_RESULT) KsBeginDecode(KS_DECODE_HANDLE hDecode) {
         decode->status.stage = KS_STAGE_DECODE_STARTED;
     }
 
+    KS_DECODE_EXTENSION extensions;
+    KsGetAvailableExtensions(hDecode, &extensions);
+    decode->availableExtensions = extensions;
+
     KsExtensionRegisterInitializer(KS_EXTENSION_STREAMING, KsExtensionStreamingInitializer);
     KsExtensionRegisterFinalizer(KS_EXTENSION_STREAMING, KsExtensionStreamingFinalizer);
     return r;
