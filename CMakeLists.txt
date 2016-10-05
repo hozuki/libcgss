@@ -19,28 +19,34 @@ else ()
     set(GNU_COMPILER 0)
 endif ()
 
-set(LIBCGSS_TM_API_FILES
-        # takamori
-        src/lib/tm_io.h src/lib/tm_dylib.h src/lib/tm_api.h)
 set(LIBCGSS_KS_API_FILES
         #kawashima
         src/lib/ks_api.h src/lib/cgss_typedef.h src/lib/hca_info.hpp src/lib/kawashima/api/ks_decode_helper.h)
-set(LIBCGSS_SOURCE_FILES
-        # kawashima
-        ${LIBCGSS_KS_API_FILES}
+set(LIBCGSS_TM_API_FILES
+        # takamori
+        src/lib/tm_io.h src/lib/tm_dylib.h src/lib/tm_api.h)
+set(LIBCGSS_COMMON_FILES
+        src/lib/common/cgss_building_dll.h)
+set(LIBCGSS_KS_SOURCE_FILES
         src/lib/kawashima/hca/CHcaDecoder.h src/lib/kawashima/hca/CHcaDecoder.cpp src/lib/kawashima/hca/HcaNative.h
         src/lib/kawashima/hca/internal/CHcaCipher.cpp src/lib/kawashima/hca/internal/CHcaCipher.h src/lib/kawashima/hca/internal/CHcaAth.cpp
         src/lib/kawashima/hca/internal/CHcaAth.h src/lib/kawashima/hca/internal/CHcaData.cpp src/lib/kawashima/hca/internal/CHcaData.h
         src/lib/kawashima/hca/internal/HcaChannel.cpp src/lib/kawashima/hca/internal/HcaChannel.h src/lib/kawashima/hca/Magic.cpp
         src/lib/kawashima/hca/Magic.h src/lib/kawashima/hca/WaveGen.h src/lib/kawashima/hca/WaveGen.cpp
         src/lib/kawashima/wave/WaveNative.h src/lib/kawashima/api/ks_api.cpp
-        src/lib/kawashima/api/ks_decode.h src/lib/common/cgss_building_dll.h
-        # kawashima extensions
+        src/lib/kawashima/api/ks_decode.h)
+set(LIBCGSS_KS_EXTENSION_FILES
         src/lib/kawashima/ext/ks_ext.h src/lib/kawashima/ext/ks_ext.cpp
-        src/lib/kawashima/ext/ks_ext_streaming.cpp
+        src/lib/kawashima/ext/ks_ext_streaming.cpp)
+set(LIBCGSS_TM_SOURCE_FILES
+        src/lib/takamori/polyfill/tm_io.cpp src/lib/takamori/polyfill/tm_dylib.cpp src/lib/takamori/streams/tm_stream.cpp src/lib/takamori/streams/tm_stream.h src/lib/takamori/streams/tm_memory_stream.cpp src/lib/takamori/streams/tm_memory_stream.h)
+set(LIBCGSS_SOURCE_FILES
+        ${LIBCGSS_KS_API_FILES}
+        ${LIBCGSS_KS_SOURCE_FILES}
+        ${LIBCGSS_KS_EXTENSION_FILES}
         # takamori
         ${LIBCGSS_TM_API_FILES}
-        src/lib/takamori/polyfill/tm_io.cpp src/lib/takamori/polyfill/tm_dylib.cpp)
+        ${LIBCGSS_TM_SOURCE_FILES})
 set(HCACC_SOURCE_FILES
         src/apps/hcacc/hcacc.cpp src/apps/cgssh.h ${LIBCGSS_SOURCE_FILES})
 set(HCAENC_SOURCE_FILES
@@ -49,7 +55,7 @@ set(HCA2WAV_SOURCE_FILES
         src/apps/hca2wav/hca2wav.cpp ${LIBCGSS_KS_API_FILES} ${LIBCGSS_TM_API_FILES})
 
 set(LIBCGSS_DEF_FILE src/cgss.def)
-set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE})
+set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE} src/lib/takamori/streams/tm_memory_stream.cpp src/lib/takamori/streams/tm_memory_stream.h)
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
