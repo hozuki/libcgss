@@ -11,6 +11,8 @@ public:
 
     MemoryStream(uint64 capacity);
 
+    MemoryStream(uint64 capacity, ubool isResizable);
+
     MemoryStream(uint8 *buffer, uint64 bufferSize);
 
     MemoryStream(uint8 *buffer, uint64 bufferSize, ubool isWritable);

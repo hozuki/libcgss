@@ -33,11 +33,10 @@ typedef struct _KS_DECODE_STATUS {
 } KS_DECODE_STATUS;
 
 class CHcaDecoder;
+class MemoryStream;
 
 typedef struct _KS_EXT_STREAMING_STATUS {
-    uint8 *streamingData;
-    uint32 streamingDataSize;
-    uint32 cursorPosition;
+    MemoryStream *memoryStream;
     std::set<uint32> decodedBlocks;
 } KS_EXT_STREAMING_STATUS;
 

@@ -17,14 +17,18 @@ MemoryStream::MemoryStream()
         : MemoryStream(0) {
 }
 
-MemoryStream::MemoryStream(uint64 capacity) {
+MemoryStream::MemoryStream(uint64 capacity)
+        : MemoryStream(capacity, TRUE) {
+}
+
+MemoryStream::MemoryStream(uint64 capacity, ubool isResizable) {
     auto buffer = new uint8[capacity];
     memset(buffer, 0, (size_t)capacity);
     _buffer = buffer;
     _length = 0;
     _capacity = capacity;
     _isWritable = TRUE;
-    _isResizable = TRUE;
+    _isResizable = isResizable;
     _isExternalBuffer = FALSE;
     _position = 0;
 }

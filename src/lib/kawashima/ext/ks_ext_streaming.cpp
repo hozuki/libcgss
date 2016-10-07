@@ -3,6 +3,7 @@
 #include "../api/ks_decode_helper.h"
 #include "../../ks_api.h"
 #include "ks_ext.h"
+#include "../../takamori/streams/tm_memory_stream.h"
 
 #ifndef __MINGW_H
 
@@ -35,12 +36,6 @@ using namespace std;
                 } \
             } while (0)
 
-inline uint32 safe_read(uint8 *destination, uint8 *src, uint32 destination_len, uint32 src_max_len) {
-    auto len = min(destination_len, src_max_len);
-    memcpy(destination, src, len);
-    return len;
-}
-
 uint32 KsExtStreamingGetMappedPosition(KS_DECODE *hDecode, uint32 requestedPosition);
 
 KS_RESULT KsExtStreamingEnsureDecoded(KS_DECODE *hDecode, uint32 offset, uint32 count);
@@ -69,19 +64,18 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
     }
     auto &decodeStatus = decode->status;
     auto streamingStatus = decode->extStreamingStatus;
-    auto positionInWaveStream = KsExtStreamingGetMappedPosition(decode, streamingStatus->cursorPosition);
+    auto memoryStream = streamingStatus->memoryStream;
+    auto positionInWaveStream = KsExtStreamingGetMappedPosition(decode, (uint32)memoryStream->GetPosition());
     auto headerCrossData = FALSE;
     uint32 origPosInStream = 0;
     auto waveHeaderSize = KsGetWaveHeaderDataSize(decode);
 
     if (positionInWaveStream + dwBufferSize < waveHeaderSize) {
-        read = safe_read(pBuffer, streamingStatus->streamingData + streamingStatus->cursorPosition, dwBufferSize,
-                         streamingStatus->streamingDataSize - streamingStatus->cursorPosition);
-        streamingStatus->cursorPosition += read;
+        read = (uint32)memoryStream->Read(pBuffer, dwBufferSize, 0, dwBufferSize);
         if (pdwBytesRead) {
             *pdwBytesRead = read;
         }
-        return streamingStatus->cursorPosition < streamingStatus->streamingDataSize ? KS_OP_HAS_MORE_DATA : KS_ERR_OK;
+        return memoryStream->GetPosition() < memoryStream->GetLength() ? KS_OP_HAS_MORE_DATA : KS_ERR_OK;
     } else {
         if (positionInWaveStream < waveHeaderSize) {
             origPosInStream = positionInWaveStream;
@@ -89,7 +83,7 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
             headerCrossData = TRUE;
         }
     }
-    auto r = KsExtStreamingEnsureDecoded(decode, streamingStatus->cursorPosition, dwBufferSize);
+    auto r = KsExtStreamingEnsureDecoded(decode, (uint32)memoryStream->GetPosition(), dwBufferSize);
     if (!KS_CALL_SUCCESSFUL(r)) {
         if (pdwBytesRead) {
             *pdwBytesRead = 0;
@@ -99,31 +93,28 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingRead(KS_DECODE_HANDLE hDecode, uint8 *pBu
     if (headerCrossData) {
         positionInWaveStream = origPosInStream;
     }
-    streamingStatus->cursorPosition = positionInWaveStream;
+    memoryStream->SetPosition(positionInWaveStream);
     HCA_INFO hcaInfo;
     decode->hca->GetInfo(hcaInfo);
     if (hcaInfo.loopExists) {
         auto waveBlockSize = KsGetWaveBlockDataSize(decode);
         auto endLoopDataPositionIncludingHeader = hcaInfo.loopEnd * waveBlockSize + waveHeaderSize;
         auto shouldRead = min(dwBufferSize, endLoopDataPositionIncludingHeader - positionInWaveStream);
-        read = safe_read(pBuffer, streamingStatus->streamingData + streamingStatus->cursorPosition, shouldRead,
-                         streamingStatus->streamingDataSize - streamingStatus->cursorPosition);
+        read = (uint32)memoryStream->Read(pBuffer, dwBufferSize, 0, shouldRead);
     } else {
-        read = safe_read(pBuffer, streamingStatus->streamingData + streamingStatus->cursorPosition, dwBufferSize,
-                         streamingStatus->streamingDataSize - streamingStatus->cursorPosition);
+        read = (uint32)memoryStream->Read(pBuffer, dwBufferSize, 0, dwBufferSize);
     }
-    streamingStatus->cursorPosition += read;
     if (pdwBytesRead) {
         *pdwBytesRead = read;
     }
-    return streamingStatus->cursorPosition < streamingStatus->streamingDataSize ? KS_OP_HAS_MORE_DATA : KS_ERR_OK;
+    return memoryStream->GetPosition() < memoryStream->GetLength() ? KS_OP_HAS_MORE_DATA : KS_ERR_OK;
 }
 
 CGSS_API_TYPE(KS_RESULT) KsExtStreamingSeek(KS_DECODE_HANDLE hDecode, uint32 dwPosition) {
     GENERAL_CHECK();
     auto streamingStatus = decode->extStreamingStatus;
-    auto position = min(dwPosition, streamingStatus->streamingDataSize);
-    streamingStatus->cursorPosition = position;
+    auto position = min(dwPosition, (uint32)streamingStatus->memoryStream->GetLength());
+    streamingStatus->memoryStream->SetPosition(position);
     return KS_ERR_OK;
 }
 
@@ -132,7 +123,7 @@ CGSS_API_TYPE(KS_RESULT) KsExtStreamingTell(KS_DECODE_HANDLE hDecode, uint32 *pd
         return KS_ERR_INVALID_PARAMETER;
     }
     GENERAL_CHECK();
-    *pdwPosition = decode->extStreamingStatus->cursorPosition;
+    *pdwPosition = (uint32)decode->extStreamingStatus->memoryStream->GetPosition();
     return KS_ERR_OK;
 }
 
@@ -162,7 +153,7 @@ KS_RESULT KsExtStreamingEnsureDecoded(KS_DECODE *hDecode, uint32 offset, uint32 
             break;
         }
         auto positionInOutputStream = waveHeaderSize + i * waveBlockSize;
-        memcpy(streamingStatus->streamingData + positionInOutputStream, decodeBuffer, decodeBufferSize);
+        memcpy(streamingStatus->memoryStream->GetBuffer() + positionInOutputStream, decodeBuffer, decodeBufferSize);
         streamingStatus->decodedBlocks.insert(i);
     }
     delete[] decodeBuffer;
@@ -205,9 +196,7 @@ KS_RESULT KsExtensionStreamingInitializer(KS_DECODE *hDecode) {
         return KS_ERR_INVALID_INTERNAL_STATE;
     }
     auto streamingStatus = new KS_EXT_STREAMING_STATUS();
-    streamingStatus->cursorPosition = 0;
-    streamingStatus->streamingDataSize = waveTotalSize;
-    streamingStatus->streamingData = new uint8[waveTotalSize];
+    streamingStatus->memoryStream = new MemoryStream(waveTotalSize, FALSE);
     hDecode->extStreamingStatus = streamingStatus;
     return KS_ERR_OK;
 }
@@ -225,8 +214,8 @@ KS_RESULT KsExtensionStreamingFinalizer(KS_DECODE *hDecode) {
     if (!hDecode->extStreamingStatus) {
         return KS_ERR_INVALID_PARAMETER;
     }
-    delete[] hDecode->extStreamingStatus->streamingData;
-    hDecode->extStreamingStatus->streamingData = nullptr;
+    delete[] hDecode->extStreamingStatus->memoryStream;
+    hDecode->extStreamingStatus->memoryStream = nullptr;
     hDecode->extStreamingStatus->decodedBlocks.clear();
     delete hDecode->extStreamingStatus;
     hDecode->extStreamingStatus = nullptr;
