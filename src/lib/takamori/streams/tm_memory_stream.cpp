@@ -76,7 +76,7 @@ uint32 MemoryStream::Read(uint8 *buffer, uint32 bufferSize, size_t offset, uint3
 
 uint32 MemoryStream::Write(const uint8 *buffer, uint32 bufferSize, uint32 offset, uint32 count) {
     if (!buffer) {
-        throw invalid_argument("MemoryStream::Read()");
+        throw invalid_argument("MemoryStream::Write()");
     }
     if (!IsWritable()) {
         throw runtime_error("MemoryStream::Write()");
