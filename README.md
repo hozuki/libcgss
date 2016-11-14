@@ -31,7 +31,7 @@ See [here](docs/user-manual.md).
 
 ## License
 
-_**Modified**_ MIT License. See [LICENSE.md](LICENSE.md).
+MIT License. See [LICENSE.md](LICENSE.md).
 
 ## Disclaimer
 
