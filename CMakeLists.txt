@@ -3,8 +3,6 @@ project(cgss)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_USE_RELATIVE_PATHS TRUE)
-#set(TARGET_ARCH x64)
-#set(TARGET_ARCH x86)
 if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
     set(TARGET_ARCH x86)
 elseif (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
@@ -39,8 +37,12 @@ set(LIBCGSS_KS_EXTENSION_FILES
         src/lib/kawashima/ext/ks_ext.h src/lib/kawashima/ext/ks_ext.cpp
         src/lib/kawashima/ext/ks_ext_streaming.cpp)
 set(LIBCGSS_TM_SOURCE_FILES
-        src/lib/takamori/polyfill/tm_io.cpp src/lib/takamori/polyfill/tm_dylib.cpp src/lib/takamori/streams/tm_stream.cpp src/lib/takamori/streams/tm_stream.h src/lib/takamori/streams/tm_memory_stream.cpp src/lib/takamori/streams/tm_memory_stream.h)
+        src/lib/takamori/polyfill/tm_io.cpp src/lib/takamori/polyfill/tm_dylib.cpp
+        src/lib/takamori/streams/tm_stream.cpp src/lib/takamori/streams/tm_stream.h
+        src/lib/takamori/streams/tm_memory_stream.cpp src/lib/takamori/streams/tm_memory_stream.h
+        src/lib/takamori/streams/tm_file_stream.cpp src/lib/takamori/streams/tm_file_stream.h)
 set(LIBCGSS_SOURCE_FILES
+        ${LIBCGSS_COMMON_FILES}
         ${LIBCGSS_KS_API_FILES}
         ${LIBCGSS_KS_SOURCE_FILES}
         ${LIBCGSS_KS_EXTENSION_FILES}
@@ -55,7 +57,7 @@ set(HCA2WAV_SOURCE_FILES
         src/apps/hca2wav/hca2wav.cpp ${LIBCGSS_KS_API_FILES} ${LIBCGSS_TM_API_FILES})
 
 set(LIBCGSS_DEF_FILE src/cgss.def)
-set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE} src/lib/takamori/streams/tm_memory_stream.cpp src/lib/takamori/streams/tm_memory_stream.h)
+set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE})
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
