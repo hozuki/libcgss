@@ -2,6 +2,7 @@
 
 #include <memory.h>
 #include <string.h>
+#include <cstdio>
 #include "CHcaDecoder.h"
 #include "HcaNative.h"
 #include "Magic.h"
@@ -657,21 +658,17 @@ KS_RESULT CHcaDecoder::ConvertData(uint8 *pData, uint32 dwAudioDataSize, uint32 
     uint8 *dataCursor = pData + dwDataCursor;
     dwAudioDataSize -= dwDataCursor;
 
-    if (!_hcaInfo.loopExists) {
-        KS_RESULT result;
-        for (uint32 i = 0; i < totalBlockCount; ++i) {
-            if (processedDataSize >= dwAudioDataSize) {
-                return KS_ERR_BUFFER_TOO_SMALL;
-            }
-            result = ConvertBlock(dataCursor, blockSize);
-            if (!KS_CALL_SUCCESSFUL(result)) {
-                return result;
-            }
-            processedDataSize += blockSize;
-            dataCursor += blockSize;
+    KS_RESULT result;
+    for (uint32 i = 0; i < totalBlockCount; ++i) {
+        if (processedDataSize >= dwAudioDataSize) {
+            return KS_ERR_BUFFER_TOO_SMALL;
         }
-    } else {
-        return KS_ERR_NOT_IMPLEMENTED;
+        result = ConvertBlock(dataCursor, blockSize);
+        if (!KS_CALL_SUCCESSFUL(result)) {
+            return result;
+        }
+        processedDataSize += blockSize;
+        dataCursor += blockSize;
     }
 
     return KS_ERR_OK;
