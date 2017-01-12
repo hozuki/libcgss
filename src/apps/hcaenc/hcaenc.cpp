@@ -21,7 +21,7 @@ static const char *fn_hcaencEncodeToFile = "hcaencEncodeToFile";
 HCA_ENC_ENCODE_TO_FILE hcaencEncodeToFile = nullptr;
 
 static const char *msg_help = ""
-    "HCA Encoder Utility\n\n"
+    "hcaenc: HCA Encoder Utility\n\n"
     "Usage:\n"
     "  hcaenc.exe <input WAVE> <output HCA>\n\n"
     "Example:\n"

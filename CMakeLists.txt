@@ -12,6 +12,8 @@ else ()
     message(FATAL_ERROR "Unknown pointer size: ${CMAKE_SIZEOF_VOID_P}")
 endif ()
 
+set(TARGET_ARCH x86)
+
 if ("${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS}" OR "${CMAKE_COMPILER_IS_GNUC}" OR "${CYGWIN}" OR "${MINGW}")
     set(GNU_COMPILER 1)
 else ()
@@ -33,12 +35,14 @@ set(HCAENC_SOURCE_FILES
         src/apps/hcaenc/hcaenc.cpp ${LIBCGSS_TM_API_FILES})
 set(HCA2WAV_SOURCE_FILES
         src/apps/hca2wav/hca2wav.cpp src/apps/cgssh.h ${LIBCGSS_API_FILES})
+set(HCAINFO_SOURCE_FILES
+        src/apps/hcainfo/hcainfo.cpp ${LIBCGSS_API_FILES})
 
 set(LIBCGSS_DEF_FILE src/cgss.def)
 set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE})
 
-set(PROJECT_VERSION_MAJOR 0)
-set(PROJECT_VERSION_MINOR 1)
+set(PROJECT_VERSION_MAJOR 1)
+set(PROJECT_VERSION_MINOR 2)
 set(PROJECT_VERSION_TWEAK 0)
 set(PROJECT_VERSION_PATCH 0)
 
@@ -70,7 +74,13 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 add_executable(hcacc ${HCACC_SOURCE_FILES})
 add_executable(hcaenc ${HCAENC_SOURCE_FILES})
 add_executable(hca2wav ${HCA2WAV_SOURCE_FILES})
+add_executable(hcainfo ${HCAINFO_SOURCE_FILES})
 add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})
+
+set_target_properties(cgss
+        PROPERTIES
+        VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK}"
+        SOVERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 target_compile_definitions(cgss PRIVATE __CGSS_BUILDING_DLL__)
 target_compile_definitions(hcacc PRIVATE __COMPILE_WITH_CGSS_KEYS)
@@ -103,9 +113,10 @@ if (${WIN32})
             LINK_DEF_FILE_FLAG ${LIBCGSS_DEF_FILE})
 endif ()
 
-target_link_libraries(hca2wav cgss)
 target_link_libraries(hcacc cgss)
 target_link_libraries(hcaenc cgss)
+target_link_libraries(hca2wav cgss)
+target_link_libraries(hcainfo cgss)
 
 # https://cmake.org/cmake/help/v3.0/command/add_custom_command.html
 # http://stackoverflow.com/questions/9994045/copy-target-file-to-another-location-in-a-post-build-step-in-cmake
@@ -121,6 +132,10 @@ if (${GNU_COMPILER})
     add_custom_command(TARGET hca2wav
             POST_BUILD
             COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hca2wav>
+            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    add_custom_command(TARGET hcainfo
+            POST_BUILD
+            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hcainfo>
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     add_custom_command(TARGET cgss
             POST_BUILD
