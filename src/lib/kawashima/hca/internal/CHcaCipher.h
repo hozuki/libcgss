@@ -17,9 +17,9 @@ CGSS_NS_BEGIN
 
         bool_t InitEncryptTable();
 
-        void Decrypt(uint8_t *data, uint32_t size);
+        void Decrypt(uint8_t *data, uint32_t size) const;
 
-        void Encrypt(uint8_t *data, uint32_t size);
+        void Encrypt(uint8_t *data, uint32_t size) const;
 
     private:
 

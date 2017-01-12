@@ -1,11 +1,6 @@
 #include <iostream>
 #include "../../lib/cgss_api.h"
-
-#ifdef COMPILE_WITH_CGSS
-
 #include "../cgssh.h"
-
-#endif
 
 using namespace std;
 
@@ -72,7 +67,10 @@ int main(int argc, const char *argv[]) {
         cerr << "CException: " << ex.GetExceptionMessage() << ", code=" << ex.GetOpResult() << endl;
         return ex.GetOpResult();
     } catch (const std::logic_error &ex) {
-        cerr << "std::exception: " << ex.what() << endl;
+        cerr << "std::logic_error: " << ex.what() << endl;
+        return 1;
+    } catch (const std::runtime_error &ex) {
+        cerr << "std::runtime_error: " << ex.what() << endl;
         return 1;
     }
 
@@ -91,7 +89,7 @@ void PrintHelp() {
     k2 = g_CgssKey2;
     cout << "hca2wav: Utility for decoding HCA to wave audio\n\n"
          << "Usage:\n"
-         << "    hca2wav <in file> <out file> [<key1 = " << hex << k1 << "> <key2 = " << hex << k2 << ">]\n"
+         << "    hca2wav <in file> <out file> [<decode key 1 = " << hex << k1 << "> <decode key 2 = " << hex << k2 << ">]\n"
          << "Example:\n"
          << "    hca2wav C:\\input.hca C:\\output.wav 12345678 90abcdef"
          << endl;

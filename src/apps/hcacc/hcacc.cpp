@@ -14,60 +14,51 @@
 
 #endif
 
-#include "../../lib/hca_info.hpp"
-#include "../../lib/kawashima/hca/CHcaFormatReader.h"
+#include "../../lib/cgss_api.h"
 
 using namespace std;
 
-#define COMPILE_WITH_CGSS
-#ifdef COMPILE_WITH_CGSS
-
 #include "../cgssh.h"
 
-#endif
-
 static const char *msg_help = ""
-        "HCA Cipher Conversion Utility\n\n"
-        "Usage:\n"
-        "  hcacc.exe <input HCA> <output HCA> "
-        "[-ot <output HCA cipher type>] "
-        "[-i1 <input HCA key 1 (if necessary)>] [-i2 <input HCA key 2 (if necessary)>] "
-        "[-o1 <output HCA key 1>] [-o2 <output HCA key 2>]\n\n"
-        "Remarks:\n"
-        "  - Valid crypto types are: 0, 1, 56.\n"
-        "  - Keys are entered in 4 byte hex form, e.g.: 0403F18B.\n"
-        "  - Default value of all arguments is 0.\n\n"
-        "Example:\n"
-        "  hcacc.exe C:\\in.hca C:\\out.hca -ot 1\n"
-        "  * This command will convert an HCA file from cipher type 0 (no cipher) to type 1 (with static cipher key).";
+    "hcacc: HCA Cipher Conversion Utility\n\n"
+    "Usage:\n"
+    "  hcacc.exe <input HCA> <output HCA> [extra options]\n\n"
+    "Extra options:\n"
+    "  -ot <output HCA cipher type>\n"
+    "  -i1 <input HCA key 1 (if necessary)>\n"
+    "  -i2 <input HCA key 2 (if necessary)>\n"
+    "  -o1 <output HCA key 1>\n"
+    "  -o2 <output HCA key 2>\n\n"
+    "Remarks:\n"
+    "  - Valid cipher types are: 0, 1, 56.\n"
+    "  - Keys are entered in 4 byte hex form, e.g.: 0403F18B.\n"
+    "  - Default value of all arguments is 0, unless __COMPILE_WITH_CGSS_KEYS is set during compilation.\n\n"
+    "Example:\n"
+    "  hcacc.exe C:\\in.hca C:\\out.hca -ot 1\n"
+    "  * This command will convert an HCA file from cipher type 0 (no cipher) to type 1 (with static cipher key).";
 
 int parseArgs(int argc, const char *argv[], const char **input, const char **output,
               HCA_CIPHER_CONFIG &ccFrom, HCA_CIPHER_CONFIG &ccTo);
 
-uint32 atoh(const char *str);
+uint32_t atoh(const char *str);
 
-uint32 atoh(const char *str, int max_length);
+uint32_t atoh(const char *str, int max_length);
 
 int main(int argc, const char *argv[]) {
-    HCA_CIPHER_CONFIG ccFrom, ccTo;
-    FILE *fp;
-    long fileSize;
-    uint8 *buf = nullptr;
-    CHcaDecoder *hca;
-    const char *fileFrom, *fileTo;
+    cgss::CHcaCipherConfig ccFrom, ccTo;
+    const char *fileNameFrom, *fileNameTo;
 
     memset(&ccFrom, 0, sizeof(HCA_CIPHER_CONFIG));
     memset(&ccTo, 0, sizeof(HCA_CIPHER_CONFIG));
 
-#ifdef COMPILE_WITH_CGSS
     ccFrom.keyParts.key1 = g_CgssKey1;
     ccFrom.keyParts.key2 = g_CgssKey2;
-    ccTo.cipherType = HCA_CIPHER_TYPE_WITH_KEY;
+    ccTo.cipherType = CGSS_HCA_CIPH_WITH_KEY;
     ccTo.keyParts.key1 = g_CgssKey1;
     ccTo.keyParts.key2 = g_CgssKey2;
-#endif
 
-    int r = parseArgs(argc, argv, &fileFrom, &fileTo, ccFrom, ccTo);
+    int r = parseArgs(argc, argv, &fileNameFrom, &fileNameTo, ccFrom, ccTo);
     if (r > 0) {
         // An error occurred.
         cerr << "Argument error: " << r << endl;
@@ -77,41 +68,34 @@ int main(int argc, const char *argv[]) {
         return 0;
     }
 
-    fp = fopen(fileFrom, "rb");
-    fseek(fp, 0, SEEK_END);
-    fileSize = ftell(fp);
-    buf = (uint8 *)malloc(fileSize * sizeof(uint8));
-    fseek(fp, 0, SEEK_SET);
-    fread(buf, (size_t)fileSize, 1, fp);
-    fclose(fp);
-
-    hca = new CHcaDecoder(ccFrom, ccTo);
-
-    KS_RESULT result = KS_ERR_OK;
-    uint32 dataOffset = 0;
-    if (KS_CALL_SUCCESSFUL(result)) {
-        result = hca->ReadHeader(buf, (uint32)fileSize, &dataOffset);
-    }
-    if (KS_CALL_SUCCESSFUL(result)) {
-        hca->ConvertData(buf, (uint32)fileSize, dataOffset);
-    }
-    if (KS_CALL_SUCCESSFUL(result)) {
-        hca->SetNewCipherType(buf, (uint32)fileSize, ccTo.cipherType, dataOffset);
-    }
-
-    if (KS_CALL_SUCCESSFUL(result)) {
-        fp = fopen(fileTo, "wb");
-        fwrite(buf, (size_t)fileSize, 1, fp);
-        fclose(fp);
+    try {
+        cgss::CFileStream fileFrom(fileNameFrom, cgss::FileMode::OpenExisting, cgss::FileAccess::Read),
+            fileTo(fileNameTo, cgss::FileMode::Create, cgss::FileAccess::Write);
+        cgss::CHcaCipherConverter cipherConverter(&fileFrom, ccFrom, ccTo);
+        const uint32_t bufferSize = 1024;
+        uint8_t buffer[bufferSize];
+        uint32_t read = 1;
+        while (read > 0) {
+            read = cipherConverter.Read(buffer, bufferSize, 0, bufferSize);
+            if (read > 0) {
+                fileTo.Write(buffer, bufferSize, 0, read);
+            }
+        }
+    } catch (const cgss::CException &ex) {
+        cerr << "CException: " << ex.GetExceptionMessage() << ", code=" << ex.GetOpResult() << endl;
+        return ex.GetOpResult();
+    } catch (const std::logic_error &ex) {
+        cerr << "std::logic_error: " << ex.what() << endl;
+        return 1;
+    } catch (const std::runtime_error &ex) {
+        cerr << "std::runtime_error: " << ex.what() << endl;
+        return 1;
     }
 
-    delete hca;
-    free(buf);
-
-    return result;
+    return 0;
 }
 
-#define CASE_HASH(char1, char2) (uint32)(((uint32)(char1) << 8) | (uint32)(char2))
+#define CASE_HASH(char1, char2) (uint32_t)(((uint32_t)(char1) << 8) | (uint32_t)(char2))
 
 int parseArgs(int argc, const char *argv[], const char **input, const char **output, HCA_CIPHER_CONFIG &ccFrom,
               HCA_CIPHER_CONFIG &ccTo) {
@@ -124,7 +108,7 @@ int parseArgs(int argc, const char *argv[], const char **input, const char **out
 
     for (int i = 3; i < argc; ++i) {
         if (argv[i][0] == '-' || argv[i][0] == '/') {
-            uint32 switchHash = CASE_HASH(argv[i][1], argv[i][2]);
+            uint32_t switchHash = CASE_HASH(argv[i][1], argv[i][2]);
             switch (switchHash) {
                 case CASE_HASH('o', 't'):
                     if (i + 1 < argc) {
@@ -132,7 +116,7 @@ int parseArgs(int argc, const char *argv[], const char **input, const char **out
                         if (cipherType != 0 && cipherType != 1 && cipherType != 0x38) {
                             return 1;
                         }
-                        ccTo.cipherType = (HCA_CIPHER_TYPE)cipherType;
+                        ccTo.cipherType = static_cast<CGSS_HCA_CIPHER_TYPE>(cipherType);
                     }
                     break;
                 case CASE_HASH('i', '1'):
@@ -167,21 +151,21 @@ int parseArgs(int argc, const char *argv[], const char **input, const char **out
 #define IS_UPHEX(ch) ('A' <= (ch) && (ch) <= 'F')
 #define IS_LOHEX(ch) ('a' <= (ch) && (ch) <= 'f')
 
-uint32 atoh(const char *str) {
+uint32_t atoh(const char *str) {
     return atoh(str, 8);
 }
 
-uint32 atoh(const char *str, int max_length) {
+uint32_t atoh(const char *str, int max_length) {
     max_length = min(max_length, 8);
     int i = 0;
-    uint32 ret = 0;
+    uint32_t ret = 0;
     while (i < max_length && *str) {
         if (IS_NUM(*str)) {
-            ret = (ret << 4) | (uint32)(*str - '0');
+            ret = (ret << 4) | (uint32_t)(*str - '0');
         } else if (IS_UPHEX(*str)) {
-            ret = (ret << 4) | (uint32)(*str - 'A' + 10);
+            ret = (ret << 4) | (uint32_t)(*str - 'A' + 10);
         } else if (IS_LOHEX(*str)) {
-            ret = (ret << 4) | (uint32)(*str - 'a' + 10);
+            ret = (ret << 4) | (uint32_t)(*str - 'a' + 10);
         } else {
             break;
         }

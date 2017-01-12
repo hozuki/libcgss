@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.6)
 project(cgss)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_USE_RELATIVE_PATHS TRUE)
 if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
     set(TARGET_ARCH x86)
@@ -17,7 +18,6 @@ else ()
     set(GNU_COMPILER 0)
 endif ()
 
-
 file(GLOB LIBCGSS_API_FILES "src/lib/*.h")
 file(GLOB_RECURSE LIBCGSS_COMMON_HEADER_FILES "src/lib/common/*.h" "src/lib/data/*.h")
 file(GLOB_RECURSE LIBCGSS_COMMON_SOURCE_FILES "src/lib/common/*.cpp")
@@ -28,11 +28,11 @@ file(GLOB_RECURSE LIBCGSS_TM_SOURCE_FILES "src/lib/takamori/*.cpp")
 set(LIBCGSS_SOURCE_FILES
         ${LIBCGSS_API_FILES} ${LIBCGSS_COMMON_HEADER_FILES} ${LIBCGSS_COMMON_SOURCE_FILES} ${LIBCGSS_KS_API_FILES} ${LIBCGSS_KS_SOURCE_FILES} ${LIBCGSS_TM_API_FILES} ${LIBCGSS_TM_SOURCE_FILES})
 set(HCACC_SOURCE_FILES
-        src/apps/hcacc/hcacc.cpp src/apps/cgssh.h ${LIBCGSS_SOURCE_FILES})
+        src/apps/hcacc/hcacc.cpp src/apps/cgssh.h ${LIBCGSS_API_FILES})
 set(HCAENC_SOURCE_FILES
         src/apps/hcaenc/hcaenc.cpp ${LIBCGSS_TM_API_FILES})
 set(HCA2WAV_SOURCE_FILES
-        src/apps/hca2wav/hca2wav.cpp ${LIBCGSS_KS_API_FILES} ${LIBCGSS_TM_API_FILES})
+        src/apps/hca2wav/hca2wav.cpp src/apps/cgssh.h ${LIBCGSS_API_FILES})
 
 set(LIBCGSS_DEF_FILE src/cgss.def)
 set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE})
@@ -73,9 +73,9 @@ add_executable(hca2wav ${HCA2WAV_SOURCE_FILES})
 add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})
 
 target_compile_definitions(cgss PRIVATE __CGSS_BUILDING_DLL__)
-target_compile_definitions(hcacc PRIVATE COMPILE_WITH_CGSS)
-target_compile_definitions(hcaenc PRIVATE COMPILE_WITH_CGSS)
-target_compile_definitions(hca2wav PRIVATE COMPILE_WITH_CGSS)
+target_compile_definitions(hcacc PRIVATE __COMPILE_WITH_CGSS_KEYS)
+target_compile_definitions(hcaenc PRIVATE __COMPILE_WITH_CGSS_KEYS)
+target_compile_definitions(hca2wav PRIVATE __COMPILE_WITH_CGSS_KEYS)
 
 # http://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
 if (${GNU_COMPILER})
@@ -104,6 +104,7 @@ if (${WIN32})
 endif ()
 
 target_link_libraries(hca2wav cgss)
+target_link_libraries(hcacc cgss)
 target_link_libraries(hcaenc cgss)
 
 # https://cmake.org/cmake/help/v3.0/command/add_custom_command.html

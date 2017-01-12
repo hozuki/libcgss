@@ -35,13 +35,13 @@ CGSS_NS_BEGIN
         return InitEncryptTable();
     }
 
-    void CHcaCipher::Decrypt(uint8_t *data, uint32_t size) {
+    void CHcaCipher::Decrypt(uint8_t *data, uint32_t size) const {
         for (uint8_t *d = data; size > 0; d++, size--) {
             *d = _decryptTable[*d];
         }
     }
 
-    void CHcaCipher::Encrypt(uint8_t *data, uint32_t size) {
+    void CHcaCipher::Encrypt(uint8_t *data, uint32_t size) const {
         for (uint8_t *d = data; size > 0; d++, size--) {
             *d = _encryptTable[*d];
         }

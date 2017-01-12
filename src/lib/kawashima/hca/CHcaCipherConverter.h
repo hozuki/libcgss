@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include "../../cgss_data.h"
 #include "CHcaFormatReader.h"
 
@@ -24,17 +25,27 @@ CGSS_NS_BEGIN
 
         virtual ~CHcaCipherConverter();
 
+        virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+
+        virtual uint64_t GetPosition() override;
+
+        virtual void SetPosition(uint64_t value) override;
+
+        virtual uint64_t GetLength() override;
+
     private:
 
-        void ConvertBlock(uint8_t *pData, uint32_t dwBlockSize);
+        const uint8_t *ConvertBlock(uint32_t blockIndex);
 
-        void FixBlock(uint8_t *pData, uint32_t dwBlockSize);
+        const uint8_t *ConvertHeader();
 
-        void FixHeader(uint8_t *pData, uint32_t dwFileSize, uint32_t dwDataOffset);
+        void InitializeExtra();
 
         CHcaCipher *_cipherFrom, *_cipherTo;
-
         HCA_CIPHER_CONFIG _ccFrom, _ccTo;
+        uint8_t *_headerBuffer;
+        std::map<uint32_t, const uint8_t *> _blockBuffers;
+        uint64_t _position;
 
     private:
 

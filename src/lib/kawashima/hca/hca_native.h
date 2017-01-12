@@ -2,6 +2,9 @@
 
 #include "../../cgss_env.h"
 
+#pragma pack(push)
+#pragma pack(1)
+
 CGSS_NS_BEGIN
 
     /**
@@ -275,3 +278,5 @@ CGSS_NS_BEGIN
     };
 
 CGSS_NS_END
+
+#pragma pack(pop)
