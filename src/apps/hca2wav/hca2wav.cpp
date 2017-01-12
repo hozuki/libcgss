@@ -1,9 +1,5 @@
-#include <stdio.h>
 #include <iostream>
-#include "../../lib/ks_api.h"
-#include "../../lib/tm_api.h"
-
-#define COMPILE_WITH_CGSS
+#include "../../lib/cgss_api.h"
 
 #ifdef COMPILE_WITH_CGSS
 
@@ -15,7 +11,7 @@ using namespace std;
 
 void PrintHelp();
 
-uint32 hatoui(const char *a);
+uint32_t hatoui(const char *a);
 
 int main(int argc, const char *argv[]) {
     int argc0;
@@ -39,96 +35,72 @@ int main(int argc, const char *argv[]) {
     argv0 = const_cast<char **>(argv);
 #endif
 
-    if (argc0 < 3 || argc0 > 5) {
+    if (!(argc0 == 3 || argc0 == 5)) {
         PrintHelp();
         return 0;
     }
 
-    KS_DECODE_HANDLE hDecode = nullptr;
-    KS_RESULT result = KS_ERR_OK;
-    uint8 *buffer = nullptr;
-    uint32 bufferSize = 0;
-    uint32 dataSize = 0;
-    TM_HFILE fp = nullptr;
+    // Configure decoder.
+    cgss::CHcaDecoderConfig decoderConfig;
+    decoderConfig.decodeFunc = cgss::CDefaultWaveGenerator::Decode16Bit;
+    decoderConfig.waveHeaderEnabled = TRUE;
+    auto &key1 = decoderConfig.cipherConfig.keyParts.key1;
+    auto &key2 = decoderConfig.cipherConfig.keyParts.key2;
+    key1 = g_CgssKey1;
+    key2 = g_CgssKey2;
+    if (argc0 >= 5) {
+        key1 = hatoui(argv0[3]);
+        key2 = hatoui(argv0[4]);
+    }
 
-    // Open the file and get a handle.
-    result = KsOpenFile(argv0[1], &hDecode);
-    if (!KS_CALL_SUCCESSFUL(result)) {
-        cout << "Loading file '" << argv0[1] << "' failed." << endl;
+    // Go!
+    try {
+        cgss::CFileStream fileIn(argv0[1], cgss::FileMode::OpenExisting, cgss::FileAccess::Read),
+            fileOut(argv0[2], cgss::FileMode::Create, cgss::FileAccess::Write);
+        cgss::CHcaDecoder hcaDecoder(&fileIn, decoderConfig);
+
+        uint32_t read = 1;
+        static const uint32_t bufferSize = 1024;
+        uint8_t buffer[bufferSize];
+        while (read > 0) {
+            read = hcaDecoder.Read(buffer, bufferSize, 0, bufferSize);
+            if (read > 0) {
+                fileOut.Write(buffer, bufferSize, 0, read);
+            }
+        }
+    } catch (const cgss::CException &ex) {
+        cerr << "CException: " << ex.GetExceptionMessage() << ", code=" << ex.GetOpResult() << endl;
+        return ex.GetOpResult();
+    } catch (const std::logic_error &ex) {
+        cerr << "std::exception: " << ex.what() << endl;
         return 1;
     }
 
-    // Set parameters before beginning to decode.
-    uint32 key1 = 0, key2 = 0;
-#ifdef COMPILE_WITH_CGSS
-    key1 = cgssKey1;
-    key2 = cgssKey2;
-#endif
-    if (argc0 >= 4) {
-        key1 = hatoui(argv0[3]);
-    }
-    if (argc0 >= 5) {
-        key1 = hatoui(argv0[4]);
-    }
-    if (argc0 >= 5) {
-        KsSetParamI32(hDecode, KS_PARAM_KEY1, key1);
-        KsSetParamI32(hDecode, KS_PARAM_KEY2, key2);
-    }
-    KsBeginDecode(hDecode);
-    // An example to use extensions. You must call KsEnableExtension() and KsPrepareExtensions() right after KsBeginDecode().
-    //KsEnableExtension(hDecode, KS_EXTENSION_STREAMING, TRUE);
-    //KsPrepareExtensions(hDecode);
-
-    fp = TmOpenFile(argv0[2], GENERIC_WRITE, CREATE_ALWAYS);
-
-    // Write the WAVE header. KsGetWaveHeader() calls are optional.
-    KsGetWaveHeader(hDecode, nullptr, &bufferSize);
-    buffer = new uint8[bufferSize];
-    KsGetWaveHeader(hDecode, buffer, &bufferSize);
-    TmWriteFile(fp, buffer, bufferSize);
-    delete[] buffer;
-
-    // Write WAVE data blocks.
-    KsDecodeData(hDecode, nullptr, &bufferSize);
-    if (bufferSize > 0) {
-        result = KS_OP_HAS_MORE_DATA;
-        while (result > 0) {
-            // 10 blocks per time
-            dataSize = bufferSize * 10;
-            buffer = new uint8[dataSize];
-            result = KsDecodeData(hDecode, buffer, &dataSize);
-            TmWriteFile(fp, buffer, dataSize);
-            delete[] buffer;
-        }
-    }
-
-    // Clean up.
-    TmCloseFile(fp);
-    KsEndDecode(hDecode);
-    KsCloseHandle(hDecode);
+    cout << "Completed." << endl;
 
 #ifdef __CYGWIN__
     delete[] argv0;
     // What about `args`?
 #endif
+    return 0;
 }
 
 void PrintHelp() {
-    uint32 k1 = 0, k2 = 0;
-#ifdef COMPILE_WITH_CGSS
-    k1 = cgssKey1;
-    k2 = cgssKey2;
-#endif
-    cout << "Utility for decoding HCA to WAVE\n\n"
+    uint32_t k1 = 0, k2 = 0;
+    k1 = g_CgssKey1;
+    k2 = g_CgssKey2;
+    cout << "hca2wav: Utility for decoding HCA to wave audio\n\n"
          << "Usage:\n"
-         << "hca2wav <in file> <out file> [<key1 = " << hex << k1 << "> <key2 = " << hex << k2 << ">]"
+         << "    hca2wav <in file> <out file> [<key1 = " << hex << k1 << "> <key2 = " << hex << k2 << ">]\n"
+         << "Example:\n"
+         << "    hca2wav C:\\input.hca C:\\output.wav 12345678 90abcdef"
          << endl;
 }
 
-uint32 hatoui(const char *a) {
-    uint32 val = 0;
+uint32_t hatoui(const char *a) {
+    uint32_t val = 0;
     auto i = 0;
-    while (a && *a && i < (sizeof(uint32) / sizeof(uint8) * 2)) {
+    while (a && *a && i < (sizeof(uint32_t) / sizeof(uint8_t) * 2)) {
         if ('0' <= *a && *a <= '9') {
             val = (val << 4) + (*a - '0');
         } else if ('a' <= *a && *a <= 'f') {

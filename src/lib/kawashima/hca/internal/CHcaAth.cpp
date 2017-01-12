@@ -1,34 +1,35 @@
-#include <string.h>
 #include "CHcaAth.h"
 
-CHcaAth::CHcaAth() {
-    Init0();
-}
+CGSS_NS_BEGIN
 
-ubool CHcaAth::Init(uint16 type, uint32 key) {
-    switch (type) {
-        case 0:
-            Init0();
-            break;
-        case 1:
-            Init1(key);
-            break;
-        default:
-            return FALSE;
+    CHcaAth::CHcaAth() {
+        Init0();
     }
-    return TRUE;
-}
 
-const uint8 *CHcaAth::GetTable() {
-    return _table;
-}
+    bool_t CHcaAth::Init(uint16_t type, uint32_t key) {
+        switch (type) {
+            case 0:
+                Init0();
+                break;
+            case 1:
+                Init1(key);
+                break;
+            default:
+                return FALSE;
+        }
+        return TRUE;
+    }
 
-void CHcaAth::Init0() {
-    memset(_table, 0, sizeof(_table));
-}
+    const uint8_t *CHcaAth::GetTable() {
+        return _table;
+    }
 
-void CHcaAth::Init1(uint32 key) {
-    static uint8 list[] = {
+    void CHcaAth::Init0() {
+        memset(_table, 0, sizeof(_table));
+    }
+
+    void CHcaAth::Init1(uint32_t key) {
+        static uint8_t list[] = {
             0x78, 0x5F, 0x56, 0x51, 0x4E, 0x4C, 0x4B, 0x49, 0x48, 0x48, 0x47, 0x46, 0x46, 0x45, 0x45, 0x45,
             0x44, 0x44, 0x44, 0x44, 0x43, 0x43, 0x43, 0x43, 0x43, 0x43, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42,
             0x42, 0x42, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x40, 0x40, 0x40, 0x40,
@@ -70,13 +71,15 @@ void CHcaAth::Init1(uint32 key) {
             0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD,
             0xDE, 0xDF, 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xED, 0xEE,
             0xEF, 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFF, 0xFF,
-    };
-    for (uint32 i = 0, v = 0; i < 0x80; i++, v += key) {
-        uint32 index = v >> 13;
-        if (index >= 0x28E) {
-            memset(&_table[i], 0xFF, 0x80 - i);
-            break;
+        };
+        for (uint32_t i = 0, v = 0; i < 0x80; i++, v += key) {
+            uint32_t index = v >> 13;
+            if (index >= 0x28E) {
+                memset(&_table[i], 0xFF, 0x80 - i);
+                break;
+            }
+            _table[i] = list[index];
         }
-        _table[i] = list[index];
     }
-}
+
+CGSS_NS_END

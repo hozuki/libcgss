@@ -15,7 +15,7 @@
 #endif
 
 #include "../../lib/hca_info.hpp"
-#include "../../lib/kawashima/hca/CHcaDecoder.h"
+#include "../../lib/kawashima/hca/CHcaFormatReader.h"
 
 using namespace std;
 
@@ -60,11 +60,11 @@ int main(int argc, const char *argv[]) {
     memset(&ccTo, 0, sizeof(HCA_CIPHER_CONFIG));
 
 #ifdef COMPILE_WITH_CGSS
-    ccFrom.keyParts.key1 = cgssKey1;
-    ccFrom.keyParts.key2 = cgssKey2;
+    ccFrom.keyParts.key1 = g_CgssKey1;
+    ccFrom.keyParts.key2 = g_CgssKey2;
     ccTo.cipherType = HCA_CIPHER_TYPE_WITH_KEY;
-    ccTo.keyParts.key1 = cgssKey1;
-    ccTo.keyParts.key2 = cgssKey2;
+    ccTo.keyParts.key1 = g_CgssKey1;
+    ccTo.keyParts.key2 = g_CgssKey2;
 #endif
 
     int r = parseArgs(argc, argv, &fileFrom, &fileTo, ccFrom, ccTo);

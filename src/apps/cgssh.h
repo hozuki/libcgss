@@ -1,7 +1,11 @@
-#ifndef LIBCGSS_CGSSH_H
-#define LIBCGSS_CGSSH_H
+#pragma once
 
-#define cgssKey1 (0xF27E3B22)
-#define cgssKey2 (0x00003657)
+#include <stdint.h>
 
+#ifdef COMPILE_WITH_CGSS
+static const uint32_t g_CgssKey1 = 0xF27E3B22;
+static const uint32_t g_CgssKey2 = 0x00003657;
+#else
+static const uint32_t g_CgssKey1 = 0;
+static const uint32_t g_CgssKey2 = 0;
 #endif

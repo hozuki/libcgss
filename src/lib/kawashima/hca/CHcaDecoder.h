@@ -1,71 +1,95 @@
-#ifndef KAWASHIMA_HCA_H
-#define KAWASHIMA_HCA_H
+#pragma once
 
-#include "../../cgss_typedef.h"
-#include "../../hca_info.hpp"
-#include "../api/ks_decode.h"
-#include "../../ks_api.h"
-#include "internal/CHcaCipher.h"
-#include "internal/CHcaAth.h"
-#include "internal/HcaChannel.h"
+#include <map>
+#include "../../cgss_data.h"
+#include "CHcaFormatReader.h"
 
-struct _KS_DECODE_STATUS;
-typedef struct _KS_DECODE_STATUS KS_DECODE_STATUS;
+CGSS_NS_BEGIN
 
-class CHcaDecoder {
+    class CHcaCipher;
 
-public:
+    class CHcaAth;
 
-    typedef void (*DecodeFunc)(float data, uint8 *buffer, uint32 *cursor);
+    class CHcaChannel;
 
-    CHcaDecoder();
+    class CGSS_EXPORT CHcaDecoder : public CHcaFormatReader {
 
-    CHcaDecoder(uint32 key1, uint32 key2);
+    __extends(CHcaFormatReader);
 
-    CHcaDecoder(const HCA_CIPHER_CONFIG &crypt);
+    public:
 
-    CHcaDecoder(const HCA_CIPHER_CONFIG &cryptFrom, const HCA_CIPHER_CONFIG &cryptTo);
+        CHcaDecoder(CStream *stream);
 
-    KS_RESULT ReadHeader(uint8 *pData, uint32 dwFileSize, uint32 *pdwDataOffset);
+        CHcaDecoder(CStream *stream, const HCA_DECODER_CONFIG &decoderConfig);
 
-    KS_RESULT ReadHeader(uint8 *pFileData, uint32 dwDataSize, KS_DECODE_STATUS *pStatus);
+        virtual ~CHcaDecoder();
 
-    KS_RESULT SetNewCipherType(uint8 *pData, uint32 dwFileSize, HCA_CIPHER_TYPE cipherType, uint32 dwDataOffset);
+        virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-    KS_RESULT ConvertData(uint8 *pData, uint32 dwAudioDataSize, uint32 dwDataCursor);
+        virtual uint64_t GetPosition() override;
 
-    KS_RESULT GetWaveHeader(uint8 *pBuffer, uint32 *pdwWaveHeaderSize);
+        virtual void SetPosition(uint64_t value) override;
 
-    KS_RESULT DecodeData(uint8 *pData, uint32 dwDataSize, KS_DECODE_STATUS *status, uint8 *pWaveData,
-                         uint32 *pdwWaveDataSize, ubool *pbHasMore);
+        virtual uint64_t GetLength() override;
 
-    KS_RESULT GenerateWaveDataBlock(uint8 *pData, uint32 dwBlockSize, uint32 *pDataCursor, uint8 *pBuffer,
-                                    uint32 *pBufferCursor, DecodeFunc pfnDecodeFunc);
+    private:
 
-    KS_RESULT DecodeBlock(uint8 *pData, uint32 dwBlockSize, uint32 *pDataCursor);
+        CHcaDecoder(const CHcaDecoder &) = delete;
 
-    KS_RESULT GetInfo(HCA_INFO *pInfo) const;
+        void InitializeExtra();
 
-    KS_RESULT GetInfo(HCA_INFO &info) const;
+        /**
+         * Generate a wave header for decoded file.
+         * @remarks You can use GetWaveHeaderSize() to determine the header size before trying to get wave header data.
+         * @see ComputeWaveHeaderSize
+         * @return
+         */
+        const uint8_t *GenerateWaveHeader();
 
-private:
+        /**
+         * Computes the minimum size required for generated wave header.
+         * @return Computed size.
+         */
+        uint32_t GetWaveHeaderSize();
 
-    static uint16 Checksum(void *pData, uint32 dwDataSize, uint16 wInitSum);
+        /**
+         * Continue to decode upcoming blocks, from HCA to wave audio, and write decoded data to data buffer.
+         * @remarks You can use ComputeWaveBlockSize() to determine the minimum size for the data buffer before trying to decode.
+         * Decoded data are in blocks. This function will try to decode the audio as much as possible when there is still data
+         * and the buffer space left is still enough for a block.
+         * @see ComputeWaveBlockSize
+         * @return
+         */
+        const uint8_t *DecodeBlock(uint32_t blockIndex);
 
-    KS_RESULT ConvertBlock(uint8 *pData, uint32 dwBlockSize);
+        /**
+         * Computes the minimum size required for decoded wave data block.
+         * @return Computed size.
+         */
+        uint32_t GetWaveBlockSize();
 
-    KS_RESULT FixBlock(uint8 *pData, uint32 dwBlockSize);
+        /**
+         * Map a linear position to a looped position, considering looping range.
+         * @param linearPosition The wave stream position in linear order.
+         * @return Mapped position. It falls in [0, waveHeaderSize + totalWaveBlocks * waveBlockSize].
+         */
+        uint64_t MapLoopedPosition(uint64_t linearPosition);
 
-    KS_RESULT FixHeader(uint8 *pData, uint32 dwFileSize, uint32 dwDataOffset);
+        std::map<uint32_t, const uint8_t *> _decodedBlocks;
 
-    CHcaAth _ath;
-    CHcaCipher _cipherFrom, _cipherTo;
-    HCA_CIPHER_CONFIG _ccFrom, _ccTo;
-    HcaChannel _channels[0x10];
-    HCA_INFO _hcaInfo;
+        static const uint32_t ChannelCount = 0x10;
 
-    static const uint16 *ChecksumTable;
+        CHcaAth *_ath;
+        CHcaCipher *_cipher;
+        HCA_DECODER_CONFIG _decoderConfig;
+        CHcaChannel *_channels[ChannelCount];
+        uint32_t _waveHeaderSize;
+        uint8_t *_waveHeaderBuffer;
+        uint32_t _waveBlockSize;
+        uint8_t *_hcaBlockBuffer;
+        // Position measured by wave output.
+        uint64_t _position;
 
-};
+    };
 
-#endif
+CGSS_NS_END

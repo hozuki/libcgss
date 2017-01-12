@@ -1,25 +1,30 @@
-#ifndef KAWASHIMA_HCAATH_H
-#define KAWASHIMA_HCAATH_H
+#pragma once
 
-#include "../../../cgss_typedef.h"
-#include "../../../hca_info.hpp"
+#include "../../../cgss_env.h"
 
-class CHcaAth {
+CGSS_NS_BEGIN
 
-public:
-    CHcaAth();
+    class CHcaAth {
 
-    ubool Init(uint16 type, uint32 key);
+    public:
 
-    const uint8 *GetTable();
+        CHcaAth();
 
-private:
-    uint8 _table[0x80];
+        CHcaAth(const CHcaAth &) = default;
 
-    void Init0();
+        bool_t Init(uint16_t type, uint32_t key);
 
-    void Init1(uint32 key);
+        const uint8_t *GetTable();
 
-};
+    private:
 
-#endif //KAWASHIMA_HCAATH_H
+        uint8_t _table[0x80];
+
+        void Init0();
+
+        void Init1(uint32_t key);
+
+    };
+
+
+CGSS_NS_END

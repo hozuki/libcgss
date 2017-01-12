@@ -1,36 +1,45 @@
-#ifndef KAWASHIMA_HCACIPHER_H
-#define KAWASHIMA_HCACIPHER_H
+#pragma once
 
-#include "../../../cgss_typedef.h"
-#include "../../../hca_info.hpp"
+#include "../../../cgss_env.h"
+#include "../../../cgss_enum.h"
 
-class CHcaCipher {
+CGSS_NS_BEGIN
 
-public:
-    CHcaCipher();
+    class CHcaCipher {
 
-    ubool Init(HCA_CIPHER_TYPE type, uint32 key1, uint32 key2);
+    public:
 
-    ubool InitEncryptTable();
+        CHcaCipher();
 
-    void Decrypt(uint8 *data, uint32 size);
+        CHcaCipher(HcaCipherType type, uint32_t key1, uint32_t key2);
 
-    void Encrypt(uint8 *data, uint32 size);
+        CHcaCipher(const CHcaCipher &);
 
-private:
-    uint8 _decryptTable[0x100];
-    uint8 _encryptTable[0x100];
+        bool_t InitEncryptTable();
 
-    void Init0();
+        void Decrypt(uint8_t *data, uint32_t size);
 
-    void Init1();
+        void Encrypt(uint8_t *data, uint32_t size);
 
-    void Init56(uint32 key1, uint32 key2);
+    private:
 
-    void Init56_CreateTable(uint8 *table, uint8 key);
+        bool_t Init(HcaCipherType type, uint32_t key1, uint32_t key2);
 
-    HCA_CIPHER_TYPE _cipherType;
+        static const uint32_t TableSize = 0x100;
 
-};
+        uint8_t _decryptTable[TableSize];
+        uint8_t _encryptTable[TableSize];
 
-#endif //KAWASHIMA_HCACIPHER_H
+        void Init0();
+
+        void Init1();
+
+        void Init56(uint32_t key1, uint32_t key2);
+
+        void Init56_CreateTable(uint8_t *table, uint8_t key);
+
+        HcaCipherType _cipherType;
+
+    };
+
+CGSS_NS_END

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 project(cgss)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_USE_RELATIVE_PATHS TRUE)
 if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
     set(TARGET_ARCH x86)
@@ -17,38 +17,16 @@ else ()
     set(GNU_COMPILER 0)
 endif ()
 
-set(LIBCGSS_KS_API_FILES
-        #kawashima
-        src/lib/ks_api.h src/lib/cgss_typedef.h src/lib/hca_info.hpp src/lib/kawashima/api/ks_decode_helper.h)
-set(LIBCGSS_TM_API_FILES
-        # takamori
-        src/lib/tm_io.h src/lib/tm_dylib.h src/lib/tm_api.h)
-set(LIBCGSS_COMMON_FILES
-        src/lib/common/cgss_building_dll.h)
-set(LIBCGSS_KS_SOURCE_FILES
-        src/lib/kawashima/hca/CHcaDecoder.h src/lib/kawashima/hca/CHcaDecoder.cpp src/lib/kawashima/hca/HcaNative.h
-        src/lib/kawashima/hca/internal/CHcaCipher.cpp src/lib/kawashima/hca/internal/CHcaCipher.h src/lib/kawashima/hca/internal/CHcaAth.cpp
-        src/lib/kawashima/hca/internal/CHcaAth.h src/lib/kawashima/hca/internal/CHcaData.cpp src/lib/kawashima/hca/internal/CHcaData.h
-        src/lib/kawashima/hca/internal/HcaChannel.cpp src/lib/kawashima/hca/internal/HcaChannel.h src/lib/kawashima/hca/Magic.cpp
-        src/lib/kawashima/hca/Magic.h src/lib/kawashima/hca/WaveGen.h src/lib/kawashima/hca/WaveGen.cpp
-        src/lib/kawashima/wave/WaveNative.h src/lib/kawashima/api/ks_api.cpp
-        src/lib/kawashima/api/ks_decode.h)
-set(LIBCGSS_KS_EXTENSION_FILES
-        src/lib/kawashima/ext/ks_ext.h src/lib/kawashima/ext/ks_ext.cpp
-        src/lib/kawashima/ext/ks_ext_streaming.cpp)
-set(LIBCGSS_TM_SOURCE_FILES
-        src/lib/takamori/polyfill/tm_io.cpp src/lib/takamori/polyfill/tm_dylib.cpp
-        src/lib/takamori/streams/tm_stream.cpp src/lib/takamori/streams/tm_stream.h
-        src/lib/takamori/streams/tm_memory_stream.cpp src/lib/takamori/streams/tm_memory_stream.h
-        src/lib/takamori/streams/tm_file_stream.cpp src/lib/takamori/streams/tm_file_stream.h)
+
+file(GLOB LIBCGSS_API_FILES "src/lib/*.h")
+file(GLOB_RECURSE LIBCGSS_COMMON_HEADER_FILES "src/lib/common/*.h" "src/lib/data/*.h")
+file(GLOB_RECURSE LIBCGSS_COMMON_SOURCE_FILES "src/lib/common/*.cpp")
+file(GLOB_RECURSE LIBCGSS_KS_API_FILES "src/lib/kawashima/*.h")
+file(GLOB_RECURSE LIBCGSS_KS_SOURCE_FILES "src/lib/kawashima/*.cpp")
+file(GLOB_RECURSE LIBCGSS_TM_API_FILES "src/lib/takamori/*.h")
+file(GLOB_RECURSE LIBCGSS_TM_SOURCE_FILES "src/lib/takamori/*.cpp")
 set(LIBCGSS_SOURCE_FILES
-        ${LIBCGSS_COMMON_FILES}
-        ${LIBCGSS_KS_API_FILES}
-        ${LIBCGSS_KS_SOURCE_FILES}
-        ${LIBCGSS_KS_EXTENSION_FILES}
-        # takamori
-        ${LIBCGSS_TM_API_FILES}
-        ${LIBCGSS_TM_SOURCE_FILES})
+        ${LIBCGSS_API_FILES} ${LIBCGSS_COMMON_HEADER_FILES} ${LIBCGSS_COMMON_SOURCE_FILES} ${LIBCGSS_KS_API_FILES} ${LIBCGSS_KS_SOURCE_FILES} ${LIBCGSS_TM_API_FILES} ${LIBCGSS_TM_SOURCE_FILES})
 set(HCACC_SOURCE_FILES
         src/apps/hcacc/hcacc.cpp src/apps/cgssh.h ${LIBCGSS_SOURCE_FILES})
 set(HCAENC_SOURCE_FILES
@@ -67,8 +45,8 @@ set(PROJECT_VERSION_PATCH 0)
 if ("${CYGWIN}" OR "${MINGW}")
     # http://stackoverflow.com/questions/12921911/mingw-libgcc-s-sjlj-1-dll-is-missing
     # However, these options will only work if putting them here, not in 'compiler is gnu c' section.
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libgcc")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libgcc -static")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++ -static")
     if ("${CYGWIN}")
         # Force using MinGW even though compiling via Cygwin (please install the packages)
         if (${TARGET_ARCH} STREQUAL "x86")
@@ -83,6 +61,8 @@ if ("${CYGWIN}" OR "${MINGW}")
     else ()
         # MinGW
     endif ()
+    # http://stackoverflow.com/questions/31038963/how-do-you-rename-a-library-filename-in-cmake
+    set(CMAKE_SHARED_LIBRARY_PREFIX "")
 endif ()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/${TARGET_ARCH}/${CMAKE_BUILD_TYPE})
@@ -91,6 +71,11 @@ add_executable(hcacc ${HCACC_SOURCE_FILES})
 add_executable(hcaenc ${HCAENC_SOURCE_FILES})
 add_executable(hca2wav ${HCA2WAV_SOURCE_FILES})
 add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})
+
+target_compile_definitions(cgss PRIVATE __CGSS_BUILDING_DLL__)
+target_compile_definitions(hcacc PRIVATE COMPILE_WITH_CGSS)
+target_compile_definitions(hcaenc PRIVATE COMPILE_WITH_CGSS)
+target_compile_definitions(hca2wav PRIVATE COMPILE_WITH_CGSS)
 
 # http://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
 if (${GNU_COMPILER})
@@ -113,9 +98,6 @@ elseif (${MSVC})
 endif ()
 
 if (${WIN32})
-    # http://stackoverflow.com/questions/31038963/how-do-you-rename-a-library-filename-in-cmake
-    #set_target_properties(cgss PROPERTIES PREFIX "")
-    set(CMAKE_SHARED_LIBRARY_PREFIX "")
     set_target_properties(cgss
             PROPERTIES
             LINK_DEF_FILE_FLAG ${LIBCGSS_DEF_FILE})
