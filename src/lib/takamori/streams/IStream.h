@@ -11,7 +11,7 @@ CGSS_NS_BEGIN
 
         virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) PURE;
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, uint32_t offset, uint32_t count) PURE;
+        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) PURE;
 
         virtual void Seek(int64_t offset, StreamSeekOrigin origin) PURE;
 

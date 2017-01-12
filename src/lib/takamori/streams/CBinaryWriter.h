@@ -11,7 +11,7 @@ CGSS_NS_BEGIN
 
     public:
 
-        CBinaryWriter(CStream *baseStream);
+        CBinaryWriter(IStream *baseStream);
 
         uint32_t WriteInt8(int8_t v);
 
@@ -51,7 +51,7 @@ CGSS_NS_BEGIN
 
         virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, uint32_t offset, uint32_t count) override;
+        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
         virtual bool_t IsWritable() const override;
 
@@ -75,7 +75,7 @@ CGSS_NS_BEGIN
 
         CBinaryWriter(const CBinaryWriter &) = delete;
 
-        CStream *_baseStream;
+        IStream *_baseStream;
 
     };
 

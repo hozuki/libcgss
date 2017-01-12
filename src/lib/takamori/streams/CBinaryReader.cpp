@@ -47,7 +47,7 @@ CGSS_NS_BEGIN
     } \
     return ret
 
-    CBinaryReader::CBinaryReader(CStream *baseStream)
+    CBinaryReader::CBinaryReader(IStream *baseStream)
         : _baseStream(baseStream) {
     }
 
@@ -215,7 +215,7 @@ CGSS_NS_BEGIN
         return _baseStream->Read(buffer, bufferSize, offset, count);
     }
 
-    uint32_t CBinaryReader::Write(const void *buffer, uint32_t bufferSize, uint32_t offset, uint32_t count) {
+    uint32_t CBinaryReader::Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) {
         throw CInvalidOperationException("CBinaryReader::Write");
     }
 

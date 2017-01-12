@@ -12,11 +12,11 @@
 
 CGSS_NS_BEGIN
 
-    CHcaDecoder::CHcaDecoder(CStream *stream)
+    CHcaDecoder::CHcaDecoder(IStream *stream)
         : CHcaDecoder(stream, HCA_DECODER_CONFIG()) {
     }
 
-    CHcaDecoder::CHcaDecoder(CStream *stream, const HCA_DECODER_CONFIG &decoderConfig)
+    CHcaDecoder::CHcaDecoder(IStream *stream, const HCA_DECODER_CONFIG &decoderConfig)
         : super(stream) {
         _cipher = nullptr;
         _ath = nullptr;

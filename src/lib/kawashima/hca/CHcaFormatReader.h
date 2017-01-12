@@ -12,7 +12,7 @@ CGSS_NS_BEGIN
 
     public:
 
-        CHcaFormatReader(CStream *baseStream);
+        CHcaFormatReader(IStream *baseStream);
 
         virtual ~CHcaFormatReader();
 
@@ -23,7 +23,7 @@ CGSS_NS_BEGIN
          */
         void GetHcaInfo(HCA_INFO &info);
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, uint32_t offset, uint32_t count) override;
+        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
         virtual bool_t IsWritable() const override;
 
@@ -41,7 +41,7 @@ CGSS_NS_BEGIN
 
         HCA_INFO _hcaInfo;
 
-        CStream *_baseStream;
+        IStream *_baseStream;
 
     private:
 

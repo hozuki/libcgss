@@ -27,6 +27,8 @@ typedef enum _CGSS_OP_RESULT {
     CGSS_OP_FORCE_DWORD = 0x7fffffff
 } CGSS_OP_RESULT;
 
+#define CGSS_OP_SUCCEEDED(x) ((CGSS_OP_RESULT)(x) >= 0)
+
 typedef enum _CGSS_FILE_MODE {
     CGSS_FILE_MODE_NONE = 0,
     CGSS_FILE_MODE_APPEND = 1,

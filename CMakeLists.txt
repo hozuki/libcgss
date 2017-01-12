@@ -12,7 +12,8 @@ else ()
     message(FATAL_ERROR "Unknown pointer size: ${CMAKE_SIZEOF_VOID_P}")
 endif ()
 
-set(TARGET_ARCH x86)
+# Override
+#set(TARGET_ARCH x86)
 
 if ("${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS}" OR "${CMAKE_COMPILER_IS_GNUC}" OR "${CYGWIN}" OR "${MINGW}")
     set(GNU_COMPILER 1)
@@ -21,8 +22,8 @@ else ()
 endif ()
 
 file(GLOB LIBCGSS_API_FILES "src/lib/*.h")
-file(GLOB_RECURSE LIBCGSS_COMMON_HEADER_FILES "src/lib/common/*.h" "src/lib/data/*.h")
-file(GLOB_RECURSE LIBCGSS_COMMON_SOURCE_FILES "src/lib/common/*.cpp")
+file(GLOB_RECURSE LIBCGSS_COMMON_HEADER_FILES "src/lib/common/*.h" "src/lib/cdata/*.h")
+file(GLOB_RECURSE LIBCGSS_COMMON_SOURCE_FILES "src/lib/common/*.cpp" "src/lib/capi/*.cpp")
 file(GLOB_RECURSE LIBCGSS_KS_API_FILES "src/lib/kawashima/*.h")
 file(GLOB_RECURSE LIBCGSS_KS_SOURCE_FILES "src/lib/kawashima/*.cpp")
 file(GLOB_RECURSE LIBCGSS_TM_API_FILES "src/lib/takamori/*.h")
@@ -41,7 +42,7 @@ set(HCAINFO_SOURCE_FILES
 set(LIBCGSS_DEF_FILE src/cgss.def)
 set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE})
 
-set(PROJECT_VERSION_MAJOR 1)
+set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 2)
 set(PROJECT_VERSION_TWEAK 0)
 set(PROJECT_VERSION_PATCH 0)

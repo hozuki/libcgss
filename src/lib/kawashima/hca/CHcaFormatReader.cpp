@@ -9,7 +9,7 @@
 
 CGSS_NS_BEGIN
 
-    CHcaFormatReader::CHcaFormatReader(CStream *baseStream)
+    CHcaFormatReader::CHcaFormatReader(IStream *baseStream)
         : _baseStream(baseStream) {
         memset(&_hcaInfo, 0, sizeof(HCA_INFO));
         Initialize();
@@ -299,7 +299,7 @@ CGSS_NS_BEGIN
         throw CInvalidOperationException();
     }
 
-    uint32_t CHcaFormatReader::Write(const void *buffer, uint32_t bufferSize, uint32_t offset, uint32_t count) {
+    uint32_t CHcaFormatReader::Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) {
         throw CInvalidOperationException();
     }
 

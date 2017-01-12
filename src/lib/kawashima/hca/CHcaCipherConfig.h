@@ -2,7 +2,7 @@
 
 #include "../../cgss_env.h"
 #include "../../cgss_enum.h"
-#include "../../data/HCA_CIPHER_CONFIG.h"
+#include "../../cdata/HCA_CIPHER_CONFIG.h"
 
 CGSS_NS_BEGIN
 

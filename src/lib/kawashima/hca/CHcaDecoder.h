@@ -18,9 +18,9 @@ CGSS_NS_BEGIN
 
     public:
 
-        CHcaDecoder(CStream *stream);
+        CHcaDecoder(IStream *stream);
 
-        CHcaDecoder(CStream *stream, const HCA_DECODER_CONFIG &decoderConfig);
+        CHcaDecoder(IStream *stream, const HCA_DECODER_CONFIG &decoderConfig);
 
         virtual ~CHcaDecoder();
 

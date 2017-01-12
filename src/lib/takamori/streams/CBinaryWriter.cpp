@@ -29,7 +29,7 @@ static const union {
 
 CGSS_NS_BEGIN
 
-    CBinaryWriter::CBinaryWriter(CStream *baseStream)
+    CBinaryWriter::CBinaryWriter(IStream *baseStream)
         : _baseStream(baseStream) {
     }
 
@@ -114,7 +114,7 @@ CGSS_NS_BEGIN
         throw CInvalidOperationException("CBinaryWriter::Read");
     }
 
-    uint32_t CBinaryWriter::Write(const void *buffer, uint32_t bufferSize, uint32_t offset, uint32_t count) {
+    uint32_t CBinaryWriter::Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) {
         return _baseStream->Write(buffer, bufferSize, offset, count);
     }
 

@@ -61,11 +61,11 @@
 typedef uint32_t bool_t;
 
 #ifdef _MSC_VER
-#define CGSS_API(ret_type, name) EXTERN_C CGSS_EXPORT ret_type STDCALL name
+#define CGSS_API_DECL(ret_type) EXTERN_C CGSS_EXPORT ret_type STDCALL
 #else
-#define CGSS_API(ret_type, name) EXTERN_C CGSS_EXPORT STDCALL ret_type name
+#define CGSS_API_DECL(ret_type) EXTERN_C CGSS_EXPORT STDCALL ret_type
 #endif
-#define CGSS_IMPL_RET(ret_type) EXTERN_C ret_type STDCALL
+#define CGSS_API_IMPL(ret_type) EXTERN_C ret_type STDCALL
 
 #ifdef __cplusplus
 #ifndef PURE

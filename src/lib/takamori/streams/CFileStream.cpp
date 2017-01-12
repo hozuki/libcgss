@@ -49,21 +49,21 @@ CGSS_NS_BEGIN
         if (!IsReadable()) {
             throw CInvalidOperationException("FileStream::Read()");
         }
-        auto actualCount = min(static_cast<uint32_t>(bufferSize - offset), count);
-        auto byteBuffer = static_cast<uint8_t *>(buffer);
-        auto actualRead = fread(byteBuffer + offset, 1, actualCount, _fp);
+        const auto actualCount = min(static_cast<uint32_t>(bufferSize - offset), count);
+        const auto byteBuffer = static_cast<uint8_t *>(buffer);
+        const auto actualRead = fread(byteBuffer + offset, 1, actualCount, _fp);
         return static_cast<uint32_t>(actualRead);
     }
 
-    uint32_t CFileStream::Write(const void *buffer, uint32_t bufferSize, uint32_t offset, uint32_t count) {
+    uint32_t CFileStream::Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) {
         if (!buffer) {
             throw CArgumentException("FileStream::Write()");
         }
         if (!IsWritable()) {
             throw CInvalidOperationException("FileStream::Write()");
         }
-        auto actualCount = min(bufferSize - offset, count);
-        auto byteBuffer = static_cast<const uint8_t *>(buffer);
+        const auto actualCount = min(static_cast<uint32_t>(bufferSize - offset), count);
+        const auto byteBuffer = static_cast<const uint8_t *>(buffer);
         fwrite(byteBuffer + offset, 1, actualCount, _fp);
         return actualCount;
     }

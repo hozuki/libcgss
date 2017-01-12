@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../cgss_env.h"
-#include "../../data/HCA_DECODER_CONFIG.h"
+#include "../../cdata/HCA_DECODER_CONFIG.h"
 
 CGSS_NS_BEGIN
 

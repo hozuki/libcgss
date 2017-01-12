@@ -67,7 +67,7 @@ CGSS_NS_BEGIN
         size_t maxRead = 0;
         if (count > 0) {
             auto position = GetPosition();
-            maxRead = (size_t)min(GetLength() - position, (uint64_t)count);
+            maxRead = static_cast<size_t>(min(GetLength() - position, (uint64_t)count));
             if (maxRead > 0) {
                 const auto byteBuffer = static_cast<uint8_t *>(buffer);
                 memcpy(byteBuffer, _buffer + position, maxRead);
@@ -78,14 +78,14 @@ CGSS_NS_BEGIN
         return static_cast<uint32_t>(maxRead);
     }
 
-    uint32_t CMemoryStream::Write(const void *buffer, uint32_t bufferSize, uint32_t offset, uint32_t count) {
+    uint32_t CMemoryStream::Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) {
         if (!buffer) {
             throw CArgumentException("MemoryStream::Write()");
         }
         if (!IsWritable()) {
             throw CInvalidOperationException("MemoryStream::Write()");
         }
-        count = min(bufferSize - offset, count);
+        count = min(static_cast<uint32_t>(bufferSize - offset), count);
         if (count > 0) {
             auto position = GetPosition();
             const auto expectedLength = position + count;

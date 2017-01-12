@@ -21,7 +21,7 @@ CGSS_NS_BEGIN
           * @param cryptTo Wanted cipher type.
           * @return
           */
-        CHcaCipherConverter(CStream *stream, const HCA_CIPHER_CONFIG &cryptFrom, const HCA_CIPHER_CONFIG &cryptTo);
+        CHcaCipherConverter(IStream *stream, const HCA_CIPHER_CONFIG &cryptFrom, const HCA_CIPHER_CONFIG &cryptTo);
 
         virtual ~CHcaCipherConverter();
 

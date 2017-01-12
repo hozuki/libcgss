@@ -1,5 +1,6 @@
 #include "CStream.h"
 #include "../exceptions/CException.h"
+#include "../exceptions/CArgumentException.h"
 
 CGSS_NS_BEGIN
 
@@ -39,6 +40,9 @@ CGSS_NS_BEGIN
     }
 
     void CStream::CopyTo(IStream &destination, uint32_t bufferSize) {
+        if (this == &destination) {
+            throw CArgumentException("CStream::CopyTo");
+        }
         if (bufferSize == 0) {
             return;
         }

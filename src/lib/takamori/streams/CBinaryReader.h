@@ -11,7 +11,7 @@ CGSS_NS_BEGIN
 
     public:
 
-        CBinaryReader(CStream *baseStream);
+        CBinaryReader(IStream *baseStream);
 
         int8_t ReadInt8() const;
 
@@ -87,7 +87,7 @@ CGSS_NS_BEGIN
 
         virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, uint32_t offset, uint32_t count) override;
+        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
         virtual bool_t IsWritable() const override;
 
@@ -111,7 +111,7 @@ CGSS_NS_BEGIN
 
         CBinaryReader(const CBinaryReader &) = delete;
 
-        CStream *_baseStream;
+        IStream *_baseStream;
 
     };
 
