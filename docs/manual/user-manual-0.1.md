@@ -12,7 +12,7 @@ It is named after [Mizuki Kawashima](http://www.project-imas.com/wiki/Mizuki_Kaw
 Its original code is from [here](https://mega.co.nz/#!Fh8FwKoB!0xuFdrit3IYcEgQK7QIqFKG3HMQ6rHKxrH3r5DJlJ3M), in public
 domain. Some adaptations are made to pack the functions into a shared library.
 
-For how-tos, please see the [API docs](api/ks-api.md) or
+For how-tos, please see the [API docs](../api/ks-api.md) or
 [example project](https://github.com/Hozuki/libcgss/tree/master/src/apps/hca2wav/hca2wav.cpp).
 
 Beware that, if you want to integrate the library or any piece of code, **DO AT YOUR OWN RISK**.

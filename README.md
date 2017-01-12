@@ -1,33 +1,40 @@
 # libcgss
 
 **libcgss** is a helper library for [Idolmaster Cinderella Girls Starlight Stage](http://cinderella.idolmaster.jp/sl-stage/)
-(CGSS).
+(CGSS). It provides both C and C++ API for HCA audio manipulation. ACB archive support
+is in progress.
 
 The project consists of a library (*libcgss*) and several other applications.
 
-- Library
-  - [*kawashima*](http://www.project-imas.com/wiki/Mizuki_Kawashima): HCA decoding sub-library, transferred from [kawashima](https://github.com/hozuki/kawashima).
-  - [*takamori*](http://www.project-imas.com/wiki/Aiko_Takamori): Sub-library for polyfill.
+- Library (*libcgss*)
+  - [*kawashima*](http://www.project-imas.com/wiki/Mizuki_Kawashima): HCA decoding library, migrated from [kawashima](https://github.com/hozuki/kawashima).
+  - [*takamori*](http://www.project-imas.com/wiki/Aiko_Takamori): Base structure: streams and exceptions.
 - Applications
-  - *hcaenc*: HCA encoding utility.
-  - *hcacc*: HCA cipher conversion utility.
-  - *hca2wav*: HCA decoding utility.
+  - *hcaenc*: HCA encoder. Requires `hcaenc_lite.dll`.
+  - *hcacc*: HCA cipher converter.
+  - *hca2wav*: HCA decoder.
+  - *hcainfo*: HCA info viewer.
 
-This project is written in C/C++, compared to C# of its sister project [**DereTore**](https://github.com/hozuki/DereTore),
-for a better interoperability with other languages or libraries. The C# version of *hcaenc* and *hcacc*
-can be found in **DereTore** as applications.
+This project has a sister project [**DereTore**](https://github.com/OpenCGSS/DereTore).
+However the strength of C API is better interoperability with other libraries.
+The pure C# version of *hcaenc* and *hcacc* can be found in *DereTore* as applications.
 
 ## Building
 
 Requirements:
 
-- CMake
-- MSVC, *or* Cygwin/gcc, *or* MinGW/gcc (on Windows)
-- gcc (on macOS and Linux) <sup>untested</sup>
+- CMake (>=3.6)
+- MSVC, or Cygwin/gcc, or MinGW/gcc (on Windows)
+- gcc (on macOS and Linux, untested)
 
-## User Manual
+I personally recommend you to use Cygwin rather than MinGW. The latter seems to lack
+support of properly handling `try...catch` statements.
 
-See [here](docs/user-manual.md).
+## API & Manual
+
+API definition can be found at [docs/api/cgss-api.md](docs/api/cgss-api.md).
+
+User manual can be found at [docs/manual/user-manual-1.2.md](docs/manual/user-manual-1.2.md).
 
 ## License
 
@@ -35,7 +42,7 @@ MIT License. See [LICENSE.md](LICENSE.md).
 
 ## Disclaimer
 
-See [here](DISCLAIMER.md).
+See [DISCLAIMER.md](DISCLAIMER.md).
 
 ## Notes
 
