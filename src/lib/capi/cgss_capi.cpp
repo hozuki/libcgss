@@ -47,7 +47,7 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSeek(CGSS_HSTREAM stream, int64_t offset
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsReadable(CGSS_HSTREAM stream, _OUT_  bool_t *isReadable) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsReadable(CGSS_HSTREAM stream, _OUT_ bool_t *isReadable) {
     try {
         const auto r = to_stream(stream)->IsReadable();
         if (isReadable) {
@@ -61,7 +61,7 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsReadable(CGSS_HSTREAM stream, _OUT_  b
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsWritable(CGSS_HSTREAM stream, _OUT_  bool_t *isWritable) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsWritable(CGSS_HSTREAM stream, _OUT_ bool_t *isWritable) {
     try {
         const auto r = to_stream(stream)->IsWritable();
         if (isWritable) {
@@ -114,7 +114,7 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSetPosition(CGSS_HSTREAM stream, uint64_
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamGetLength(CGSS_HSTREAM stream, _OUT_  uint64_t *length) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamGetLength(CGSS_HSTREAM stream, _OUT_ uint64_t *length) {
     try {
         const auto r = to_stream(stream)->GetLength();
         if (length) {
@@ -247,7 +247,8 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateHcaDecoder2(CGSS_HSTREAM baseStream, con
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateCipherConverter(CGSS_HSTREAM baseStream, const HCA_CIPHER_CONFIG *cryptFrom, const HCA_CIPHER_CONFIG *cryptTo, _OUT_ CGSS_HSTREAM **converter) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateCipherConverter(CGSS_HSTREAM baseStream, const HCA_CIPHER_CONFIG *cryptFrom, const HCA_CIPHER_CONFIG *cryptTo,
+                                                        _OUT_ CGSS_HSTREAM **converter) {
     if (!baseStream || !cryptFrom || !cryptTo) {
         return CGSS_OP_INVALID_ARGUMENT;
     }

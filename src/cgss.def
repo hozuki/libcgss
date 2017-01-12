@@ -1,3 +1,26 @@
 LIBRARY cgss
 
 EXPORTS
+cgssTest
+cgssStreamRead
+cgssStreamWrite
+cgssStreamSeek
+cgssStreamIsReadable
+cgssStreamIsWritable
+cgssStreamIsSeekable
+cgssStreamGetPosition
+cgssStreamSetPosition
+cgssStreamGetLength
+cgssStreamSetLength
+cgssStreamReadByte
+cgssStreamWriteByte
+cgssStreamFlush
+cgssStreamCopyTo
+cgssStreamCopyTo2
+cgssCloseStream
+cgssCreateFileStream
+cgssCreateFileStream2
+cgssCreateFileStream3
+cgssCreateHcaDecoder
+cgssCreateHcaDecoder2
+cgssCreateCipherConverter

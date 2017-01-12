@@ -1,5 +1,6 @@
 #include <string>
 #include <algorithm>
+#include <cstdio>
 #include "CHcaCipherConverter.h"
 #include "../../common/quick_utils.h"
 #include "internal/CHcaCipher.h"
