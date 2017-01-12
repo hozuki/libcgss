@@ -249,7 +249,7 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateHcaDecoder2(CGSS_HSTREAM baseStream, con
 
 CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateCipherConverter(CGSS_HSTREAM baseStream, const HCA_CIPHER_CONFIG *cryptFrom, const HCA_CIPHER_CONFIG *cryptTo,
                                                         _OUT_ CGSS_HSTREAM **converter) {
-    if (!baseStream || !cryptFrom || !cryptTo) {
+    if (!baseStream || !cryptFrom || !cryptTo || !converter) {
         return CGSS_OP_INVALID_ARGUMENT;
     }
     *to_pstream(converter) = new CHcaCipherConverter(to_stream(baseStream), *cryptFrom, *cryptTo);
