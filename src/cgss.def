@@ -24,3 +24,8 @@ cgssCreateFileStream3
 cgssCreateHcaDecoder
 cgssCreateHcaDecoder2
 cgssCreateCipherConverter
+cgssWaveDecode8BitU
+cgssWaveDecode16BitS
+cgssWaveDecode24BitS
+cgssWaveDecode32BitS
+cgssWaveDecodeFloat

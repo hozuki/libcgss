@@ -255,3 +255,23 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateCipherConverter(CGSS_HSTREAM baseStream,
     *to_pstream(converter) = new CHcaCipherConverter(to_stream(baseStream), *cryptFrom, *cryptTo);
     return CGSS_OP_OK;
 }
+
+CGSS_API_IMPL(void) cgssWaveDecode8BitU(float data, uint8_t *buffer, uint32_t *cursor) {
+    CDefaultWaveGenerator::Decode8BitU(data, buffer, cursor);
+}
+
+CGSS_API_IMPL(void) cgssWaveDecode16BitS(float data, uint8_t *buffer, uint32_t *cursor) {
+    CDefaultWaveGenerator::Decode16BitS(data, buffer, cursor);
+}
+
+CGSS_API_IMPL(void) cgssWaveDecode24BitS(float data, uint8_t *buffer, uint32_t *cursor) {
+    CDefaultWaveGenerator::Decode24BitS(data, buffer, cursor);
+}
+
+CGSS_API_IMPL(void) cgssWaveDecode32BitS(float data, uint8_t *buffer, uint32_t *cursor) {
+    CDefaultWaveGenerator::Decode32BitS(data, buffer, cursor);
+}
+
+CGSS_API_IMPL(void) cgssWaveDecodeFloat(float data, uint8_t *buffer, uint32_t *cursor) {
+    CDefaultWaveGenerator::DecodeFloat(data, buffer, cursor);
+}

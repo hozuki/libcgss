@@ -34,3 +34,8 @@ CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateHcaDecoder(CGSS_HSTREAM baseStream, _OUT
 CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateHcaDecoder2(CGSS_HSTREAM baseStream, const HCA_DECODER_CONFIG *decoderConfig, _OUT_ CGSS_HSTREAM **decoder);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateCipherConverter(CGSS_HSTREAM baseStream, const HCA_CIPHER_CONFIG *cryptFrom, const HCA_CIPHER_CONFIG *cryptTo, _OUT_ CGSS_HSTREAM **converter);
 
+CGSS_API_DECL(void) cgssWaveDecode8BitU(float data, uint8_t *buffer, uint32_t *cursor);
+CGSS_API_DECL(void) cgssWaveDecode16BitS(float data, uint8_t *buffer, uint32_t *cursor);
+CGSS_API_DECL(void) cgssWaveDecode24BitS(float data, uint8_t *buffer, uint32_t *cursor);
+CGSS_API_DECL(void) cgssWaveDecode32BitS(float data, uint8_t *buffer, uint32_t *cursor);
+CGSS_API_DECL(void) cgssWaveDecodeFloat(float data, uint8_t *buffer, uint32_t *cursor);

@@ -10,11 +10,11 @@ CGSS_NS_BEGIN
 
         static void Decode8BitU(float data, uint8_t *buffer, uint32_t *cursor);
 
-        static void Decode16Bit(float data, uint8_t *buffer, uint32_t *cursor);
+        static void Decode16BitS(float data, uint8_t *buffer, uint32_t *cursor);
 
-        static void Decode24Bit(float data, uint8_t *buffer, uint32_t *cursor);
+        static void Decode24BitS(float data, uint8_t *buffer, uint32_t *cursor);
 
-        static void Decode32Bit(float data, uint8_t *buffer, uint32_t *cursor);
+        static void Decode32BitS(float data, uint8_t *buffer, uint32_t *cursor);
 
         static void DecodeFloat(float data, uint8_t *buffer, uint32_t *cursor);
 

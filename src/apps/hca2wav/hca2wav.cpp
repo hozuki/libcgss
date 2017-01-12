@@ -37,7 +37,7 @@ int main(int argc, const char *argv[]) {
 
     // Configure decoder.
     cgss::CHcaDecoderConfig decoderConfig;
-    decoderConfig.decodeFunc = cgss::CDefaultWaveGenerator::Decode16Bit;
+    decoderConfig.decodeFunc = cgss::CDefaultWaveGenerator::Decode16BitS;
     decoderConfig.waveHeaderEnabled = TRUE;
     auto &key1 = decoderConfig.cipherConfig.keyParts.key1;
     auto &key2 = decoderConfig.cipherConfig.keyParts.key2;
