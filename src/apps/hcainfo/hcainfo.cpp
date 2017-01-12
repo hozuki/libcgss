@@ -1,43 +1,21 @@
-#ifndef _MBCS
-#define _MBCS
-#endif
-#define _CRT_SECURE_NO_WARNINGS
-
 #include <iostream>
-#include <getopt.h>
 #include "../../lib/cgss_api.h"
 
 using namespace std;
-
-static const char *g_OptionString = "h?";
-static const struct option g_LongOptions[] = {
-    {"help", no_argument, nullptr, 'h'}
-};
 
 void PrintHelp();
 
 void PrintInfo(const char *fileName, const HCA_INFO &info);
 
-int ParseArgs(int argc, char *const *argv);
-
-struct {
-    char *const *fileNames;
-    int numFiles;
-} g_Args;
-
-int main(int argc, char *const argv[]) {
-    auto r = ParseArgs(argc, argv);
-    if (r <= 0) {
-        return r;
+int main(int argc, const char *argv[]) {
+    if (argc == 1) {
+        PrintHelp();
+        return 0;
     }
 
     try {
-        if (g_Args.numFiles == 0) {
-            PrintHelp();
-            return 0;
-        }
-        for (auto i = 0; i < g_Args.numFiles; ++i) {
-            const auto fileName = g_Args.fileNames[i];
+        for (auto i = 1; i < argc; ++i) {
+            const auto fileName = argv[i];
             cgss::CFileStream fileStream(fileName, cgss::FileMode::OpenExisting, cgss::FileAccess::Read);
             cgss::CHcaDecoder decoder(&fileStream);
             HCA_INFO hcaInfo;
@@ -57,33 +35,10 @@ int main(int argc, char *const argv[]) {
     return 0;
 }
 
-int ParseArgs(int argc, char *const *argv) {
-    int longIndex;
-    auto opt = getopt_long(argc, argv, g_OptionString, g_LongOptions, &longIndex);
-    while (opt >= 0) {
-        switch (opt) {
-            case 'h':
-            case '?':
-                PrintHelp();
-                return 0;
-            case 0:
-                break;
-            default:
-                break;
-        }
-        opt = getopt_long(argc, argv, g_OptionString, g_LongOptions, &longIndex);
-    }
-    g_Args.fileNames = argv + optind;
-    g_Args.numFiles = argc - optind;
-    return 1;
-}
-
 void PrintHelp() {
     cout << "hcainfo: HCA file info viewer" << endl << endl;
     cout << "Usage:" << endl;
-    cout << "  hcainfo [options] [input files]" << endl << endl;
-    cout << "Options:" << endl;
-    cout << "  -h, -?, --help       Display help." << endl << endl;
+    cout << "  hcainfo [input files]" << endl << endl;
 }
 
 void PrintInfo(const char *fileName, const HCA_INFO &info) {

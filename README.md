@@ -34,7 +34,7 @@ support of properly handling `try...catch` statements.
 
 API definition can be found at [docs/api/cgss-api.md](docs/api/cgss-api.md).
 
-User manual can be found at [docs/manual/user-manual-1.2.md](docs/manual/user-manual-1.2.md).
+User manual can be found at [docs/manual/user-manual.md](docs/manual/user-manual.md).
 
 ## License
 

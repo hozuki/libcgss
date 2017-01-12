@@ -1,5 +1,5 @@
 # API for libcgss
 
-Version: v1.2
+Version: v0.2
 
 Work in progress.

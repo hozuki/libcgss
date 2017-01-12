@@ -4,6 +4,10 @@
 #include "cgss_enum.h"
 
 #include "takamori/exceptions/CException.h"
+#include "takamori/exceptions/CArgumentException.h"
+#include "takamori/exceptions/CInvalidOperationException.h"
+#include "takamori/exceptions/CNotImplementedException.h"
+
 #include "takamori/streams/IStream.h"
 #include "takamori/streams/CStream.h"
 #include "takamori/streams/CMemoryStream.h"
