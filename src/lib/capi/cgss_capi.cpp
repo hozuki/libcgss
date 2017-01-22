@@ -1,16 +1,35 @@
 #include "../cgss_api.h"
+#include "../cgss_enum.h"
+#include "CHandleManager.h"
 
 using namespace cgss;
 
-#define to_stream(ptr) (reinterpret_cast<IStream *>(ptr))
-#define to_pstream(ptr) (reinterpret_cast<IStream **>(ptr))
+using HandleType = CHandleManager::HandleType;
+
+DEFINE_ENUM_CLS_BINARY_OP(HandleType, |);
+
+DEFINE_ENUM_CLS_BINARY_OP(HandleType, &);
+
+DEFINE_ENUM_CLS_UNARY_OP(HandleType, !);
+
+static inline IStream *to_stream(uint32_t handle) {
+    return CHandleManager::getInstance()->getHandlePtr(handle);
+}
+
+#define CHECK_HANDLE(handle) \
+        do { \
+            if (!CHandleManager::getInstance()->handleExists(handle)) { \
+                return CGSS_OP_HANDLE_INVALID; \
+            } \
+        while (0)
 
 CGSS_API_IMPL(void) cgssTest() {
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamRead(CGSS_HSTREAM stream, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *read) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamRead(CGSS_HANDLE handle, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *read) {
+    CHECK_HANDLE(handle);
     try {
-        const auto r = to_stream(stream)->Read(buffer, bufferSize, offset, count);
+        const auto r = to_stream(handle)->Read(buffer, bufferSize, offset, count);
         if (read) {
             *read = r;
         }
@@ -22,9 +41,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamRead(CGSS_HSTREAM stream, void *buffer, 
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamWrite(CGSS_HSTREAM stream, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *written) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamWrite(CGSS_HANDLE handle, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *written) {
+    CHECK_HANDLE(handle);
     try {
-        const auto w = to_stream(stream)->Write(buffer, bufferSize, offset, count);
+        const auto w = to_stream(handle)->Write(buffer, bufferSize, offset, count);
         if (written) {
             *written = w;
         }
@@ -36,9 +56,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamWrite(CGSS_HSTREAM stream, void *buffer,
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSeek(CGSS_HSTREAM stream, int64_t offset, CGSS_STREAM_SEEK_ORIGIN origin) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSeek(CGSS_HANDLE handle, int64_t offset, CGSS_STREAM_SEEK_ORIGIN origin) {
+    CHECK_HANDLE(handle);
     try {
-        to_stream(stream)->Seek(offset, static_cast<StreamSeekOrigin>(origin));
+        to_stream(handle)->Seek(offset, static_cast<StreamSeekOrigin>(origin));
     } catch (const CException &ex) {
         return ex.GetOpResult();
     } catch (...) {
@@ -47,9 +68,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSeek(CGSS_HSTREAM stream, int64_t offset
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsReadable(CGSS_HSTREAM stream, _OUT_ bool_t *isReadable) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsReadable(CGSS_HANDLE handle, _OUT_ bool_t *isReadable) {
+    CHECK_HANDLE(handle);
     try {
-        const auto r = to_stream(stream)->IsReadable();
+        const auto r = to_stream(handle)->IsReadable();
         if (isReadable) {
             *isReadable = r;
         }
@@ -61,9 +83,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsReadable(CGSS_HSTREAM stream, _OUT_ bo
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsWritable(CGSS_HSTREAM stream, _OUT_ bool_t *isWritable) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsWritable(CGSS_HANDLE handle, _OUT_ bool_t *isWritable) {
+    CHECK_HANDLE(handle);
     try {
-        const auto r = to_stream(stream)->IsWritable();
+        const auto r = to_stream(handle)->IsWritable();
         if (isWritable) {
             *isWritable = r;
         }
@@ -75,9 +98,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsWritable(CGSS_HSTREAM stream, _OUT_ bo
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsSeekable(CGSS_HSTREAM stream, _OUT_ bool_t *isSeekable) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsSeekable(CGSS_HANDLE handle, _OUT_ bool_t *isSeekable) {
+    CHECK_HANDLE(handle);
     try {
-        const auto r = to_stream(stream)->IsSeekable();
+        const auto r = to_stream(handle)->IsSeekable();
         if (isSeekable) {
             *isSeekable = r;
         }
@@ -89,9 +113,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamIsSeekable(CGSS_HSTREAM stream, _OUT_ bo
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamGetPosition(CGSS_HSTREAM stream, _OUT_ uint64_t *position) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamGetPosition(CGSS_HANDLE handle, _OUT_ uint64_t *position) {
+    CHECK_HANDLE(handle);
     try {
-        const auto r = to_stream(stream)->GetPosition();
+        const auto r = to_stream(handle)->GetPosition();
         if (position) {
             *position = r;
         }
@@ -103,9 +128,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamGetPosition(CGSS_HSTREAM stream, _OUT_ u
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSetPosition(CGSS_HSTREAM stream, uint64_t position) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSetPosition(CGSS_HANDLE handle, uint64_t position) {
+    CHECK_HANDLE(handle);
     try {
-        to_stream(stream)->SetPosition(position);
+        to_stream(handle)->SetPosition(position);
     } catch (const CException &ex) {
         return ex.GetOpResult();
     } catch (...) {
@@ -114,9 +140,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSetPosition(CGSS_HSTREAM stream, uint64_
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamGetLength(CGSS_HSTREAM stream, _OUT_ uint64_t *length) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamGetLength(CGSS_HANDLE handle, _OUT_ uint64_t *length) {
+    CHECK_HANDLE(handle);
     try {
-        const auto r = to_stream(stream)->GetLength();
+        const auto r = to_stream(handle)->GetLength();
         if (length) {
             *length = r;
         }
@@ -128,9 +155,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamGetLength(CGSS_HSTREAM stream, _OUT_ uin
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSetLength(CGSS_HSTREAM stream, uint64_t length) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSetLength(CGSS_HANDLE handle, uint64_t length) {
+    CHECK_HANDLE(handle);
     try {
-        to_stream(stream)->SetLength(length);
+        to_stream(handle)->SetLength(length);
     } catch (const CException &ex) {
         return ex.GetOpResult();
     } catch (...) {
@@ -139,9 +167,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSetLength(CGSS_HSTREAM stream, uint64_t 
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamReadByte(CGSS_HSTREAM stream, _OUT_ uint8_t *byte) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamReadByte(CGSS_HANDLE handle, _OUT_ uint8_t *byte) {
+    CHECK_HANDLE(handle);
     try {
-        const auto r = to_stream(stream)->ReadByte();
+        const auto r = to_stream(handle)->ReadByte();
         if (byte) {
             *byte = r;
         }
@@ -153,9 +182,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamReadByte(CGSS_HSTREAM stream, _OUT_ uint
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamWriteByte(CGSS_HSTREAM stream, uint8_t byte) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamWriteByte(CGSS_HANDLE handle, uint8_t byte) {
+    CHECK_HANDLE(handle);
     try {
-        to_stream(stream)->WriteByte(byte);
+        to_stream(handle)->WriteByte(byte);
     } catch (const CException &ex) {
         return ex.GetOpResult();
     } catch (...) {
@@ -164,9 +194,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamWriteByte(CGSS_HSTREAM stream, uint8_t b
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamFlush(CGSS_HSTREAM stream) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamFlush(CGSS_HANDLE handle) {
+    CHECK_HANDLE(handle);
     try {
-        to_stream(stream)->Flush();
+        to_stream(handle)->Flush();
     } catch (const CException &ex) {
         return ex.GetOpResult();
     } catch (...) {
@@ -175,7 +206,9 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamFlush(CGSS_HSTREAM stream) {
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamCopyTo(CGSS_HSTREAM source, CGSS_HSTREAM destination) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamCopyTo(CGSS_HANDLE source, CGSS_HANDLE destination) {
+    CHECK_HANDLE(source);
+    CHECK_HANDLE(destination);
     try {
         to_stream(source)->CopyTo(*to_stream(destination));
     } catch (const CException &ex) {
@@ -186,7 +219,9 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamCopyTo(CGSS_HSTREAM source, CGSS_HSTREAM
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamCopyTo2(CGSS_HSTREAM source, CGSS_HSTREAM destination, uint32_t bufferSize) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamCopyTo2(CGSS_HANDLE source, CGSS_HANDLE destination, uint32_t bufferSize) {
+    CHECK_HANDLE(source);
+    CHECK_HANDLE(destination);
     try {
         to_stream(source)->CopyTo(*to_stream(destination), bufferSize);
     } catch (const CException &ex) {
@@ -197,9 +232,10 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamCopyTo2(CGSS_HSTREAM source, CGSS_HSTREA
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCloseStream(CGSS_HSTREAM stream) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCloseHandle(CGSS_HANDLE handle) {
+    CHECK_HANDLE(handle);
     try {
-        delete to_stream(stream);
+        CHandleManager::getInstance()->free(handle, TRUE);
     } catch (const CException &ex) {
         return ex.GetOpResult();
     } catch (...) {
@@ -208,51 +244,74 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssCloseStream(CGSS_HSTREAM stream) {
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream(LPCSTR fileName, _OUT_ CGSS_HSTREAM **stream) {
+inline void alloc_stream(CGSS_HANDLE *handle, IStream *stream, HandleType type) {
+    CGSS_HANDLE h = CHandleManager::getInstance()->alloc(stream, type);
+    *handle = h;
+}
+
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream(LPCSTR fileName, _OUT_ CGSS_HANDLE *stream) {
     if (!stream) {
         return CGSS_OP_INVALID_ARGUMENT;
     }
-    *to_pstream(stream) = new CFileStream(fileName);
+    alloc_stream(stream, new CFileStream(fileName), HandleType::CStream);
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream2(LPCSTR fileName, CGSS_FILE_MODE fileMode, _OUT_ CGSS_HSTREAM **stream) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream2(LPCSTR fileName, CGSS_FILE_MODE fileMode, _OUT_ CGSS_HANDLE *stream) {
     if (!stream) {
         return CGSS_OP_INVALID_ARGUMENT;
     }
-    *to_pstream(stream) = new CFileStream(fileName, static_cast<FileMode>(fileMode));
+    alloc_stream(stream, new CFileStream(fileName, static_cast<FileMode>(fileMode)), HandleType::CStream);
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream3(LPCSTR fileName, CGSS_FILE_MODE fileMode, CGSS_FILE_ACCESS fileAccess, _OUT_ CGSS_HSTREAM **stream) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream3(LPCSTR fileName, CGSS_FILE_MODE fileMode, CGSS_FILE_ACCESS fileAccess, _OUT_ CGSS_HANDLE *stream) {
     if (!stream) {
         return CGSS_OP_INVALID_ARGUMENT;
     }
-    *to_pstream(stream) = new CFileStream(fileName, static_cast<FileMode>(fileMode), static_cast<FileAccess>(fileAccess));
+    alloc_stream(stream, new CFileStream(fileName, static_cast<FileMode>(fileMode), static_cast<FileAccess>(fileAccess)), HandleType::CStream);
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateHcaDecoder(CGSS_HSTREAM baseStream, _OUT_ CGSS_HSTREAM **decoder) {
-    if (!baseStream || !decoder) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateHcaDecoder(CGSS_HANDLE baseStream, _OUT_ CGSS_HANDLE *decoder) {
+    CHECK_HANDLE(baseStream);
+    if (!decoder) {
         return CGSS_OP_INVALID_ARGUMENT;
     }
-    *to_pstream(decoder) = new CHcaDecoder(to_stream(baseStream));
+    alloc_stream(decoder, new CHcaDecoder(to_stream(baseStream)), HandleType::CStream | HandleType::CHcaReaderBase);
     return CGSS_OP_OK;
 }
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateHcaDecoder2(CGSS_HSTREAM baseStream, const HCA_DECODER_CONFIG *decoderConfig, _OUT_ CGSS_HSTREAM **decoder) {
-    if (!baseStream || !decoderConfig || !decoder) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateHcaDecoder2(CGSS_HANDLE baseStream, const HCA_DECODER_CONFIG *decoderConfig, _OUT_ CGSS_HANDLE *decoder) {
+    CHECK_HANDLE(baseStream);
+    if (!decoderConfig || !decoder) {
         return CGSS_OP_INVALID_ARGUMENT;
     }
-    *to_pstream(decoder) = new CHcaDecoder(to_stream(baseStream), *decoderConfig);
+    alloc_stream(decoder, new CHcaDecoder(to_stream(baseStream), *decoderConfig), HandleType::CStream | HandleType::CHcaReaderBase);
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateCipherConverter(CGSS_HSTREAM baseStream, const HCA_CIPHER_CONFIG *cryptFrom, const HCA_CIPHER_CONFIG *cryptTo,
-                                                        _OUT_ CGSS_HSTREAM **converter) {
-    if (!baseStream || !cryptFrom || !cryptTo || !converter) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateCipherConverter(CGSS_HANDLE baseStream, const HCA_CIPHER_CONFIG *cryptFrom, const HCA_CIPHER_CONFIG *cryptTo,
+                                                        _OUT_ CGSS_HANDLE *converter) {
+    CHECK_HANDLE(baseStream);
+    if (!cryptFrom || !cryptTo || !converter) {
         return CGSS_OP_INVALID_ARGUMENT;
     }
-    *to_pstream(converter) = new CHcaCipherConverter(to_stream(baseStream), *cryptFrom, *cryptTo);
+    alloc_stream(converter, new CHcaCipherConverter(to_stream(baseStream), *cryptFrom, *cryptTo), HandleType::CStream | HandleType::CHcaReaderBase);
+    return CGSS_OP_OK;
+}
+
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssGetHcaInfo(CGSS_HANDLE handle, HCA_INFO *info) {
+    CHECK_HANDLE(handle);
+    if (!info) {
+        return CGSS_OP_INVALID_ARGUMENT;
+    }
+    HandleType handleType = CHandleManager::getInstance()->getHandleType(handle);
+    if ((handleType & HandleType::CHcaReaderBase) == HandleType::None) {
+        return CGSS_OP_INVALID_OPERATION;
+    }
+    auto *reader = dynamic_cast<CHcaFormatReader *>(CHandleManager::getInstance()->getHandlePtr(handle));
+    HCA_INFO &i = *info;
+    reader->GetHcaInfo(i);
     return CGSS_OP_OK;
 }
 

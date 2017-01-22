@@ -17,13 +17,14 @@ cgssStreamWriteByte
 cgssStreamFlush
 cgssStreamCopyTo
 cgssStreamCopyTo2
-cgssCloseStream
+cgssCloseHandle
 cgssCreateFileStream
 cgssCreateFileStream2
 cgssCreateFileStream3
 cgssCreateHcaDecoder
 cgssCreateHcaDecoder2
 cgssCreateCipherConverter
+cgssGetHcaInfo
 cgssWaveDecode8BitU
 cgssWaveDecode16BitS
 cgssWaveDecode24BitS

@@ -27,7 +27,8 @@ CGSS_NS_BEGIN
         InvalidArgument = CGSS_OP_INVALID_ARGUMENT,
         FormatError = CGSS_OP_FORMAT_ERROR,
         ChecksumError = CGSS_OP_CHECKSUM_ERROR,
-        DecodeFailed = CGSS_OP_DECODE_FAILED
+        DecodeFailed = CGSS_OP_DECODE_FAILED,
+        HandleInvalid = CGSS_OP_HANDLE_INVALID
     };
 
     enum class FileMode : uint32_t {
@@ -46,20 +47,20 @@ CGSS_NS_BEGIN
         ReadWrite = CGSS_FILE_ACCESS_READ_WRITE,
     };
 
-#define UNDER(x) std::underlying_type_t<x>
-#define DECL_ENUM_CLS_OP(cls, op)  inline cls operator op(cls l, cls r) { \
-                                        return (cls)(static_cast<UNDER(cls)>(l) op static_cast<UNDER(cls)>(r)); \
-                                    }
+#define DEFINE_ENUM_CLS_BINARY_OP(cls, op)  inline cls operator op(cls l, cls r) { \
+                                              return (cls)(static_cast<std::underlying_type_t<cls>>(l) op static_cast<std::underlying_type_t<cls>>(r)); \
+                                          }
 
-    DECL_ENUM_CLS_OP(FileMode, |)
+#define DEFINE_ENUM_CLS_UNARY_OP(cls, op)   inline cls operator op(cls v) { \
+                                              return (cls)(op static_cast<std::underlying_type_t<cls>>(v)); \
+                                          }
 
-    DECL_ENUM_CLS_OP(FileMode, &)
+    DEFINE_ENUM_CLS_BINARY_OP(FileMode, |)
 
-    DECL_ENUM_CLS_OP(FileAccess, |)
+    DEFINE_ENUM_CLS_BINARY_OP(FileMode, &)
 
-    DECL_ENUM_CLS_OP(FileAccess, &)
+    DEFINE_ENUM_CLS_BINARY_OP(FileAccess, |)
 
-#undef DECL_ENUM_CLS_OP
-#undef UNDER
+    DEFINE_ENUM_CLS_BINARY_OP(FileAccess, &)
 
 CGSS_NS_END
