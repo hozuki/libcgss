@@ -11,6 +11,7 @@ CGSS_NS_BEGIN
         if (cipherType == HcaCipherType::WithKey) {
             cipherType = HcaCipherType::NoCipher;
         }
+        this->cipherType = static_cast<CGSS_HCA_CIPHER_TYPE>(cipherType);
     }
 
     CHcaCipherConfig::CHcaCipherConfig(uint32_t key1, uint32_t key2) {

@@ -21,19 +21,19 @@ CGSS_NS_BEGIN
          * @param info Retrieved HCA information.
          * @return
          */
-        void GetHcaInfo(HCA_INFO &info);
+        void GetHcaInfo(HCA_INFO &info) final;
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override final;
 
-        virtual bool_t IsWritable() const override;
+        virtual bool_t IsWritable() const override final;
 
-        virtual bool_t IsReadable() const override;
+        virtual bool_t IsReadable() const override final;
 
-        virtual bool_t IsSeekable() const override;
+        virtual bool_t IsSeekable() const override final;
 
-        virtual void SetLength(uint64_t value) override;
+        virtual void SetLength(uint64_t value) override final;
 
-        virtual void Flush() override;
+        virtual void Flush() override final;
 
     protected:
 
