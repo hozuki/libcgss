@@ -70,7 +70,7 @@ CGSS_NS_BEGIN
             maxRead = static_cast<size_t>(min(GetLength() - position, (uint64_t)count));
             if (maxRead > 0) {
                 const auto byteBuffer = static_cast<uint8_t *>(buffer);
-                memcpy(byteBuffer, _buffer + position, maxRead);
+                memcpy(byteBuffer + offset, _buffer + position, maxRead);
                 position += maxRead;
                 SetPosition(position);
             }
