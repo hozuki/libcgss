@@ -4,7 +4,7 @@
 #include "HCA_CIPHER_CONFIG.h"
 
 #ifdef __cplusplus
-typedef uint32_t (*HcaDecodeFunc)(float data, uint8_t *buffer, const uint32_t cursor) const;
+typedef uint32_t (*HcaDecodeFunc)(float data, uint8_t *buffer, const uint32_t cursor);
 #else
 typedef uint32_t (*HcaDecodeFunc)(float data, uint8_t *buffer, uint32_t cursor);
 #endif

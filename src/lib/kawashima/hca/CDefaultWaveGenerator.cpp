@@ -3,7 +3,7 @@
 
 CGSS_NS_BEGIN
 
-    uint32_t CDefaultWaveGenerator::Decode8BitU(float data, uint8_t *buffer, const uint32_t cursor) const {
+    uint32_t CDefaultWaveGenerator::Decode8BitU(float data, uint8_t *buffer, const uint32_t cursor) {
         if (!buffer) {
             throw CArgumentException("CDefaultWaveGenerator::Decode8BitU");
         }
@@ -12,7 +12,7 @@ CGSS_NS_BEGIN
         return cursor + 1;
     }
 
-    uint32_t CDefaultWaveGenerator::Decode16BitS(float data, uint8_t *buffer, const uint32_t cursor) const {
+    uint32_t CDefaultWaveGenerator::Decode16BitS(float data, uint8_t *buffer, const uint32_t cursor) {
         if (!buffer) {
             throw CArgumentException("CDefaultWaveGenerator::Decode16BitS");
         }
@@ -21,7 +21,7 @@ CGSS_NS_BEGIN
         return cursor + 2;
     }
 
-    uint32_t CDefaultWaveGenerator::Decode24BitS(float data, uint8_t *buffer, const uint32_t cursor) const {
+    uint32_t CDefaultWaveGenerator::Decode24BitS(float data, uint8_t *buffer, const uint32_t cursor) {
         if (!buffer) {
             throw CArgumentException("CDefaultWaveGenerator::Decode24BitS");
         }
@@ -42,7 +42,7 @@ CGSS_NS_BEGIN
         return cursor + 3;
     }
 
-    uint32_t CDefaultWaveGenerator::Decode32BitS(float data, uint8_t *buffer, const uint32_t cursor) const {
+    uint32_t CDefaultWaveGenerator::Decode32BitS(float data, uint8_t *buffer, const uint32_t cursor) {
         if (!buffer) {
             throw CArgumentException("CDefaultWaveGenerator::Decode32BitS");
         }
@@ -51,7 +51,7 @@ CGSS_NS_BEGIN
         return cursor + 4;
     }
 
-    uint32_t CDefaultWaveGenerator::DecodeFloat(float data, uint8_t *buffer, const uint32_t cursor) const {
+    uint32_t CDefaultWaveGenerator::DecodeFloat(float data, uint8_t *buffer, const uint32_t cursor) {
         if (!buffer) {
             throw CArgumentException("CDefaultWaveGenerator::DecodeFloat");
         }
