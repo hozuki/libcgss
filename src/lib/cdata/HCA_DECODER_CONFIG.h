@@ -3,7 +3,11 @@
 #include "../cgss_env.h"
 #include "HCA_CIPHER_CONFIG.h"
 
-typedef void (*HcaDecodeFunc)(float data, uint8_t *buffer, uint32_t *cursor);
+#ifdef __cplusplus
+typedef uint32_t (*HcaDecodeFunc)(float data, uint8_t *buffer, const uint32_t cursor) const;
+#else
+typedef uint32_t (*HcaDecodeFunc)(float data, uint8_t *buffer, uint32_t cursor);
+#endif
 
 #pragma pack(push)
 #pragma pack(1)

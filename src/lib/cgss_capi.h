@@ -37,8 +37,8 @@ CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateCipherConverter(CGSS_HANDLE baseStream, 
 
 CGSS_API_DECL(CGSS_OP_RESULT) cgssGetHcaInfo(CGSS_HANDLE handle, HCA_INFO *info);
 
-CGSS_API_DECL(void) cgssWaveDecode8BitU(float data, uint8_t *buffer, uint32_t *cursor);
-CGSS_API_DECL(void) cgssWaveDecode16BitS(float data, uint8_t *buffer, uint32_t *cursor);
-CGSS_API_DECL(void) cgssWaveDecode24BitS(float data, uint8_t *buffer, uint32_t *cursor);
-CGSS_API_DECL(void) cgssWaveDecode32BitS(float data, uint8_t *buffer, uint32_t *cursor);
-CGSS_API_DECL(void) cgssWaveDecodeFloat(float data, uint8_t *buffer, uint32_t *cursor);
+CGSS_API_DECL(uint32_t) cgssWaveDecode8BitU(float data, uint8_t *buffer, uint32_t cursor);
+CGSS_API_DECL(uint32_t) cgssWaveDecode16BitS(float data, uint8_t *buffer, uint32_t cursor);
+CGSS_API_DECL(uint32_t) cgssWaveDecode24BitS(float data, uint8_t *buffer, uint32_t cursor);
+CGSS_API_DECL(uint32_t) cgssWaveDecode32BitS(float data, uint8_t *buffer, uint32_t cursor);
+CGSS_API_DECL(uint32_t) cgssWaveDecodeFloat(float data, uint8_t *buffer, uint32_t cursor);

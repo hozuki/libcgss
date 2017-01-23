@@ -13,11 +13,11 @@
 CGSS_NS_BEGIN
 
     CHcaDecoder::CHcaDecoder(IStream *stream)
-        : CHcaDecoder(stream, HCA_DECODER_CONFIG()) {
+            : CHcaDecoder(stream, HCA_DECODER_CONFIG()) {
     }
 
     CHcaDecoder::CHcaDecoder(IStream *stream, const HCA_DECODER_CONFIG &decoderConfig)
-        : super(stream) {
+            : super(stream) {
         _cipher = nullptr;
         _ath = nullptr;
         for (auto i = 0; i < ChannelCount; ++i) {
@@ -284,7 +284,7 @@ CGSS_NS_BEGIN
                     for (auto k = 0; k < hcaInfo.channelCount; ++k) {
                         auto f = channels[k]->wave[i][j] * hcaInfo.rvaVolume;
                         f = clamp(f, -1.0f, 1.0f);
-                        decodeFunc(f, waveBlockBuffer, &cursor);
+                        cursor = decodeFunc(f, waveBlockBuffer, cursor);
                     }
                 }
             }

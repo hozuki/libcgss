@@ -314,22 +314,22 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssGetHcaInfo(CGSS_HANDLE handle, HCA_INFO *info)
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(void) cgssWaveDecode8BitU(float data, uint8_t *buffer, uint32_t *cursor) {
-    CDefaultWaveGenerator::Decode8BitU(data, buffer, cursor);
+CGSS_API_IMPL(uint32_t) cgssWaveDecode8BitU(float data, uint8_t *buffer, uint32_t cursor) {
+    return CDefaultWaveGenerator::Decode8BitU(data, buffer, cursor);
 }
 
-CGSS_API_IMPL(void) cgssWaveDecode16BitS(float data, uint8_t *buffer, uint32_t *cursor) {
-    CDefaultWaveGenerator::Decode16BitS(data, buffer, cursor);
+CGSS_API_IMPL(uint32_t) cgssWaveDecode16BitS(float data, uint8_t *buffer, uint32_t cursor) {
+    return CDefaultWaveGenerator::Decode16BitS(data, buffer, cursor);
 }
 
-CGSS_API_IMPL(void) cgssWaveDecode24BitS(float data, uint8_t *buffer, uint32_t *cursor) {
-    CDefaultWaveGenerator::Decode24BitS(data, buffer, cursor);
+CGSS_API_IMPL(uint32_t) cgssWaveDecode24BitS(float data, uint8_t *buffer, uint32_t cursor) {
+    return CDefaultWaveGenerator::Decode24BitS(data, buffer, cursor);
 }
 
-CGSS_API_IMPL(void) cgssWaveDecode32BitS(float data, uint8_t *buffer, uint32_t *cursor) {
-    CDefaultWaveGenerator::Decode32BitS(data, buffer, cursor);
+CGSS_API_IMPL(uint32_t) cgssWaveDecode32BitS(float data, uint8_t *buffer, uint32_t cursor) {
+    return CDefaultWaveGenerator::Decode32BitS(data, buffer, cursor);
 }
 
-CGSS_API_IMPL(void) cgssWaveDecodeFloat(float data, uint8_t *buffer, uint32_t *cursor) {
-    CDefaultWaveGenerator::DecodeFloat(data, buffer, cursor);
+CGSS_API_IMPL(uint32_t) cgssWaveDecodeFloat(float data, uint8_t *buffer, uint32_t cursor) {
+    return CDefaultWaveGenerator::DecodeFloat(data, buffer, cursor);
 }
