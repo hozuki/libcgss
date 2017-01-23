@@ -19,7 +19,7 @@ static inline IStream *to_stream(uint32_t handle) {
 // CLion crashes if this macro is wrapped with do...while(0).
 #define CHECK_HANDLE(handle) \
     if (!CHandleManager::getInstance()->handleExists(handle)) { \
-        return CGSS_OP_HANDLE_INVALID; \
+        return CGSS_OP_INVALID_HANDLE; \
     }
 
 CGSS_API_IMPL(void) cgssTest() {

@@ -28,7 +28,7 @@ CGSS_NS_BEGIN
         FormatError = CGSS_OP_FORMAT_ERROR,
         ChecksumError = CGSS_OP_CHECKSUM_ERROR,
         DecodeFailed = CGSS_OP_DECODE_FAILED,
-        HandleInvalid = CGSS_OP_HANDLE_INVALID
+        InvalidHandle = CGSS_OP_INVALID_HANDLE
     };
 
     enum class FileMode : uint32_t {
