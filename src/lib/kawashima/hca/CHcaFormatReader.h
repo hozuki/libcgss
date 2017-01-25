@@ -21,7 +21,7 @@ CGSS_NS_BEGIN
          * @param info Retrieved HCA information.
          * @return
          */
-        void GetHcaInfo(HCA_INFO &info) final;
+        void GetHcaInfo(HCA_INFO &info);
 
         virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override final;
 
