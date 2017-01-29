@@ -12,6 +12,8 @@ else ()
     message(FATAL_ERROR "Unknown pointer size: ${CMAKE_SIZEOF_VOID_P}")
 endif ()
 
+set(BUILD_JNI_INTERFACE 1)
+
 # Override
 #set(TARGET_ARCH x86)
 
@@ -38,6 +40,30 @@ set(HCA2WAV_SOURCE_FILES
         src/apps/hca2wav/hca2wav.cpp src/apps/cgssh.h ${LIBCGSS_API_FILES})
 set(HCAINFO_SOURCE_FILES
         src/apps/hcainfo/hcainfo.cpp ${LIBCGSS_API_FILES})
+
+if (${BUILD_JNI_INTERFACE})
+    # http://public.kitware.com/pipermail/cmake/2012-June/050674.html
+    macro(header_directories base_path return_list)
+        file(GLOB_RECURSE new_list ${base_path}/*.h)
+        set(dir_list "")
+        foreach (file_path ${new_list})
+            get_filename_component(dir_path ${file_path} DIRECTORY)
+            set(dir_list ${dir_list} ${dir_path})
+        endforeach ()
+        list(REMOVE_DUPLICATES dir_list)
+        set(${return_list} ${dir_list})
+    endmacro()
+    # http://stackoverflow.com/questions/28070810/cmake-generate-error-on-windows-as-it-uses-as-escape-seq
+    set(JAVA_HOME $ENV{JAVA_HOME})
+    string(REPLACE "\\" "/" JAVA_HOME "${JAVA_HOME}")
+    set(JAVA_BASE_INCLUDE_PATH ${JAVA_HOME}/include)
+    header_directories(${JAVA_BASE_INCLUDE_PATH} JAVA_FULL_INCLUDE_PATH)
+    set(JAVA_LIBRARY_PATH ${JAVA_HOME}/lib)
+    set(LIBCGSS_JNI_INTF_FILES src/lib/jni/cgss_jni.h src/lib/jni/cgss_jni.cpp src/lib/jni/jni_helper.hpp)
+    set(LIBCGSS_JNI_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_JNI_INTF_FILES})
+    include_directories(${JAVA_FULL_INCLUDE_PATH})
+    link_directories(${JAVA_LIBRARY_PATH})
+endif ()
 
 set(LIBCGSS_DEF_FILE src/cgss.def)
 set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE})
@@ -77,13 +103,25 @@ add_executable(hcaenc ${HCAENC_SOURCE_FILES})
 add_executable(hca2wav ${HCA2WAV_SOURCE_FILES})
 add_executable(hcainfo ${HCAINFO_SOURCE_FILES})
 add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})
+if (${BUILD_JNI_INTERFACE})
+    add_library(cgss_jni SHARED ${LIBCGSS_JNI_SOURCE_FILES})
+endif ()
 
 set_target_properties(cgss
         PROPERTIES
         VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK}"
         SOVERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+if (${BUILD_JNI_INTERFACE})
+    set_target_properties(cgss_jni
+            PROPERTIES
+            VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK}"
+            SOVERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+endif ()
 
 target_compile_definitions(cgss PRIVATE __CGSS_BUILDING_DLL__)
+if (${BUILD_JNI_INTERFACE})
+    target_compile_definitions(cgss_jni PRIVATE __CGSS_BUILDING_DLL__ PRIVATE __CGSS_WITH_JNI__)
+endif ()
 target_compile_definitions(hcacc PRIVATE __COMPILE_WITH_CGSS_KEYS)
 target_compile_definitions(hcaenc PRIVATE __COMPILE_WITH_CGSS_KEYS)
 target_compile_definitions(hca2wav PRIVATE __COMPILE_WITH_CGSS_KEYS)
@@ -106,14 +144,23 @@ elseif (${MSVC})
     set_target_properties(cgss
             PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    set_target_properties(cgss_jni
+            PROPERTIES
+            ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 endif ()
 
 if (${WIN32})
     set_target_properties(cgss
             PROPERTIES
             LINK_DEF_FILE_FLAG ${LIBCGSS_DEF_FILE})
+    set_target_properties(cgss_jni
+            PROPERTIES
+            LINK_DEF_FILE_FLAG ${LIBCGSS_DEF_FILE})
 endif ()
 
+if (${BUILD_JNI_INTERFACE})
+    target_link_libraries(cgss_jni jvm)
+endif ()
 target_link_libraries(hcacc cgss)
 target_link_libraries(hcaenc cgss)
 target_link_libraries(hca2wav cgss)
@@ -141,5 +188,9 @@ if (${GNU_COMPILER})
     add_custom_command(TARGET cgss
             POST_BUILD
             COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss>
+            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    add_custom_command(TARGET cgss_jni
+            POST_BUILD
+            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss_jni>
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif ()
