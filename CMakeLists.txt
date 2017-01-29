@@ -1,9 +1,12 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.2)
 project(cgss)
 
-set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_USE_RELATIVE_PATHS TRUE)
+
 if (${CMAKE_SIZEOF_VOID_P} EQUAL 4)
     set(TARGET_ARCH x86)
 elseif (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
@@ -12,12 +15,10 @@ else ()
     message(FATAL_ERROR "Unknown pointer size: ${CMAKE_SIZEOF_VOID_P}")
 endif ()
 
-set(BUILD_JNI_INTERFACE 1)
-
 # Override
 #set(TARGET_ARCH x86)
 
-if ("${CMAKE_COMPILER_IS_GNUC_PLUS_PLUS}" OR "${CMAKE_COMPILER_IS_GNUC}" OR "${CYGWIN}" OR "${MINGW}")
+if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CYGWIN OR MINGW)
     set(GNU_COMPILER 1)
 else ()
     set(GNU_COMPILER 0)
@@ -26,12 +27,10 @@ endif ()
 file(GLOB LIBCGSS_API_FILES "src/lib/*.h")
 file(GLOB_RECURSE LIBCGSS_COMMON_HEADER_FILES "src/lib/common/*.h" "src/lib/cdata/*.h")
 file(GLOB_RECURSE LIBCGSS_COMMON_SOURCE_FILES "src/lib/common/*.cpp" "src/lib/capi/*.cpp")
-file(GLOB_RECURSE LIBCGSS_KS_API_FILES "src/lib/kawashima/*.h")
-file(GLOB_RECURSE LIBCGSS_KS_SOURCE_FILES "src/lib/kawashima/*.cpp")
-file(GLOB_RECURSE LIBCGSS_TM_API_FILES "src/lib/takamori/*.h")
-file(GLOB_RECURSE LIBCGSS_TM_SOURCE_FILES "src/lib/takamori/*.cpp")
+file(GLOB_RECURSE LIBCGSS_KS_SOURCE_FILES "src/lib/kawashima/*.h" "src/lib/kawashima/*.cpp")
+file(GLOB_RECURSE LIBCGSS_TM_SOURCE_FILES "src/lib/takamori/*.h" "src/lib/takamori/*.cpp")
 set(LIBCGSS_SOURCE_FILES
-        ${LIBCGSS_API_FILES} ${LIBCGSS_COMMON_HEADER_FILES} ${LIBCGSS_COMMON_SOURCE_FILES} ${LIBCGSS_KS_API_FILES} ${LIBCGSS_KS_SOURCE_FILES} ${LIBCGSS_TM_API_FILES} ${LIBCGSS_TM_SOURCE_FILES})
+        ${LIBCGSS_API_FILES} ${LIBCGSS_COMMON_HEADER_FILES} ${LIBCGSS_COMMON_SOURCE_FILES} ${LIBCGSS_KS_SOURCE_FILES} ${LIBCGSS_TM_SOURCE_FILES})
 set(HCACC_SOURCE_FILES
         src/apps/hcacc/hcacc.cpp src/apps/cgssh.h ${LIBCGSS_API_FILES})
 set(HCAENC_SOURCE_FILES
@@ -41,6 +40,9 @@ set(HCA2WAV_SOURCE_FILES
 set(HCAINFO_SOURCE_FILES
         src/apps/hcainfo/hcainfo.cpp ${LIBCGSS_API_FILES})
 
+if (${BUILD_JNI_INTERFACE} OR $ENV{BUILD_JNI_INTERFACE})
+    set(BUILD_JNI_INTERFACE 1)
+endif ()
 if (${BUILD_JNI_INTERFACE})
     # http://public.kitware.com/pipermail/cmake/2012-June/050674.html
     macro(header_directories base_path return_list)
@@ -73,12 +75,12 @@ set(PROJECT_VERSION_MINOR 2)
 set(PROJECT_VERSION_TWEAK 0)
 set(PROJECT_VERSION_PATCH 0)
 
-if ("${CYGWIN}" OR "${MINGW}")
+if (CYGWIN OR MINGW)
     # http://stackoverflow.com/questions/12921911/mingw-libgcc-s-sjlj-1-dll-is-missing
     # However, these options will only work if putting them here, not in 'compiler is gnu c' section.
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libgcc -static")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++ -static")
-    if ("${CYGWIN}")
+    if (CYGWIN)
         # Force using MinGW even though compiling via Cygwin (please install the packages)
         if (${TARGET_ARCH} STREQUAL "x86")
             set(CMAKE_C_COMPILER /usr/bin/i686-w64-mingw32-gcc)
@@ -111,7 +113,7 @@ set_target_properties(cgss
         PROPERTIES
         VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK}"
         SOVERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
-if (${BUILD_JNI_INTERFACE})
+if (TARGET cgss_jni)
     set_target_properties(cgss_jni
             PROPERTIES
             VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK}"
@@ -119,7 +121,7 @@ if (${BUILD_JNI_INTERFACE})
 endif ()
 
 target_compile_definitions(cgss PRIVATE __CGSS_BUILDING_DLL__)
-if (${BUILD_JNI_INTERFACE})
+if (TARGET cgss_jni)
     target_compile_definitions(cgss_jni PRIVATE __CGSS_BUILDING_DLL__ PRIVATE __CGSS_WITH_JNI__)
 endif ()
 target_compile_definitions(hcacc PRIVATE __COMPILE_WITH_CGSS_KEYS)
@@ -127,7 +129,7 @@ target_compile_definitions(hcaenc PRIVATE __COMPILE_WITH_CGSS_KEYS)
 target_compile_definitions(hca2wav PRIVATE __COMPILE_WITH_CGSS_KEYS)
 
 # http://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
-if (${GNU_COMPILER})
+if (MINGW OR CYGWIN)
     # using GCC
     # http://stackoverflow.com/questions/10369513/dll-linking-via-windows-cgo-gcc-ld-gives-undefined-reference-to-function-e
     # http://www.willus.com/mingw/yongweiwu_stdcall.html
@@ -138,18 +140,20 @@ if (${GNU_COMPILER})
     #set(CMAKE_STATIC_LINKER_FLAGS ${CMAKE_STATIC_LINKER_FLAGS} -s)
     #set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} -s)
     #set(CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS} -s)
-elseif (${MSVC})
+elseif (MSVC)
     # http://stackoverflow.com/questions/34659795/cmake-how-to-add-a-def-file-which-is-not-a-module-definition-file
     # http://stackoverflow.com/questions/18786690/cmake-for-def-and-nodefaultlib
     set_target_properties(cgss
             PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    set_target_properties(cgss_jni
-            PROPERTIES
-            ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    if (TARGET cgss_jni)
+        set_target_properties(cgss_jni
+                PROPERTIES
+                ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    endif ()
 endif ()
 
-if (${WIN32})
+if (WIN32)
     set_target_properties(cgss
             PROPERTIES
             LINK_DEF_FILE_FLAG ${LIBCGSS_DEF_FILE})
@@ -158,7 +162,10 @@ if (${WIN32})
             LINK_DEF_FILE_FLAG ${LIBCGSS_DEF_FILE})
 endif ()
 
-if (${BUILD_JNI_INTERFACE})
+if (UNIX AND NOT (MINGW OR CYGWIN))
+    target_link_libraries(cgss dl)
+endif ()
+if (TARGET cgss_jni)
     target_link_libraries(cgss_jni jvm)
 endif ()
 target_link_libraries(hcacc cgss)
@@ -189,8 +196,10 @@ if (${GNU_COMPILER})
             POST_BUILD
             COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss>
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    add_custom_command(TARGET cgss_jni
-            POST_BUILD
-            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss_jni>
-            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    if (TARGET cgss_jni)
+        add_custom_command(TARGET cgss_jni
+                POST_BUILD
+                COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss_jni>
+                WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endif ()
 endif ()

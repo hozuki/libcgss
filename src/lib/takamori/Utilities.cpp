@@ -1,12 +1,12 @@
+#include "Utilities.h"
+
 #ifdef __CGSS_OS_UNIX__
 #include <dlfcn.h>
 #endif
 
-#include "Utilities.h"
-
 CGSS_NS_BEGIN
 
-    HMODULE Utilities::LoadDynamicLibrary(LPCSTR lpstrModuleName) {
+    Utilities::HLIB Utilities::LoadDynamicLibrary(LPCSTR lpstrModuleName) {
 #if defined(__CGSS_OS_WINDOWS__)
         return LoadLibrary(lpstrModuleName);
 #elif defined(__CGSS_OS_UNIX__)
@@ -14,7 +14,7 @@ CGSS_NS_BEGIN
 #endif
     }
 
-    void *Utilities::GetFunctionAddress(HMODULE hModule, LPCSTR lpstrFuncName) {
+    void *Utilities::GetFunctionAddress(Utilities::HLIB hModule, LPCSTR lpstrFuncName) {
 #if defined(__CGSS_OS_WINDOWS__)
         return (void *)GetProcAddress(hModule, lpstrFuncName);
 #elif defined(__CGSS_OS_UNIX__)
@@ -22,7 +22,7 @@ CGSS_NS_BEGIN
 #endif
     }
 
-    bool_t Utilities::FreeDynamicLibrary(HMODULE hModule) {
+    bool_t Utilities::FreeDynamicLibrary(Utilities::HLIB hModule) {
 #if defined(__CGSS_OS_WINDOWS__)
         return static_cast<bool_t>(FreeLibrary(hModule));
 #elif defined(__CGSS_OS_UNIX__)

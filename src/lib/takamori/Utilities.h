@@ -8,16 +8,18 @@ CGSS_NS_BEGIN
 
     public:
 
+#ifdef __CGSS_OS_WINDOWS__
+        typedef HMODULE HLIB;
+#endif
 #ifdef __CGSS_OS_UNIX__
-        typedef void *HMODULE;
-        typdef const char *LPCSTR;
+        typedef void *HLIB;
 #endif
 
-        static HMODULE LoadDynamicLibrary(LPCSTR lpstrModuleName);
+        static HLIB LoadDynamicLibrary(LPCSTR lpstrModuleName);
 
-        static void *GetFunctionAddress(HMODULE hModule, LPCSTR lpstrFuncName);
+        static void *GetFunctionAddress(HLIB hModule, LPCSTR lpstrFuncName);
 
-        static bool_t FreeDynamicLibrary(HMODULE hModule);
+        static bool_t FreeDynamicLibrary(HLIB hModule);
 
     PURE_STATIC(Utilities);
 

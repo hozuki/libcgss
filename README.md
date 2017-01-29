@@ -7,8 +7,8 @@ is in progress.
 The project consists of a library (*libcgss*) and several other applications.
 
 - Library (*libcgss*)
-  - [*kawashima*](http://www.project-imas.com/wiki/Mizuki_Kawashima): HCA decoding library, migrated from [kawashima](https://github.com/hozuki/kawashima).
   - [*takamori*](http://www.project-imas.com/wiki/Aiko_Takamori): Base structure: streams and exceptions.
+  - [*kawashima*](http://www.project-imas.com/wiki/Mizuki_Kawashima): HCA decoding library, migrated from [kawashima](https://github.com/hozuki/kawashima).
 - Applications
   - *hcaenc*: HCA encoder. Requires `hcaenc_lite.dll`.
   - *hcacc*: HCA cipher converter.
@@ -60,12 +60,22 @@ int main() {
 
 Requirements:
 
-- CMake (>=3.6)
-- MSVC, or Cygwin/gcc, or MinGW/gcc (on Windows)
-- gcc (on macOS and Linux, untested)
+- General:
+  - CMake (>=3.2)
+- Windows:
+  - MSVC (>=19.0, VC++ 2015) or Cygwin/GCC (>=5.0) or MinGW/GCC (>=5.0)
+- macOS and Linux:
+  - GCC (>=5.0)
 
-I personally recommend you to use Cygwin rather than MinGW. The latter seems to lack
-support of properly handling `try...catch` statements.
+For Windows users, please use CMake GUI (supplied with CMake) to generate a Visual Studio solution.
+
+For macOS and Linux users, you can simply invoking the script `build.sh`.
+
+> **Remarks:**
+>
+> 1. I personally recommend you to use Cygwin rather than MinGW. The latter seems to lack
+> support of properly handling `try...catch` statements.
+> 2. Linux build is tested on Windows Subsystem for Linux (WSL) using GCC 6.2.0.
 
 ## API & Manual
 

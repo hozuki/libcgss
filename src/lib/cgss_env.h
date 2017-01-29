@@ -50,15 +50,30 @@
 #define EXTERN_C extern "C"
 #endif
 #ifndef STDCALL
+#ifdef __CGSS_OS_WINDOWS__
 #define STDCALL __stdcall
+#else
+#define STDCALL
+#endif
 #endif
 #else
 #define EXTERN_C
 #endif
 
+#include <cstdlib>
+#include <cstring>
 #include <cstdint>
 
 typedef uint32_t bool_t;
+#ifndef __CGSS_OS_WINDOWS__
+typedef const char *LPCSTR;
+#endif
+#ifndef TRUE
+#define TRUE ((bool_t)1)
+#endif
+#ifndef FALSE
+#define FALSE ((bool_t)0)
+#endif
 
 #ifdef _MSC_VER
 #define CGSS_API_DECL(ret_type) EXTERN_C CGSS_EXPORT ret_type STDCALL
@@ -95,3 +110,6 @@ typedef uint32_t bool_t;
 #ifdef __cplusplus
 #define __extends(parent) private: typedef parent super
 #endif
+
+#define cgss_str(x) #x
+#define cgss_xstr(x) cgss_str(x)

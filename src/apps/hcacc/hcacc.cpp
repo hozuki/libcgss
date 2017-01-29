@@ -28,7 +28,7 @@ static const char *msg_help = ""
     "Remarks:\n"
     "  - Valid cipher types are: 0, 1, 56.\n"
     "  - Keys are entered in 4 byte hex form, e.g.: 0403F18B.\n"
-    "  - Default value of all arguments is 0, unless __COMPILE_WITH_CGSS_KEYS is set during compilation.\n\n"
+    "  - Default value of all arguments is 0, unless " cgss_str(__COMPILE_WITH_CGSS_KEYS) " is set during compilation.\n\n"
     "Example:\n"
     "  hcacc.exe C:\\in.hca C:\\out.hca -ot 1\n"
     "  * This command will convert an HCA file from cipher type 0 (no cipher) to type 1 (with static cipher key).";
