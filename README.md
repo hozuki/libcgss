@@ -69,7 +69,7 @@ Requirements:
 
 For Windows users, please use CMake GUI (supplied with CMake) to generate a Visual Studio solution.
 
-For macOS and Linux users, you can simply invoking the script `build.sh`.
+For macOS and Linux users, you can simply invoke the script `build.sh`.
 
 > **Remarks:**
 >
