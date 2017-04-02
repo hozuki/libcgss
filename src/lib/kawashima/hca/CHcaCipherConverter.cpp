@@ -1,6 +1,5 @@
 #include <string>
 #include <algorithm>
-#include <cstdio>
 #include "CHcaCipherConverter.h"
 #include "../../common/quick_utils.h"
 #include "internal/CHcaCipher.h"
@@ -9,6 +8,7 @@
 #include "hca_utils.h"
 #include "internal/CHcaData.h"
 #include "../../takamori/exceptions/CArgumentException.h"
+#include "../../takamori/exceptions/CFormatException.h"
 
 CGSS_NS_BEGIN
 
@@ -142,7 +142,7 @@ CGSS_NS_BEGIN
         if (ComputeChecksum(blockBuffer, hcaInfo.blockSize, 0) != 0) {
             char numberBuffer[20] = {0};
             sprintf(numberBuffer, "%u", blockIndex);
-            throw CException(CGSS_OP_FORMAT_ERROR, std::string("CHcaCipherConverter::ConvertBlock @ Block#") + numberBuffer);
+            throw CFormatException(std::string("CHcaCipherConverter::ConvertBlock @ Block#") + numberBuffer);
         }
 
         // Decipher.
@@ -155,7 +155,7 @@ CGSS_NS_BEGIN
         if (magic != 0xffff) {
             char numberBuffer[20] = {0};
             sprintf(numberBuffer, "%u", blockIndex);
-            throw CException(CGSS_OP_FORMAT_ERROR, std::string("CHcaCipherConverter::ConvertBlock @ Block#") + numberBuffer);
+            throw CFormatException(std::string("CHcaCipherConverter::ConvertBlock @ Block#") + numberBuffer);
         }
 
         // Recipher.

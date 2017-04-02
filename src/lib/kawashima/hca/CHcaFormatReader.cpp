@@ -2,6 +2,7 @@
 #include "CHcaFormatReader.h"
 #include "hca_native.h"
 #include "../../takamori/exceptions/CException.h"
+#include "../../takamori/exceptions/CFormatException.h"
 #include "hca_utils.h"
 #include "../../common/quick_utils.h"
 #include "../../takamori/streams/CBinaryReader.h"
@@ -87,7 +88,7 @@ CGSS_NS_BEGIN
         actualRead = stream->Read(&var, bufferSize, 0, bufferSize); \
         do { \
             if (actualRead < bufferSize) { \
-                throw CException(CGSS_OP_FORMAT_ERROR, "Unexpected end of file."); \
+                throw CFormatException("Unexpected end of file."); \
             } \
         } while (0)
 #define ENSURE_READ_ALL_BUFFER(buffer, size) \
@@ -95,7 +96,7 @@ CGSS_NS_BEGIN
         actualRead = stream->Read(buffer, bufferSize, 0, bufferSize); \
         do { \
             if (actualRead < bufferSize) { \
-                throw CException(CGSS_OP_FORMAT_ERROR, "Unexpected end of file."); \
+                throw CFormatException("Unexpected end of file."); \
             } \
         } while (0)
 
@@ -136,10 +137,10 @@ CGSS_NS_BEGIN
             hcaInfo.fmtR01 = bswap(hcaFormatHeader.r01);
             hcaInfo.fmtR02 = bswap(hcaFormatHeader.r02);
             if (!(1 <= hcaInfo.channelCount && hcaInfo.channelCount <= 16)) {
-                throw CException(CGSS_OP_FORMAT_ERROR, "Number of channels is out of range.");
+                throw CFormatException("Number of channels is out of range.");
             }
             if (!(1 <= hcaInfo.samplingRate && hcaInfo.samplingRate <= 0x7fffff)) {
-                throw CException(CGSS_OP_FORMAT_ERROR, "Sampling rate is out of range.");
+                throw CFormatException("Sampling rate is out of range.");
             }
         }
 
@@ -160,10 +161,10 @@ CGSS_NS_BEGIN
                 hcaInfo.compR07 = hcaCompressHeader.r07;
                 hcaInfo.compR08 = hcaCompressHeader.r08;
                 if (!((hcaInfo.blockSize >= 8 && hcaInfo.blockSize <= 0xFFFF) || (hcaInfo.blockSize == 0))) {
-                    throw CException(CGSS_OP_FORMAT_ERROR, "Block size is out of range.");
+                    throw CFormatException("Block size is out of range.");
                 }
                 if (!(hcaInfo.compR01 >= 0 && hcaInfo.compR01 <= hcaInfo.compR02 && hcaInfo.compR02 <= 0x1f)) {
-                    throw CException(CGSS_OP_FORMAT_ERROR, "Compression: r-fields are out of range.");
+                    throw CFormatException("Compression: r-fields are out of range.");
                 }
             } else if (areMagicMatch(magic, Magic::DECODE)) {
                 HCA_DECODE_HEADER hcaDecodeHeader;
@@ -178,7 +179,7 @@ CGSS_NS_BEGIN
                 hcaInfo.compR07 = hcaInfo.compR05 - hcaInfo.compR06;
                 hcaInfo.compR08 = 0;
             } else {
-                throw CException(CGSS_OP_FORMAT_ERROR, "Compression or Decode header is required.");
+                throw CFormatException("Compression or Decode header is required.");
             }
         }
 
@@ -222,7 +223,7 @@ CGSS_NS_BEGIN
                 hcaInfo.loopR01 = bswap(hcaLoopHeader.r01);
                 hcaInfo.loopR02 = bswap(hcaLoopHeader.r02);
                 if (!(0 <= hcaInfo.loopStart && hcaInfo.loopStart <= hcaInfo.loopEnd && hcaInfo.loopEnd < hcaInfo.blockCount)) {
-                    throw CException(CGSS_OP_FORMAT_ERROR, "Loop information is invalid.");
+                    throw CFormatException("Loop information is invalid.");
                 }
             } else {
                 hcaInfo.loopStart = hcaInfo.loopEnd = 0;
@@ -242,7 +243,7 @@ CGSS_NS_BEGIN
                 const auto cipherType = static_cast<CGSS_HCA_CIPHER_TYPE>(bswap(hcaCipherHeader.type));
                 hcaInfo.cipherType = cipherType;
                 if (!(cipherType == CGSS_HCA_CIPH_NO_CIPHER || cipherType == CGSS_HCA_CIPH_STATIC || cipherType == CGSS_HCA_CIPH_WITH_KEY)) {
-                    throw CException(CGSS_OP_FORMAT_ERROR, "Cipher type is invalid.");
+                    throw CFormatException("Cipher type is invalid.");
                 }
             } else {
                 hcaInfo.cipherType = CGSS_HCA_CIPH_NO_CIPHER;
@@ -281,7 +282,7 @@ CGSS_NS_BEGIN
             hcaInfo.compR03 = 1;
         }
         if (!(hcaInfo.compR01 == 1 && hcaInfo.compR02 == 0xf)) {
-            throw CException(CGSS_OP_FORMAT_ERROR, "Compression/Decode: r-fields are out of range.");
+            throw CFormatException("Compression/Decode: r-fields are out of range.");
         }
         hcaInfo.compR09 = ceil2(hcaInfo.compR05 - (hcaInfo.compR06 + hcaInfo.compR07), hcaInfo.compR08);
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../cgss_env.h"
-#include "../../takamori/exceptions/CException.h"
+#include "../../takamori/exceptions/CFormatException.h"
 
 CGSS_NS_BEGIN
 
@@ -37,7 +37,7 @@ CGSS_NS_BEGIN
 
     inline void ensureMagicMatch(uint32_t toCheck, Magic standard) {
         if (!areMagicMatch(toCheck, standard)) {
-            throw CException(CGSS_OP_FORMAT_ERROR);
+            throw CFormatException();
         }
     }
 

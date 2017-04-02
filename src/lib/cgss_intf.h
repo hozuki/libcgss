@@ -7,6 +7,7 @@
 #include "takamori/exceptions/CArgumentException.h"
 #include "takamori/exceptions/CInvalidOperationException.h"
 #include "takamori/exceptions/CNotImplementedException.h"
+#include "takamori/exceptions/CFormatException.h"
 
 #include "takamori/streams/IStream.h"
 #include "takamori/streams/CStream.h"
