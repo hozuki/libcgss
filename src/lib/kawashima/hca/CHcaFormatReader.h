@@ -23,6 +23,8 @@ CGSS_NS_BEGIN
          */
         void GetHcaInfo(HCA_INFO &info) const;
 
+        void GetHcaInfo(HCA_INFO *pInfo) const;
+
         const HCA_INFO GetHcaInfo() const;
 
         virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override final;
