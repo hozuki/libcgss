@@ -6,7 +6,7 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CArgumentException : public CException {
 
-    __extends(CException);
+    __extends(CException, CArgumentException);
 
     public:
 

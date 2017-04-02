@@ -22,11 +22,11 @@ using namespace std;
 CGSS_NS_BEGIN
 
     CFileStream::CFileStream(LPCSTR fileName)
-        : CFileStream(fileName, FileMode::OpenOrCreate) {
+        : MyClass(fileName, FileMode::OpenOrCreate) {
     }
 
     CFileStream::CFileStream(LPCSTR fileName, FileMode mode)
-        : CFileStream(fileName, mode, FileAccess::ReadWrite) {
+        : MyClass(fileName, mode, FileAccess::ReadWrite) {
     }
 
     CFileStream::CFileStream(LPCSTR fileName, FileMode mode, FileAccess access) {

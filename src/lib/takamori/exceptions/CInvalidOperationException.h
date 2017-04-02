@@ -6,7 +6,7 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CInvalidOperationException : public CException {
 
-    __extends(CException);
+    __extends(CException, CInvalidOperationException);
 
     public:
 

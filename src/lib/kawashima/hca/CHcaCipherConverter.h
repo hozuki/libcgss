@@ -10,7 +10,7 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CHcaCipherConverter : public CHcaFormatReader {
 
-    __extends(CHcaFormatReader);
+    __extends(CHcaFormatReader, CHcaFormatReader);
 
     public:
 

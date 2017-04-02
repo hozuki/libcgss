@@ -7,6 +7,8 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CHcaDecoderConfig final : public HCA_DECODER_CONFIG {
 
+        __extends(HCA_DECODER_CONFIG, CHcaDecoderConfig);
+
     public:
 
         CHcaDecoderConfig();

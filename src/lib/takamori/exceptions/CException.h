@@ -8,6 +8,8 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CException {
 
+    __root_class(CException);
+
     public:
 
         CException();

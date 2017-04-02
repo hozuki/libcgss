@@ -17,11 +17,11 @@ CGSS_NS_BEGIN
     static const float MemoryStreamGrowFactor = 1.25f;
 
     CMemoryStream::CMemoryStream()
-        : CMemoryStream(0) {
+        : MyClass(0) {
     }
 
     CMemoryStream::CMemoryStream(uint64_t capacity)
-        : CMemoryStream(capacity, TRUE) {
+        : MyClass(capacity, TRUE) {
     }
 
     CMemoryStream::CMemoryStream(uint64_t capacity, bool_t isResizable) {
@@ -37,7 +37,7 @@ CGSS_NS_BEGIN
     }
 
     CMemoryStream::CMemoryStream(uint8_t *buffer, uint64_t bufferSize)
-        : CMemoryStream(buffer, bufferSize, TRUE) {
+        : MyClass(buffer, bufferSize, TRUE) {
     }
 
     CMemoryStream::CMemoryStream(uint8_t *buffer, uint64_t bufferSize, bool_t isWritable) {

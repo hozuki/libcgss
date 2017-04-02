@@ -7,7 +7,7 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CFileStream : public CStream {
 
-    __extends(CStream);
+    __extends(CStream, CFileStream);
 
     public:
 

@@ -22,7 +22,7 @@ CGSS_NS_BEGIN
         } while (0)
 
     CHcaCipherConverter::CHcaCipherConverter(IStream *stream, const HCA_CIPHER_CONFIG &cryptFrom, const HCA_CIPHER_CONFIG &cryptTo)
-        : super(stream), _cipherFrom(), _cipherTo() {
+        : MyBase(stream), _cipherFrom(), _cipherTo() {
         _headerBuffer = nullptr;
         clone(cryptFrom, _ccFrom);
         clone(cryptTo, _ccTo);

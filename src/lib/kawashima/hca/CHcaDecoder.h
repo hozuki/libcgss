@@ -14,7 +14,7 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CHcaDecoder : public CHcaFormatReader {
 
-    __extends(CHcaFormatReader);
+    __extends(CHcaFormatReader, CHcaDecoder);
 
     public:
 

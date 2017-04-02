@@ -7,7 +7,7 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CBinaryWriter : public CStream {
 
-    __extends(CStream);
+    __extends(CStream, CBinaryWriter);
 
     public:
 

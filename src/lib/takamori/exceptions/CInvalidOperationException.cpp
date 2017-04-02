@@ -3,15 +3,15 @@
 CGSS_NS_BEGIN
 
     CInvalidOperationException::CInvalidOperationException()
-        : CInvalidOperationException("") {
+        : MyClass("") {
     }
 
     CInvalidOperationException::CInvalidOperationException(const char *message)
-        : super(CGSS_OP_INVALID_OPERATION, message) {
+        : MyBase(CGSS_OP_INVALID_OPERATION, message) {
     }
 
     CInvalidOperationException::CInvalidOperationException(const std::string &message)
-        : CException(CGSS_OP_INVALID_OPERATION, message) {
+        : MyBase(CGSS_OP_INVALID_OPERATION, message) {
     }
 
 CGSS_NS_END

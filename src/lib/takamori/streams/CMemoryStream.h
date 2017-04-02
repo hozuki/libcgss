@@ -6,7 +6,7 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CMemoryStream : public CStream {
 
-        __extends(CStream);
+    __extends(CStream, CMemoryStream);
 
     public:
         CMemoryStream();

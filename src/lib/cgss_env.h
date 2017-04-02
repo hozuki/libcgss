@@ -108,7 +108,8 @@ typedef const char *LPCSTR;
 #endif
 
 #ifdef __cplusplus
-#define __extends(parent) private: typedef parent super
+#define __root_class(cls) private: typedef cls MyClass
+#define __extends(parent_cls, child_cls) private: typedef parent_cls MyBase; typedef child_cls MyClass
 #endif
 
 #define cgss_str(x) #x

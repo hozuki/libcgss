@@ -8,7 +8,7 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CHcaFormatReader : public CStream {
 
-    __extends(CStream);
+    __extends(CStream, CHcaFormatReader);
 
     public:
 
@@ -21,7 +21,9 @@ CGSS_NS_BEGIN
          * @param info Retrieved HCA information.
          * @return
          */
-        void GetHcaInfo(HCA_INFO &info);
+        void GetHcaInfo(HCA_INFO &info) const;
+
+        const HCA_INFO GetHcaInfo() const;
 
         virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override final;
 

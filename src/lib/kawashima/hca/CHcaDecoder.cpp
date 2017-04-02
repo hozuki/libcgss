@@ -13,11 +13,11 @@
 CGSS_NS_BEGIN
 
     CHcaDecoder::CHcaDecoder(IStream *stream)
-            : CHcaDecoder(stream, HCA_DECODER_CONFIG()) {
+            : MyClass(stream, HCA_DECODER_CONFIG()) {
     }
 
     CHcaDecoder::CHcaDecoder(IStream *stream, const HCA_DECODER_CONFIG &decoderConfig)
-            : super(stream) {
+            : MyBase(stream) {
         _cipher = nullptr;
         _ath = nullptr;
         for (auto i = 0; i < ChannelCount; ++i) {

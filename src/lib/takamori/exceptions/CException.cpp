@@ -3,19 +3,19 @@
 CGSS_NS_BEGIN
 
     CException::CException()
-        : CException("") {
+        : MyClass("") {
     }
 
     CException::CException(CGSS_OP_RESULT result)
-        : CException(result, "") {
+        : MyClass(result, "") {
     }
 
     CException::CException(const char *message)
-        : CException(std::string(message)) {
+        : MyClass(std::string(message)) {
     }
 
     CException::CException(const std::string &message)
-        : CException(CGSS_OP_GENERIC_FAULT, message) {
+        : MyClass(CGSS_OP_GENERIC_FAULT, message) {
     }
 
     CException::CException(CGSS_OP_RESULT result, const std::string &message)
