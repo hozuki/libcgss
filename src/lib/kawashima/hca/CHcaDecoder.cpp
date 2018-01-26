@@ -171,12 +171,12 @@ CGSS_NS_BEGIN
         wavRiff.fmtSamplesPerSec = wavRiff.fmtSamplingRate * wavRiff.fmtSamplingSize;
         if (hcaInfo.loopExists) {
             wavSmpl.samplePeriod = static_cast<uint32_t>(1 / (double)wavRiff.fmtSamplingRate * 1000000000);
-            wavSmpl.loopStart = hcaInfo.loopStart * 0x80 * 8 * wavRiff.fmtSamplingSize;
-            wavSmpl.loopEnd = hcaInfo.loopEnd * 0x80 * 8 * wavRiff.fmtSamplingSize;
+            wavSmpl.loopStart = hcaInfo.loopStart * 0x80 * 8 + hcaInfo.fmtR02; // fmtR02 is muteFooter
+            wavSmpl.loopEnd = hcaInfo.loopEnd * 0x80 * 8;
             wavSmpl.loopPlayCount = (hcaInfo.loopR01 == 0x80) ? 0 : hcaInfo.loopR01;
         } else if (WaveSettings::SoftLoop) {
             wavSmpl.loopStart = 0;
-            wavSmpl.loopEnd = hcaInfo.blockCount * 0x80 * 8 * wavRiff.fmtSamplingSize;
+            wavSmpl.loopEnd = hcaInfo.blockCount * 0x80 * 8;
         }
         if (hcaInfo.commentLength > 0) {
             wavNote.noteSize = 4 + hcaInfo.commentLength + 1;
@@ -184,8 +184,8 @@ CGSS_NS_BEGIN
                 wavNote.noteSize += 4 - (wavNote.noteSize & 3);
             }
         }
-        wavData.dataSize = hcaInfo.blockCount * 0x80 * 8 * wavRiff.fmtSamplingSize +
-                           (wavSmpl.loopEnd - wavSmpl.loopStart) * _decoderConfig.loopCount;
+        wavData.dataSize = wavRiff.fmtSamplingSize * (hcaInfo.blockCount * 0x80 * 8  +
+                           (wavSmpl.loopEnd - wavSmpl.loopStart) * _decoderConfig.loopCount);
         wavRiff.riffSize = static_cast<uint32_t>(0x1C + ((hcaInfo.loopExists && !WaveSettings::SoftLoop) ? sizeof(wavSmpl) : 0) +
                                                  (hcaInfo.commentLength > 0 ? 8 + wavNote.noteSize : 0) + sizeof(wavData) +
                                                  wavData.dataSize);
