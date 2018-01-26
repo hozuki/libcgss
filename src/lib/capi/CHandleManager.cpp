@@ -1,3 +1,7 @@
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "CHandleManager.h"
 #include "../takamori/exceptions/CArgumentException.h"
 
@@ -6,17 +10,16 @@ CGSS_NS_BEGIN
     CHandleManager *CHandleManager::_instance = new CHandleManager();
 
     CHandleManager::CHandleManager() {
-        _handles[0] = HandleRecord {
-            .ptr = nullptr,
-            .type = HandleType::None
-        };
+        HandleRecord record = {};
+        record.ptr = nullptr;
+        record.type = HandleType::None;
+
+        _handles[0] = record;
     }
 
     CHandleManager::~CHandleManager() {
         for (const auto &r : _handles) {
-            if (r.second.ptr) {
-                delete r.second.ptr;
-            }
+            delete r.second.ptr;
         }
         _handles.clear();
     }
@@ -48,14 +51,16 @@ CGSS_NS_BEGIN
     uint32_t CHandleManager::alloc(IStream *p, HandleType type) {
         uint32_t handle = 1;
         auto iter = _handles.find(handle);
+
         while (iter != _handles.cend()) {
             ++handle;
             iter = _handles.find(handle);
         }
-        HandleRecord record = {
-            .ptr = p,
-            .type = type
-        };
+
+        HandleRecord record = {};
+        record.ptr = p;
+        record.type = type;
+
         _handles[handle] = record;
         return handle;
     }

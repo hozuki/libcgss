@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../cgss_env.h"
 #include "IStream.h"
 
 CGSS_NS_BEGIN

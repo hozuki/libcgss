@@ -10,6 +10,11 @@
 #include "../wave/wave_native.h"
 #include "../../takamori/streams/CMemoryStream.h"
 
+#ifdef _MSC_VER
+#undef max
+#undef min
+#endif
+
 CGSS_NS_BEGIN
 
     CHcaDecoder::CHcaDecoder(IStream *stream)

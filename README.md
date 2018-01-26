@@ -8,9 +8,10 @@ The project consists of a library (*libcgss*) and several other applications.
 
 - Library (*libcgss*)
   - [*takamori*](http://www.project-imas.com/wiki/Aiko_Takamori): Base structure: streams and exceptions.
-  - [*kawashima*](http://www.project-imas.com/wiki/Mizuki_Kawashima): HCA decoding library, migrated from [kawashima](https://github.com/hozuki/kawashima).
+  - [*ichinose*](http://www.project-imas.com/wiki/Shiki_Ichinose): CRI ACB/AWB archive reader.
+  - [*kawashima*](http://www.project-imas.com/wiki/Mizuki_Kawashima): HCA decoder, migrated from [kawashima](https://github.com/hozuki/kawashima).
 - Applications
-  - *hcaenc*: HCA encoder. Requires `hcaenc_lite.dll`.
+  - *hcaenc*: HCA encoder. Requires `hcaenc_lite.dll`<sup>\[1\]</sup>.
   - *hcacc*: HCA cipher converter.
   - *hca2wav*: HCA decoder.
   - *hcainfo*: HCA info viewer.
@@ -18,6 +19,9 @@ The project consists of a library (*libcgss*) and several other applications.
 This project has a sister project [**DereTore**](https://github.com/OpenCGSS/DereTore).
 However the strength of C API is better interoperability with other libraries.
 The pure C# version of *hcaenc* and *hcacc* can be found in *DereTore* as applications.
+
+> \[1\] Download ADX2LE from [here](http://www.adx2le.com/download/index.html), and use
+the DLL located at `tools\hcaenc_lite.dll`.
 
 ## Example 
 

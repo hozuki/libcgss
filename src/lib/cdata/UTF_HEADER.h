@@ -1,0 +1,17 @@
+#pragma once
+
+#include "../cgss_env.h"
+
+typedef struct _UTF_HEADER {
+
+    uint32_t tableSize;
+    uint16_t unk1;
+    uint32_t perRowDataOffset;
+    uint32_t stringTableOffset;
+    uint32_t extraDataOffset;
+    uint32_t tableNameOffset;
+    uint16_t fieldCount;
+    uint16_t rowSize;
+    uint32_t rowCount;
+
+} UTF_HEADER;

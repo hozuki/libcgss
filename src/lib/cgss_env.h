@@ -45,24 +45,43 @@
 #endif
 #endif
 
+#ifdef _MSC_VER
+#ifndef __func__
+#define __func__ __FUNCTION__
+#endif
+#endif
+
 #ifdef __cplusplus
 #ifndef EXTERN_C
 #define EXTERN_C extern "C"
 #endif
+#else
+#ifndef EXTERN_C
+#define EXTERN_C
+#endif
+#endif
+
 #ifndef STDCALL
 #ifdef __CGSS_OS_WINDOWS__
+#ifndef STDCALL
 #define STDCALL __stdcall
+#endif
 #else
 #define STDCALL
 #endif
 #endif
-#else
-#define EXTERN_C
-#endif
 
+#ifdef __cplusplus
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#else
+
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+
+#endif
 
 typedef uint32_t bool_t;
 #ifndef __CGSS_OS_WINDOWS__
@@ -75,7 +94,7 @@ typedef const char *LPCSTR;
 #define FALSE ((bool_t)0)
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
 #define CGSS_API_DECL(ret_type) EXTERN_C CGSS_EXPORT ret_type STDCALL
 #else
 #define CGSS_API_DECL(ret_type) EXTERN_C CGSS_EXPORT STDCALL ret_type
@@ -102,7 +121,7 @@ typedef const char *LPCSTR;
 #define CGSS_NS_END   }
 
 #define PURE_STATIC(className) \
-    private: \
+    public: \
         className() = delete; \
         className(const className &) = delete
 #endif

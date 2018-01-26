@@ -364,6 +364,10 @@ CGSS_NS_BEGIN
 
     PEEK_WRAP_R_O(double, Double, BE)
 
+    uint32_t CBinaryReader::Peek(void *buffer, uint32_t bufferSize, size_t bufferOffset, uint32_t count) {
+        return PeekBytes(_baseStream, static_cast<uint8_t *>(buffer), bufferSize, bufferOffset, count);
+    }
+
     uint32_t CBinaryReader::Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) {
         return _baseStream->Read(buffer, bufferSize, offset, count);
     }

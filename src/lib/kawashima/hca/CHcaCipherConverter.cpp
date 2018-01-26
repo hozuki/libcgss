@@ -1,3 +1,7 @@
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <string>
 #include <algorithm>
 #include "CHcaCipherConverter.h"
@@ -9,6 +13,11 @@
 #include "internal/CHcaData.h"
 #include "../../takamori/exceptions/CArgumentException.h"
 #include "../../takamori/exceptions/CFormatException.h"
+
+#ifdef _MSC_VER
+#undef max
+#undef min
+#endif
 
 CGSS_NS_BEGIN
 

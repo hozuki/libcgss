@@ -81,7 +81,11 @@ CGSS_NS_BEGIN
     }
 
     uint64_t CFileStream::GetPosition() {
-        return (uint64_t)ftell(_fp);
+        if (_fp == nullptr) {
+            return 0;
+        } else {
+            return (uint64_t)ftell(_fp);
+        }
     }
 
     void CFileStream::SetPosition(uint64_t value) {
@@ -89,6 +93,10 @@ CGSS_NS_BEGIN
     }
 
     uint64_t CFileStream::GetLength() {
+        if (_fp == nullptr) {
+            return 0;
+        }
+
         auto position = ftell(_fp);
         fseek(_fp, 0, SEEK_END);
         auto r = ftell(_fp);

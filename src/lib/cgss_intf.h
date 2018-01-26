@@ -20,3 +20,8 @@
 #include "kawashima/hca/CDefaultWaveGenerator.h"
 #include "kawashima/hca/CHcaDecoder.h"
 #include "kawashima/hca/CHcaCipherConverter.h"
+
+#include "ichinose/CAcbHelper.h"
+#include "ichinose/CUtfField.h"
+#include "ichinose/CUtfReader.h"
+#include "ichinose/CUtfTable.h"

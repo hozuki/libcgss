@@ -195,6 +195,8 @@ CGSS_NS_BEGIN
 
         static uint32_t PeekBytes(IStream *stream, uint8_t *buffer, uint32_t bufferSize, size_t offset, uint32_t count);
 
+        uint32_t Peek(void *buffer, uint32_t bufferSize, size_t bufferOffset, uint32_t count);
+
         virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
         virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;

@@ -9,6 +9,11 @@ typedef uint32_t CGSS_HANDLE;
 
 CGSS_API_DECL(void) cgssTest();
 
+CGSS_API_DECL(void) cgssGetOpResultString(CGSS_OP_RESULT error, char *buffer, size_t length);
+CGSS_API_DECL(const char *) cgssGetLastErrorMessage();
+
+CGSS_API_DECL(bool_t) cgssHelperFileExists(LPCSTR fileName);
+
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamRead(CGSS_HANDLE handle, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *read);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamWrite(CGSS_HANDLE handle, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *written);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamSeek(CGSS_HANDLE handle, int64_t offset, CGSS_STREAM_SEEK_ORIGIN origin);
@@ -42,3 +47,7 @@ CGSS_API_DECL(uint32_t) cgssWaveDecode16BitS(float data, uint8_t *buffer, uint32
 CGSS_API_DECL(uint32_t) cgssWaveDecode24BitS(float data, uint8_t *buffer, uint32_t cursor);
 CGSS_API_DECL(uint32_t) cgssWaveDecode32BitS(float data, uint8_t *buffer, uint32_t cursor);
 CGSS_API_DECL(uint32_t) cgssWaveDecodeFloat(float data, uint8_t *buffer, uint32_t cursor);
+
+CGSS_API_DECL(CGSS_OP_RESULT) cgssUtfReadTable(CGSS_HANDLE stream, uint64_t offset, _OUT_ UTF_TABLE **table);
+CGSS_API_DECL(CGSS_OP_RESULT) cgssUtfFreeTable(UTF_TABLE *table);
+CGSS_API_DECL(bool_t) cgssUtfTryParseTable(void *data, size_t dataSize, _OUT_ UTF_TABLE **table);

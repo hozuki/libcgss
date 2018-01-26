@@ -5,3 +5,4 @@
 
 #include "kawashima/hca/CHcaCipherConfig.h"
 #include "kawashima/hca/CHcaDecoderConfig.h"
+#include "ichinose/CUtfField.h"

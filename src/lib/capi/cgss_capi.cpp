@@ -1,6 +1,6 @@
 #include "../cgss_api.h"
-#include "../cgss_enum.h"
 #include "CHandleManager.h"
+#include "../cdata/UTF_FIELD.h"
 
 using namespace cgss;
 
@@ -12,8 +12,14 @@ DEFINE_ENUM_CLS_BINARY_OP(HandleType, &);
 
 DEFINE_ENUM_CLS_UNARY_OP(HandleType, !);
 
-static inline IStream *to_stream(uint32_t handle) {
+std::string g_lastErrorString;
+
+static IStream *to_stream(uint32_t handle) {
     return CHandleManager::getInstance()->getHandlePtr(handle);
+}
+
+static void cgssSetLastErrorMessage(const std::string &str) {
+    g_lastErrorString = str;
 }
 
 // CLion crashes if this macro is wrapped with do...while(0).
@@ -23,6 +29,63 @@ static inline IStream *to_stream(uint32_t handle) {
     }
 
 CGSS_API_IMPL(void) cgssTest() {
+}
+
+CGSS_API_IMPL(void) cgssGetOpResultString(CGSS_OP_RESULT error, char *buffer, size_t length) {
+    if (!buffer) {
+        return;
+    }
+
+#define PRINT_ERR_STR(str) snprintf(buffer, length, str)
+
+    switch (error) {
+        case CGSS_OP_OK:
+            PRINT_ERR_STR("No error");
+            break;
+        case CGSS_OP_GENERIC_FAULT:
+            PRINT_ERR_STR("Generic fault");
+            break;
+        case CGSS_OP_BUFFER_TOO_SMALL:
+            PRINT_ERR_STR("Buffer too small");
+            break;
+        case CGSS_OP_NOT_IMPLEMENTED:
+            PRINT_ERR_STR("Not implemented");
+            break;
+        case CGSS_OP_INVALID_OPERATION:
+            PRINT_ERR_STR("Invalid operation");
+            break;
+        case CGSS_OP_INVALID_ARGUMENT:
+            PRINT_ERR_STR("Invalid argument");
+            break;
+        case CGSS_OP_FORMAT_ERROR:
+            PRINT_ERR_STR("Format error");
+            break;
+        case CGSS_OP_CHECKSUM_ERROR:
+            PRINT_ERR_STR("Checksum error");
+            break;
+        case CGSS_OP_DECODE_FAILED:
+            PRINT_ERR_STR("Decode failed");
+            break;
+        case CGSS_OP_INVALID_HANDLE:
+            PRINT_ERR_STR("Invalid handle");
+            break;
+        default:
+            break;
+    }
+
+#undef PRINT_ERR_STR
+}
+
+CGSS_API_IMPL(const char *)cgssGetLastErrorMessage() {
+    return g_lastErrorString.c_str();
+}
+
+CGSS_API_IMPL(bool_t) cgssHelperFileExists(LPCSTR fileName) {
+    if (!fileName) {
+        return FALSE;
+    }
+
+    return CFileStream::FileExists(fileName);
 }
 
 CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamRead(CGSS_HANDLE handle, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *read) {
@@ -243,7 +306,7 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssCloseHandle(CGSS_HANDLE handle) {
     return CGSS_OP_OK;
 }
 
-inline void alloc_stream(CGSS_HANDLE *handle, IStream *stream, HandleType type) {
+static void alloc_stream(CGSS_HANDLE *handle, IStream *stream, HandleType type) {
     CGSS_HANDLE h = CHandleManager::getInstance()->alloc(stream, type);
     *handle = h;
 }
@@ -332,4 +395,148 @@ CGSS_API_IMPL(uint32_t) cgssWaveDecode32BitS(float data, uint8_t *buffer, uint32
 
 CGSS_API_IMPL(uint32_t) cgssWaveDecodeFloat(float data, uint8_t *buffer, uint32_t cursor) {
     return CDefaultWaveGenerator::DecodeFloat(data, buffer, cursor);
+}
+
+static void copy_utf_field(UTF_FIELD *dest, const UTF_FIELD *src) {
+    memcpy(dest, src, sizeof(UTF_FIELD));
+    memset(dest->name, 0, sizeof(dest->name));
+    strncpy(dest->name, src->name, UTF_FIELD_MAX_NAME_LEN);
+
+    switch (dest->type) {
+        case CGSS_UTF_COLUMN_TYPE_DATA:
+            if (src->value.data.ptr && src->value.data.size > 0) {
+                dest->value.data.ptr = malloc(src->value.data.size);
+                memcpy(dest->value.data.ptr, src->value.data.ptr, src->value.data.size);
+            }
+            break;
+        case CGSS_UTF_COLUMN_TYPE_STRING: {
+            const auto strLength = src->value.str ? strlen(src->value.str) : 0;
+            if (strLength > 0) {
+                dest->value.str = (char *)malloc(strLength + 1);
+                strncpy(dest->value.str, src->value.str, strLength);
+                dest->value.str[strLength] = '\0';
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssUtfReadTable(CGSS_HANDLE stream, uint64_t offset, UTF_TABLE **table) {
+    CHECK_HANDLE(stream);
+
+    if (!table) {
+        return CGSS_OP_INVALID_ARGUMENT;
+    }
+
+    *table = nullptr;
+
+    auto s = to_stream(stream);
+
+    CUtfTable *tableCppObject = nullptr;
+
+    try {
+        tableCppObject = new CUtfTable(s, offset);
+    } catch (CFormatException &ex) {
+        cgssSetLastErrorMessage(ex.GetExceptionMessage());
+        return CGSS_OP_FORMAT_ERROR;
+    } catch (CException &ex) {
+        cgssSetLastErrorMessage(ex.GetExceptionMessage());
+        return CGSS_OP_GENERIC_FAULT;
+    }
+
+    auto utfTable = new UTF_TABLE();
+    // So we don't expose a constructor to UTF_SCHEMA struct.
+    memset(utfTable, 0, sizeof(UTF_TABLE));
+
+    tableCppObject->GetHeader(utfTable->header);
+
+    strncpy(utfTable->tableName, tableCppObject->GetName(), UTF_TABLE_MAX_NAME_LEN);
+
+    const auto &rows = tableCppObject->GetRows();
+    utfTable->rows = new UTF_ROW[utfTable->header.rowCount];
+
+    uint32_t i = 0;
+    for (auto &row : rows) {
+        auto &utfRow = utfTable->rows[i];
+
+        if (utfTable->header.fieldCount > 0) {
+            utfRow.fields = new UTF_FIELD[utfTable->header.fieldCount];
+        } else {
+            utfRow.fields = nullptr;
+        }
+
+        auto j = 0;
+        for (const auto &kv : row.fields) {
+            copy_utf_field(utfRow.fields + j, kv.second);
+            ++j;
+        }
+
+        ++i;
+    }
+
+    delete tableCppObject;
+
+    *table = utfTable;
+
+    return CGSS_OP_OK;
+}
+
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssUtfFreeTable(UTF_TABLE *table) {
+    if (!table) {
+        return CGSS_OP_INVALID_ARGUMENT;
+    }
+
+    for (auto i = 0; i < table->header.rowCount; ++i) {
+        auto &row = table->rows[i];
+
+        for (auto j = 0; j < table->header.fieldCount; ++j) {
+            auto &field = row.fields[j];
+
+            switch (field.type) {
+                case CGSS_UTF_COLUMN_TYPE_STRING:
+                    if (field.value.str) {
+                        free(field.value.str);
+                        field.value.str = nullptr;
+                    }
+                    break;
+                case CGSS_UTF_COLUMN_TYPE_DATA:
+                    if (field.value.data.ptr) {
+                        free(field.value.data.ptr);
+                        field.value.data.ptr = nullptr;
+                    }
+                    field.value.data.size = 0;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        delete row.fields;
+    }
+
+    delete (table->rows);
+
+    memset(table, 0, sizeof(UTF_TABLE));
+
+    delete table;
+
+    return CGSS_OP_OK;
+}
+
+CGSS_API_IMPL(bool_t) cgssUtfTryParseTable(void *data, size_t dataSize, UTF_TABLE **table) {
+    if (!data || dataSize <= 0) {
+        return FALSE;
+    }
+
+    CGSS_HANDLE handle;
+    CMemoryStream memory(static_cast<uint8_t *>(data), dataSize, FALSE);
+    alloc_stream(&handle, &memory, HandleType::CStream);
+
+    const auto r = cgssUtfReadTable(handle, 0, table);
+
+    cgssCloseHandle(handle);
+
+    return CGSS_OP_SUCCEEDED(r) ? 1 : 0;
 }
