@@ -46,7 +46,7 @@ CGSS_NS_BEGIN
         if (!buffer) {
             throw CArgumentException("CDefaultWaveGenerator::Decode32BitS");
         }
-        int32_t i = (int32_t)(data * 0x7fffffff);
+        int32_t i = (int32_t)((double)data * 0x7fffffff);
         *(int32_t *)(buffer + cursor) = i;
         return cursor + 4;
     }
