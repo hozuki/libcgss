@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include "../../lib/cgss_api.h"
-#include "../../lib/cdata/UTF_FIELD.h"
 
 #define INDENT_VALUE (2u)
 

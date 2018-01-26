@@ -15,6 +15,7 @@ The project consists of a library (*libcgss*) and several other applications.
   - *hcacc*: HCA cipher converter.
   - *hca2wav*: HCA decoder.
   - *hcainfo*: HCA info viewer.
+  - *utftable*: UTF table schema explorer, similar to [utf_tab](https://github.com/hcs64/vgm_ripping/tree/master/multi/utf_tab).
 
 This project has a sister project [**DereTore**](https://github.com/OpenCGSS/DereTore).
 However the strength of C API is better interoperability with other libraries.
