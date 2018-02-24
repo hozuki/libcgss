@@ -483,7 +483,13 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssUtfReadTable(CGSS_HANDLE stream, uint64_t offs
         }
 
         std::sort(fieldList.begin(), fieldList.end(), [](const UTF_FIELD &left, const UTF_FIELD &right) {
-            return left.offsetInRow < right.offsetInRow;
+            if (left.offset < right.offset) {
+                return true;
+            } else if (left.offset > right.offset) {
+                return false;
+            } else {
+                return left.offsetInRow < right.offsetInRow;
+            }
         });
 
         for (j = 0; j < utfTable->header.fieldCount; ++j) {
