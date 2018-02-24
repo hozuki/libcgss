@@ -22,8 +22,6 @@ int main(int argc, const char *argv[]) {
 
     const char *file_name = argv[1];
 
-    printf("file: %s\n", file_name);
-
     if (!cgssHelperFileExists(file_name)) {
         fprintf(stderr, "File '%s' does not exist or cannot be opened.\n", file_name);
         return -1;
@@ -90,7 +88,11 @@ void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
         printf("@%s [%u] = {\n", table->tableName, i);
         indent += INDENT_VALUE;
 
-        for (uint32_t j = 0; j < table->header.fieldCount; ++j) {
+        if (table->header.fieldCount == 0) {
+            continue;
+        }
+
+        for (int32_t j = 0; j < table->header.fieldCount; ++j) {
             UTF_FIELD *currentField = currentRow->fields + j;
 
             const char *columnTypeName;
@@ -178,7 +180,11 @@ void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
                     printf("%s %lf", constantTypeStr, currentField->value.r64);
                     break;
                 case CGSS_UTF_COLUMN_TYPE_STRING:
-                    printf("%s \"%s\"", constantTypeStr, currentField->value.str);
+                    if (currentField->value.str) {
+                        printf("%s \"%s\"", constantTypeStr, currentField->value.str);
+                    } else {
+                        printf("%s null", constantTypeStr);
+                    }
                     break;
                 case CGSS_UTF_COLUMN_TYPE_DATA:
                     if (cgssUtfTryParseTable(currentField->value.data.ptr, currentField->value.data.size, &tbl)) {

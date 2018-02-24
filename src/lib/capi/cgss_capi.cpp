@@ -1,3 +1,5 @@
+#include <vector>
+#include <algorithm>
 #include "../cgss_api.h"
 #include "CHandleManager.h"
 #include "../cdata/UTF_FIELD.h"
@@ -457,9 +459,12 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssUtfReadTable(CGSS_HANDLE stream, uint64_t offs
     const auto &rows = tableCppObject->GetRows();
     utfTable->rows = new UTF_ROW[utfTable->header.rowCount];
 
+    std::vector<UTF_FIELD> fieldList;
+
     uint32_t i = 0;
     for (auto &row : rows) {
         auto &utfRow = utfTable->rows[i];
+        fieldList.clear();
 
         if (utfTable->header.fieldCount > 0) {
             utfRow.fields = new UTF_FIELD[utfTable->header.fieldCount];
@@ -471,6 +476,18 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssUtfReadTable(CGSS_HANDLE stream, uint64_t offs
         for (const auto &kv : row.fields) {
             copy_utf_field(utfRow.fields + j, kv.second);
             ++j;
+        }
+
+        for (j = 0; j < utfTable->header.fieldCount; ++j) {
+            fieldList.push_back(utfRow.fields[j]);
+        }
+
+        std::sort(fieldList.begin(), fieldList.end(), [](const UTF_FIELD &left, const UTF_FIELD &right) {
+            return left.offsetInRow < right.offsetInRow;
+        });
+
+        for (j = 0; j < utfTable->header.fieldCount; ++j) {
+            utfRow.fields[j] = fieldList[j];
         }
 
         ++i;
