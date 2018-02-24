@@ -143,8 +143,17 @@ void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
             printf("%08x (row+%08x) %2x %s [%s] =", currentField->offset, currentField->offsetInRow,
                    (currentField->storage | currentField->type), currentField->name, columnTypeName);
 
-            const char *constantTypeStr = ((currentField->storage & CGSS_UTF_COLUMN_STORAGE_CONST) || (currentField->storage & CGSS_UTF_COLUMN_STORAGE_CONST2)) ?
-                                          " constant" : "";
+            const char *constantTypeStr;
+
+            if (currentField->storage == CGSS_UTF_COLUMN_STORAGE_CONST) {
+                constantTypeStr = " constant";
+            } else if (currentField->storage == CGSS_UTF_COLUMN_STORAGE_CONST2) {
+                constantTypeStr = " constant2";
+            } else if (currentField->storage == CGSS_UTF_COLUMN_STORAGE_ZERO) {
+                constantTypeStr = " zero";
+            } else {
+                constantTypeStr = "";
+            }
 
             UTF_TABLE *tbl;
 
