@@ -80,11 +80,11 @@ CGSS_NS_BEGIN
     void CUtfField::SetValue(const char *str, uint32_t fieldOffset) {
         ReleaseData();
         const auto strLength = str ? strlen(str) : 0;
-        if (strLength > 0) {
-            value.str = (char *)malloc(strLength + 1);
-            strncpy(value.str, str, strLength);
-            value.str[strLength] = '\0';
-        }
+
+        value.str = (char *)malloc(strLength + 1);
+        strncpy(value.str, str, strLength);
+        value.str[strLength] = '\0';
+
         offset = fieldOffset;
         type = CGSS_UTF_COLUMN_TYPE_STRING;
     }

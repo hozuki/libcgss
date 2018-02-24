@@ -284,7 +284,7 @@ CGSS_NS_BEGIN
                                 break;
                             case UtfColumnType::String: {
                                 const auto dataOffset = CBinaryReader::PeekUInt32BE(tableDataStream, constantOffset);
-                                const auto fieldDataOffset = dataOffset + header.stringTableOffset + dataOffset;
+                                const auto fieldDataOffset = header.stringTableOffset + dataOffset;
                                 const auto *str = reinterpret_cast<const char *>(tableDataStream->GetBuffer()) + fieldDataOffset;
                                 field->SetValue(str, dataOffset);
                                 currentStreamOffset += 4;
