@@ -473,28 +473,30 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssUtfReadTable(CGSS_HANDLE stream, uint64_t offs
         }
 
         auto j = 0;
-        for (const auto &kv : row.fields) {
-            copy_utf_field(utfRow.fields + j, kv.second);
+        for (const auto pField : row.fields) {
+            copy_utf_field(utfRow.fields + j, pField);
             ++j;
         }
 
+        /*
         for (j = 0; j < utfTable->header.fieldCount; ++j) {
             fieldList.push_back(utfRow.fields[j]);
         }
 
         std::sort(fieldList.begin(), fieldList.end(), [](const UTF_FIELD &left, const UTF_FIELD &right) {
-            if (left.offset < right.offset) {
+            if (left.offsetInRow < right.offsetInRow) {
                 return true;
-            } else if (left.offset > right.offset) {
+            } else if (left.offsetInRow > right.offsetInRow) {
                 return false;
             } else {
-                return left.offsetInRow < right.offsetInRow;
+                return left.offset < right.offset;
             }
         });
 
         for (j = 0; j < utfTable->header.fieldCount; ++j) {
             utfRow.fields[j] = fieldList[j];
         }
+         */
 
         ++i;
     }

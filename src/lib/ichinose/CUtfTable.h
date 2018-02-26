@@ -33,7 +33,7 @@ CGSS_NS_BEGIN
 
         typedef struct {
             uint32_t baseOffset;
-            std::map<const std::string, UTF_FIELD *> fields;
+            std::vector<UTF_FIELD *> fields;
         } UtfRow;
 
         const std::vector<CUtfTable::UtfRow> &GetRows() const;

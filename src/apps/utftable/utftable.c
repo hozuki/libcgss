@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include "../../lib/cgss_api.h"
+#include "../../lib/cdata/UTF_FIELD.h"
 
 #define INDENT_VALUE (2u)
 
@@ -202,7 +203,7 @@ void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
 
                         cgssUtfFreeTable(tbl);
                     } else {
-                        printf("%s (size %u)", constantTypeStr, currentField->value.data.size);
+                        printf("%s (size %u = 0x%x)", constantTypeStr, currentField->value.data.size, currentField->value.data.size);
                     }
                     break;
                 default:

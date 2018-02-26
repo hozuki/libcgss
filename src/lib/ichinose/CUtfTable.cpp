@@ -20,8 +20,8 @@ CGSS_NS_BEGIN
 
     CUtfTable::~CUtfTable() {
         for (auto &row : _rows) {
-            for (auto &kv : row.fields) {
-                delete kv.second;
+            for (auto pField : row.fields) {
+                delete pField;
             }
         }
 
@@ -391,8 +391,7 @@ CGSS_NS_BEGIN
                         throw CFormatException("Unknown UTF table field storage format.");
                 }
 
-                std::string fieldName = field->name;
-                row.fields.insert(std::make_pair(fieldName, field));
+                row.fields.push_back(field);
 
                 currentStreamOffset += 5;
             }
