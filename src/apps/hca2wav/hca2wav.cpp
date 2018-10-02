@@ -6,7 +6,7 @@ using namespace std;
 
 void PrintHelp();
 
-uint32_t hatoui(const char *a);
+uint32_t hex_alpha_to_uint(const char *a);
 
 int main(int argc, const char *argv[]) {
     int argc0;
@@ -39,13 +39,16 @@ int main(int argc, const char *argv[]) {
     cgss::CHcaDecoderConfig decoderConfig;
     decoderConfig.decodeFunc = cgss::CDefaultWaveGenerator::Decode16BitS;
     decoderConfig.waveHeaderEnabled = TRUE;
-    auto &key1 = decoderConfig.cipherConfig.keyParts.key1;
-    auto &key2 = decoderConfig.cipherConfig.keyParts.key2;
-    key1 = g_CgssKey1;
-    key2 = g_CgssKey2;
+
+    auto &pKey1 = decoderConfig.cipherConfig.keyParts.key1;
+    auto &pKey2 = decoderConfig.cipherConfig.keyParts.key2;
+
+    pKey1 = g_CgssKey1;
+    pKey2 = g_CgssKey2;
+
     if (argc0 >= 5) {
-        key1 = hatoui(argv0[3]);
-        key2 = hatoui(argv0[4]);
+        pKey1 = hex_alpha_to_uint(argv0[3]);
+        pKey2 = hex_alpha_to_uint(argv0[4]);
     }
 
     // Go!
@@ -95,16 +98,16 @@ void PrintHelp() {
          << endl;
 }
 
-uint32_t hatoui(const char *a) {
+uint32_t hex_alpha_to_uint(const char *a) {
     uint32_t val = 0;
     auto i = 0;
     while (a && *a && i < (sizeof(uint32_t) / sizeof(uint8_t) * 2)) {
         if ('0' <= *a && *a <= '9') {
-            val = (val << 4) + (*a - '0');
+            val = (val << 4u) + (*a - '0');
         } else if ('a' <= *a && *a <= 'f') {
-            val = (val << 4) + (*a - 'a' + 10);
+            val = (val << 4u) + (*a - 'a' + 10);
         } else if ('A' <= *a && *a <= 'F') {
-            val = (val << 4) + (*a - 'A' + 10);
+            val = (val << 4u) + (*a - 'A' + 10);
         } else {
             break;
         }
