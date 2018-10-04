@@ -1,6 +1,6 @@
 # libcgss
 
-**libcgss** is a helper library for [Idolmaster Cinderella Girls Starlight Stage](http://cinderella.idolmaster.jp/sl-stage/)
+**libcgss** is a helper library for [THE iDOLM@STER Cinderella Girls Starlight Stage](http://cinderella.idolmaster.jp/sl-stage/)
 (CGSS). It provides both C and C++ API for HCA audio manipulation. ACB archive support
 is in progress.
 
@@ -16,6 +16,7 @@ The project consists of a library (*libcgss*) and several other applications.
   - *hca2wav*: HCA decoder.
   - *hcainfo*: HCA info viewer.
   - *utftable*: UTF table schema explorer, similar to [utf_tab](https://github.com/hcs64/vgm_ripping/tree/master/multi/utf_tab).
+  - *acbunpack*: ACB archive unpacker.
 
 This project has a sister project [**DereTore**](https://github.com/OpenCGSS/DereTore).
 However the strength of C API is better interoperability with other libraries.
