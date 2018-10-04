@@ -11,7 +11,7 @@ CGSS_NS_BEGIN
 
     public:
 
-        CFileStream(LPCSTR fileName);
+        explicit CFileStream(LPCSTR fileName);
 
         CFileStream(LPCSTR fileName, FileMode mode);
 

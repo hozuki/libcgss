@@ -9,6 +9,8 @@ CGSS_NS_BEGIN
 
     public:
 
+        CStream(const CStream &) = delete;
+
         virtual ~CStream() = default;
 
         virtual void Seek(int64_t offset, StreamSeekOrigin origin) override;
@@ -24,10 +26,6 @@ CGSS_NS_BEGIN
     protected:
 
         CStream() = default;
-
-    private:
-
-        CStream(const CStream &) = delete;
 
     };
 

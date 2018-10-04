@@ -21,6 +21,10 @@ if (${GNU_COMPILER})
             POST_BUILD
             COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:utftable>
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    add_custom_command(TARGET acbunpack
+            POST_BUILD
+            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:acbunpack>
+            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     add_custom_command(TARGET cgss
             POST_BUILD
             COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss>

@@ -13,7 +13,7 @@ CGSS_NS_BEGIN
 
         CUtfField();
 
-        CUtfField(const UTF_FIELD &tpl);
+        explicit CUtfField(const UTF_FIELD &tpl);
 
         ~CUtfField();
 

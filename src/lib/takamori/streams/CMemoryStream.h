@@ -11,7 +11,7 @@ CGSS_NS_BEGIN
     public:
         CMemoryStream();
 
-        CMemoryStream(uint64_t capacity);
+        explicit CMemoryStream(uint64_t capacity);
 
         CMemoryStream(uint64_t capacity, bool_t isResizable);
 

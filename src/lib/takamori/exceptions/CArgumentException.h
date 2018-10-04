@@ -14,9 +14,9 @@ CGSS_NS_BEGIN
 
         CArgumentException(const CArgumentException &) = default;
 
-        CArgumentException(const char *message);
+        explicit CArgumentException(const char *message);
 
-        CArgumentException(const std::string &message);
+        explicit CArgumentException(const std::string &message);
 
     };
 

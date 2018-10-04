@@ -7,6 +7,7 @@
 #include "CUtfReader.h"
 #include "CAcbHelper.h"
 #include "CUtfField.h"
+#include "../cgss_cdata.h"
 
 CGSS_NS_BEGIN
 
@@ -398,6 +399,58 @@ CGSS_NS_BEGIN
 
             rows.push_back(row);
         }
+    }
+
+    bool_t CUtfTable::GetFieldOffset(uint32_t rowIndex, const char *fieldName, uint64_t *offset) {
+        if (rowIndex >= _rows.size()) {
+            if (offset) {
+                *offset = 0;
+            }
+
+            return FALSE;
+        }
+
+        const auto &row = _rows[rowIndex];
+
+        for (auto &field : row.fields) {
+            if (strcmp(fieldName, field->name) == 0) {
+                if (offset) {
+                    *offset = field->offset;
+                }
+
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    bool_t CUtfTable::GetFieldSize(uint32_t rowIndex, const char *fieldName, uint32_t *size) {
+        if (rowIndex >= _rows.size()) {
+            if (size) {
+                *size = 0;
+            }
+
+            return FALSE;
+        }
+
+        const auto &row = _rows[rowIndex];
+
+        for (auto &field : row.fields) {
+            if (strcmp(fieldName, field->name) == 0) {
+                if (size) {
+                    *size = field->value.data.size;
+                }
+
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    IStream *CUtfTable::GetStream() {
+        return _stream;
     }
 
 CGSS_NS_END

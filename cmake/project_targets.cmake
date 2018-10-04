@@ -3,6 +3,7 @@ add_executable(hcaenc ${HCAENC_SOURCE_FILES})
 add_executable(hca2wav ${HCA2WAV_SOURCE_FILES})
 add_executable(hcainfo ${HCAINFO_SOURCE_FILES})
 add_executable(utftable ${UTFTABLE_SOURCE_FILES})
+add_executable(acbunpack ${ACBUNPACK_SOURCE_FILES})
 add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})
 
 if (${BUILD_JNI_INTERFACE})

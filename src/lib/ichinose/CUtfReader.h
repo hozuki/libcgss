@@ -7,6 +7,8 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CUtfReader final {
 
+    __root_class(CUtfReader);
+
     public:
 
         CUtfReader();

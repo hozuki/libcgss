@@ -11,7 +11,11 @@ CGSS_NS_BEGIN
 
     public:
 
-        CBinaryWriter(IStream *baseStream);
+        explicit CBinaryWriter(IStream *baseStream);
+
+        CBinaryWriter() = delete;
+
+        CBinaryWriter(const CBinaryWriter &) = delete;
 
         uint32_t WriteInt8(int8_t v);
 
@@ -49,31 +53,27 @@ CGSS_NS_BEGIN
 
         uint32_t WriteDoubleBE(double v);
 
-        virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-        virtual bool_t IsWritable() const override;
+        bool_t IsWritable() const override;
 
-        virtual bool_t IsReadable() const override;
+        bool_t IsReadable() const override;
 
-        virtual bool_t IsSeekable() const override;
+        bool_t IsSeekable() const override;
 
-        virtual uint64_t GetPosition() override;
+        uint64_t GetPosition() override;
 
-        virtual void SetPosition(uint64_t value) override;
+        void SetPosition(uint64_t value) override;
 
-        virtual uint64_t GetLength() override;
+        uint64_t GetLength() override;
 
-        virtual void SetLength(uint64_t value) override;
+        void SetLength(uint64_t value) override;
 
-        virtual void Flush() override;
+        void Flush() override;
 
     private:
-
-        CBinaryWriter() = delete;
-
-        CBinaryWriter(const CBinaryWriter &) = delete;
 
         IStream *_baseStream;
 

@@ -11,7 +11,7 @@ CGSS_NS_BEGIN
 
     public:
 
-        CBinaryReader(IStream *baseStream);
+        explicit CBinaryReader(IStream *baseStream);
 
         int8_t ReadInt8() const;
 
@@ -49,6 +49,42 @@ CGSS_NS_BEGIN
 
         double ReadDoubleBE() const;
 
+        int8_t ReadInt8(uint64_t offset) const;
+
+        uint8_t ReadUInt8(uint64_t offset) const;
+
+        int16_t ReadInt16LE(uint64_t offset) const;
+
+        int16_t ReadInt16BE(uint64_t offset) const;
+
+        uint16_t ReadUInt16LE(uint64_t offset) const;
+
+        uint16_t ReadUInt16BE(uint64_t offset) const;
+
+        int32_t ReadInt32LE(uint64_t offset) const;
+
+        int32_t ReadInt32BE(uint64_t offset) const;
+
+        uint32_t ReadUInt32LE(uint64_t offset) const;
+
+        uint32_t ReadUInt32BE(uint64_t offset) const;
+
+        int64_t ReadInt64LE(uint64_t offset) const;
+
+        int64_t ReadInt64BE(uint64_t offset) const;
+
+        uint64_t ReadUInt64LE(uint64_t offset) const;
+
+        uint64_t ReadUInt64BE(uint64_t offset) const;
+
+        float ReadSingleLE(uint64_t offset) const;
+
+        float ReadSingleBE(uint64_t offset) const;
+
+        double ReadDoubleLE(uint64_t offset) const;
+
+        double ReadDoubleBE(uint64_t offset) const;
+
         static int8_t ReadInt8(IStream *stream);
 
         static uint8_t ReadUInt8(IStream *stream);
@@ -85,41 +121,113 @@ CGSS_NS_BEGIN
 
         static double ReadDoubleBE(IStream *stream);
 
-        int8_t PeekInt8();
+        static int8_t ReadInt8(IStream *stream, uint64_t offset);
 
-        uint8_t PeekUInt8();
+        static uint8_t ReadUInt8(IStream *stream, uint64_t offset);
 
-        int16_t PeekInt16LE();
+        static int16_t ReadInt16LE(IStream *stream, uint64_t offset);
 
-        int16_t PeekInt16BE();
+        static int16_t ReadInt16BE(IStream *stream, uint64_t offset);
 
-        uint16_t PeekUInt16LE();
+        static uint16_t ReadUInt16LE(IStream *stream, uint64_t offset);
 
-        uint16_t PeekUInt16BE();
+        static uint16_t ReadUInt16BE(IStream *stream, uint64_t offset);
 
-        int32_t PeekInt32LE();
+        static int32_t ReadInt32LE(IStream *stream, uint64_t offset);
 
-        int32_t PeekInt32BE();
+        static int32_t ReadInt32BE(IStream *stream, uint64_t offset);
 
-        uint32_t PeekUInt32LE();
+        static uint32_t ReadUInt32LE(IStream *stream, uint64_t offset);
 
-        uint32_t PeekUInt32BE();
+        static uint32_t ReadUInt32BE(IStream *stream, uint64_t offset);
 
-        int64_t PeekInt64LE();
+        static int64_t ReadInt64LE(IStream *stream, uint64_t offset);
 
-        int64_t PeekInt64BE();
+        static int64_t ReadInt64BE(IStream *stream, uint64_t offset);
 
-        uint64_t PeekUInt64LE();
+        static uint64_t ReadUInt64LE(IStream *stream, uint64_t offset);
 
-        uint64_t PeekUInt64BE();
+        static uint64_t ReadUInt64BE(IStream *stream, uint64_t offset);
 
-        float PeekSingleLE();
+        static float ReadSingleLE(IStream *stream, uint64_t offset);
 
-        float PeekSingleBE();
+        static float ReadSingleBE(IStream *stream, uint64_t offset);
 
-        double PeekDoubleLE();
+        static double ReadDoubleLE(IStream *stream, uint64_t offset);
 
-        double PeekDoubleBE();
+        static double ReadDoubleBE(IStream *stream, uint64_t offset);
+
+        int8_t PeekInt8() const;
+
+        uint8_t PeekUInt8() const;
+
+        int16_t PeekInt16LE() const;
+
+        int16_t PeekInt16BE() const;
+
+        uint16_t PeekUInt16LE() const;
+
+        uint16_t PeekUInt16BE() const;
+
+        int32_t PeekInt32LE() const;
+
+        int32_t PeekInt32BE() const;
+
+        uint32_t PeekUInt32LE() const;
+
+        uint32_t PeekUInt32BE() const;
+
+        int64_t PeekInt64LE() const;
+
+        int64_t PeekInt64BE() const;
+
+        uint64_t PeekUInt64LE() const;
+
+        uint64_t PeekUInt64BE() const;
+
+        float PeekSingleLE() const;
+
+        float PeekSingleBE() const;
+
+        double PeekDoubleLE() const;
+
+        double PeekDoubleBE() const;
+
+        int8_t PeekInt8(uint64_t offset) const;
+
+        uint8_t PeekUInt8(uint64_t offset) const;
+
+        int16_t PeekInt16LE(uint64_t offset) const;
+
+        int16_t PeekInt16BE(uint64_t offset) const;
+
+        uint16_t PeekUInt16LE(uint64_t offset) const;
+
+        uint16_t PeekUInt16BE(uint64_t offset) const;
+
+        int32_t PeekInt32LE(uint64_t offset) const;
+
+        int32_t PeekInt32BE(uint64_t offset) const;
+
+        uint32_t PeekUInt32LE(uint64_t offset) const;
+
+        uint32_t PeekUInt32BE(uint64_t offset) const;
+
+        int64_t PeekInt64LE(uint64_t offset) const;
+
+        int64_t PeekInt64BE(uint64_t offset) const;
+
+        uint64_t PeekUInt64LE(uint64_t offset) const;
+
+        uint64_t PeekUInt64BE(uint64_t offset) const;
+
+        float PeekSingleLE(uint64_t offset) const;
+
+        float PeekSingleBE(uint64_t offset) const;
+
+        double PeekDoubleLE(uint64_t offset) const;
+
+        double PeekDoubleBE(uint64_t offset) const;
 
         static int8_t PeekInt8(IStream *stream);
 
@@ -197,25 +305,25 @@ CGSS_NS_BEGIN
 
         uint32_t Peek(void *buffer, uint32_t bufferSize, size_t bufferOffset, uint32_t count);
 
-        virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-        virtual bool_t IsWritable() const override;
+        bool_t IsWritable() const override;
 
-        virtual bool_t IsReadable() const override;
+        bool_t IsReadable() const override;
 
-        virtual bool_t IsSeekable() const override;
+        bool_t IsSeekable() const override;
 
-        virtual uint64_t GetPosition() override;
+        uint64_t GetPosition() override;
 
-        virtual void SetPosition(uint64_t value) override;
+        void SetPosition(uint64_t value) override;
 
-        virtual uint64_t GetLength() override;
+        uint64_t GetLength() override;
 
-        virtual void SetLength(uint64_t value) override;
+        void SetLength(uint64_t value) override;
 
-        virtual void Flush() override;
+        void Flush() override;
 
     private:
 

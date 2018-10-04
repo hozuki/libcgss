@@ -14,9 +14,9 @@ CGSS_NS_BEGIN
 
         CNotImplementedException(const CNotImplementedException &) = default;
 
-        CNotImplementedException(const char *message);
+        explicit CNotImplementedException(const char *message);
 
-        CNotImplementedException(const std::string &message);
+        explicit CNotImplementedException(const std::string &message);
 
     };
 

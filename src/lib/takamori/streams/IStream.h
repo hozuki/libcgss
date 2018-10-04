@@ -9,6 +9,8 @@ CGSS_NS_BEGIN
 
         IStream(IStream &) = delete;
 
+        virtual ~IStream() = default;
+
         virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) PURE;
 
         virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) PURE;

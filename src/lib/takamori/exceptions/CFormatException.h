@@ -15,9 +15,9 @@ CGSS_NS_BEGIN ;
 
         CFormatException(const CFormatException &) = default;
 
-        CFormatException(const char *message);
+        explicit CFormatException(const char *message);
 
-        CFormatException(const std::string &message);
+        explicit CFormatException(const std::string &message);
 
     };
 

@@ -25,3 +25,5 @@
 #include "ichinose/CUtfField.h"
 #include "ichinose/CUtfReader.h"
 #include "ichinose/CUtfTable.h"
+#include "ichinose/CAfs2Archive.h"
+#include "ichinose/CAcbFile.h"

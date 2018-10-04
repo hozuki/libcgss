@@ -17,6 +17,8 @@ set(HCAINFO_SOURCE_FILES
         src/apps/hcainfo/hcainfo.cpp ${LIBCGSS_API_FILES})
 set(UTFTABLE_SOURCE_FILES
         src/apps/utftable/utftable.c ${LIBCGSS_API_FILES})
+set(ACBUNPACK_SOURCE_FILES
+        src/apps/acbunpack/acbunpack.cpp ${LIBCGSS_API_FILES})
 
 set(LIBCGSS_DEF_FILE src/cgss.def)
 set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE})

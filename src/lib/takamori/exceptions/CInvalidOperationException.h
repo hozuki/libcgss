@@ -14,9 +14,9 @@ CGSS_NS_BEGIN
 
         CInvalidOperationException(const CInvalidOperationException &) = default;
 
-        CInvalidOperationException(const char *message);
+        explicit CInvalidOperationException(const char *message);
 
-        CInvalidOperationException(const std::string &message);
+        explicit CInvalidOperationException(const std::string &message);
 
     };
 

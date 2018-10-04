@@ -17,6 +17,8 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CUtfTable {
 
+    __root_class(CUtfTable);
+
     public:
 
         CUtfTable(IStream *stream, uint64_t streamOffset);
@@ -40,9 +42,15 @@ CGSS_NS_BEGIN
 
         const char *GetName() const;
 
+        bool_t GetFieldOffset(uint32_t rowIndex, const char *fieldName, uint64_t *offset);
+
+        bool_t GetFieldSize(uint32_t rowIndex, const char *fieldName, uint32_t *size);
+
     protected:
 
         CUtfReader *GetReader() const;
+
+        IStream *GetStream();
 
         std::vector<CUtfTable::UtfRow> _rows;
 
