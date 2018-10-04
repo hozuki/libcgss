@@ -39,19 +39,20 @@ int main(int argc, const char *argv[]) {
         return -1;
     }
 
-    auto *fileStream = new CFileStream(filePath, FileMode::OpenExisting, FileAccess::Read);
-    auto *acb = new CAcbFile(fileStream, filePath);
+    CFileStream fileStream(filePath, FileMode::OpenExisting, FileAccess::Read);
+    CAcbFile acb(&fileStream, filePath);
+
+    acb.Initialize();
 
     const std::string fileDir = GetDirectoryFromPath(filePath);
     const std::string extractDir = fileDir + "/_acb_" + GetFileNameFromPath(filePath) + "/";
 
-    acb->Initialize();
-
     MakeDirectories(extractDir);
 
-    const auto &fileNames = acb->GetFileNames();
+    const auto &fileNames = acb.GetFileNames();
 
     uint32_t i = 0;
+
     for (const auto &fileName : fileNames) {
         auto s = fileName;
         auto isCueNonEmpty = !s.empty();
@@ -65,9 +66,9 @@ int main(int argc, const char *argv[]) {
         IStream *stream;
 
         if (isCueNonEmpty) {
-            stream = acb->OpenDataStream(s.c_str());
+            stream = acb.OpenDataStream(s.c_str());
         } else {
-            stream = acb->OpenDataStream(i);
+            stream = acb.OpenDataStream(i);
         }
 
         if (stream) {
@@ -81,9 +82,6 @@ int main(int argc, const char *argv[]) {
 
         ++i;
     }
-
-    delete acb;
-    delete fileStream;
 
     return 0;
 }
@@ -138,7 +136,8 @@ std::string GetFileNameFromPath(const std::string &s) {
 
 void CopyStream(IStream *src, IStream *dst) {
     const size_t bufferSize = 10240;
-    uint8_t buffer[bufferSize] = {0};
+    uint8_t
+    buffer[bufferSize] = {0};
     uint32_t read = 1;
 
     while (read > 0) {
