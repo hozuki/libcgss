@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
+#include <unistd.h>
 
 #if defined(_WIN32) || defined(WIN32)
 #define WIN32_LEAN_AND_MEAN
