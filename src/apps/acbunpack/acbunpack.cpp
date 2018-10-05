@@ -10,6 +10,7 @@
 
 #else
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #include "../../lib/cgss_api.h"
