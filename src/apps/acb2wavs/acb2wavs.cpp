@@ -29,6 +29,7 @@ string ReplaceExtension(const std::string &s, const std::string &oldExt, const s
 int main(int argc, const char *argv[]) {
     if (argc < 2) {
         PrintHelp();
+        return 0;
     }
 
     const char *inputFile;
