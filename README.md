@@ -34,7 +34,6 @@ A quick example, from [hca2wav](src/apps/hca2wav/hca2wav.cpp):
 
 int main() {
     cgss::CHcaDecoderConfig decoderConfig;
-    // Currently only signed 16-bit is available.
     decoderConfig.decodeFunc = cgss::CDefaultWaveGenerator::Decode16BitS;
     decoderConfig.waveHeaderEnabled = TRUE;
     decoderConfig.cipherConfig.keyParts.key1 = 0x12345678;

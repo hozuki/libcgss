@@ -8,15 +8,15 @@ CGSS_NS_BEGIN
 
     public:
 
-        static uint32_t Decode8BitU(float data, uint8_t *buffer, const uint32_t cursor);
+        static uint32_t Decode8BitU(float data, uint8_t *buffer, uint32_t cursor);
 
-        static uint32_t Decode16BitS(float data, uint8_t *buffer, const uint32_t cursor);
+        static uint32_t Decode16BitS(float data, uint8_t *buffer, uint32_t cursor);
 
-        static uint32_t Decode24BitS(float data, uint8_t *buffer, const uint32_t cursor);
+        static uint32_t Decode24BitS(float data, uint8_t *buffer, uint32_t cursor);
 
-        static uint32_t Decode32BitS(float data, uint8_t *buffer, const uint32_t cursor);
+        static uint32_t Decode32BitS(float data, uint8_t *buffer, uint32_t cursor);
 
-        static uint32_t DecodeFloat(float data, uint8_t *buffer, const uint32_t cursor);
+        static uint32_t DecodeFloat(float data, uint8_t *buffer, uint32_t cursor);
 
     PURE_STATIC(CDefaultWaveGenerator);
 

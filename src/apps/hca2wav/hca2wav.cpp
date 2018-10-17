@@ -6,7 +6,8 @@ using namespace std;
 
 void PrintHelp();
 
-uint32_t hex_alpha_to_uint(const char *a);
+template<typename T>
+T hex_alpha_to_integer(const char *a);
 
 int main(int argc, const char *argv[]) {
     int argc0;
@@ -47,8 +48,12 @@ int main(int argc, const char *argv[]) {
     pKey2 = g_CgssKey2;
 
     if (argc0 >= 5) {
-        pKey1 = hex_alpha_to_uint(argv0[3]);
-        pKey2 = hex_alpha_to_uint(argv0[4]);
+        pKey1 = hex_alpha_to_integer<uint32_t>(argv0[3]);
+        pKey2 = hex_alpha_to_integer<uint32_t>(argv0[4]);
+    }
+
+    if (argc0 >= 6) {
+        decoderConfig.cipherConfig.keyModifier = hex_alpha_to_integer<uint16_t>(argv0[5]);
     }
 
     // Go!
@@ -60,8 +65,10 @@ int main(int argc, const char *argv[]) {
         uint32_t read = 1;
         static const uint32_t bufferSize = 1024;
         uint8_t buffer[bufferSize];
+
         while (read > 0) {
             read = hcaDecoder.Read(buffer, bufferSize, 0, bufferSize);
+
             if (read > 0) {
                 fileOut.Write(buffer, bufferSize, 0, read);
             }
@@ -92,16 +99,18 @@ void PrintHelp() {
     k2 = g_CgssKey2;
     cout << "hca2wav: Utility for decoding HCA to wave audio\n\n"
          << "Usage:\n"
-         << "    hca2wav <in file> <out file> [<decode key 1 = " << hex << k1 << "> <decode key 2 = " << hex << k2 << ">]\n"
+         << "    hca2wav <in file> <out file> [<decode key 1 = " << hex << k1 << "> <decode key 2 = " << hex << k2 << ">] [<keymod>]\n"
          << "Example:\n"
-         << "    hca2wav C:\\input.hca C:\\output.wav 12345678 90abcdef"
+         << "    hca2wav C:\\input.hca C:\\output.wav 12345678 90abcdef a1b2"
          << endl;
 }
 
-uint32_t hex_alpha_to_uint(const char *a) {
-    uint32_t val = 0;
+template<typename T>
+T hex_alpha_to_integer(const char *a) {
+    T val = 0;
     auto i = 0;
-    while (a && *a && i < (sizeof(uint32_t) / sizeof(uint8_t) * 2)) {
+
+    while (a && *a && i < (sizeof(T) / sizeof(uint8_t) * 2)) {
         if ('0' <= *a && *a <= '9') {
             val = (val << 4u) + (*a - '0');
         } else if ('a' <= *a && *a <= 'f') {
@@ -111,8 +120,10 @@ uint32_t hex_alpha_to_uint(const char *a) {
         } else {
             break;
         }
+
         ++i;
         ++a;
     }
+
     return val;
 }

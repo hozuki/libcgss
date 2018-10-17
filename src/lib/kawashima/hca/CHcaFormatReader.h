@@ -12,7 +12,7 @@ CGSS_NS_BEGIN
 
     public:
 
-        CHcaFormatReader(IStream *baseStream);
+        explicit CHcaFormatReader(IStream *baseStream);
 
         virtual ~CHcaFormatReader();
 

@@ -8,7 +8,7 @@ CGSS_NS_BEGIN
 
     class CGSS_EXPORT CHcaCipherConfig final : public HCA_CIPHER_CONFIG {
 
-        __extends(HCA_CIPHER_CONFIG, CHcaCipherConfig);
+    __extends(HCA_CIPHER_CONFIG, CHcaCipherConfig);
 
     public:
 
@@ -16,11 +16,19 @@ CGSS_NS_BEGIN
 
         CHcaCipherConfig(const CHcaCipherConfig &) = default;
 
-        CHcaCipherConfig(HcaCipherType cipherType);
+        explicit CHcaCipherConfig(HcaCipherType cipherType);
 
         CHcaCipherConfig(uint32_t key1, uint32_t key2);
 
-        CHcaCipherConfig(uint64_t key);
+        explicit CHcaCipherConfig(uint64_t key);
+
+        CHcaCipherConfig(uint32_t key1, uint32_t key2, uint16_t keyModifier);
+
+        CHcaCipherConfig(uint64_t key, uint16_t keyModifier);
+
+    private:
+
+        void Initialize(uint32_t key1, uint32_t key2);
 
     };
 

@@ -26,6 +26,8 @@ CGSS_NS_BEGIN
 
         uint32_t GetVersion() const;
 
+        uint16_t GetHcaKeyModifier() const;
+
     private:
 
         void Initialize();
@@ -38,6 +40,7 @@ CGSS_NS_BEGIN
         std::map<uint32_t, AFS2_FILE_RECORD> _files;
 
         uint32_t _byteAlignment;
+        uint16_t _hcaKeyModifier;
         uint32_t _version;
 
     };

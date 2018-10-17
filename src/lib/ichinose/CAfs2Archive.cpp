@@ -60,7 +60,8 @@ void CAfs2Archive::Initialize() {
     }
 
     auto byteAlignment = reader.PeekUInt32LE(offset + 12);
-    _byteAlignment = byteAlignment;
+    _byteAlignment = byteAlignment & 0xffff;
+    _hcaKeyModifier = static_cast<uint16_t>(byteAlignment >> 16);
 
     auto version = reader.PeekUInt32LE(offset + 4);
     _version = version;
@@ -112,4 +113,8 @@ uint32_t CAfs2Archive::GetVersion() const {
 
 uint32_t CAfs2Archive::GetByteAlignment() const {
     return _byteAlignment;
+}
+
+uint16_t CAfs2Archive::GetHcaKeyModifier() const {
+    return _hcaKeyModifier;
 }

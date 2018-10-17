@@ -18,6 +18,8 @@ typedef struct _HCA_CIPHER_CONFIG {
 
     CGSS_HCA_CIPHER_TYPE cipherType;
 
+    uint16_t keyModifier;
+
 } HCA_CIPHER_CONFIG;
 
 #pragma pack(pop)

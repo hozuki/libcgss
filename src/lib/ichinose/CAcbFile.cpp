@@ -22,6 +22,8 @@ CAcbFile::CAcbFile(cgss::IStream *stream, const char *fileName)
     : MyClass(stream, 0, fileName) {
 }
 
+const uint32_t CAcbFile::KEY_MODIFIER_ENABLED_VERSION = 0x01300000;
+
 CAcbFile::CAcbFile(IStream *stream, uint64_t streamOffset, const char *fileName)
     : MyBase(stream, streamOffset) {
     _internalAwb = nullptr;
@@ -43,6 +45,8 @@ CAcbFile::~CAcbFile() {
 void CAcbFile::Initialize() {
     MyBase::Initialize();
 
+    GetFieldValueAsNumber(this, 0, "Version", &_formatVersion);
+
     InitializeAcbTables();
     InitializeCueNameToWaveformTable();
     InitializeAwbArchives();
@@ -57,9 +61,12 @@ void CAcbFile::InitializeAcbTables() {
 
     _cues.reserve(cueCount);
 
-    uint64_t refItemOffset = 0;
-    uint32_t refItemSize = 0, refCorrection = 0;
-    CBinaryReader reader(GetStream());
+    uint64_t
+    refItemOffset = 0;
+    uint32_t
+    refItemSize = 0, refCorrection = 0;
+    CBinaryReader
+    reader(GetStream());
 
     for (uint32_t i = 0; i < cueCount; ++i) {
         ACB_CUE_RECORD cue = {0};
@@ -93,7 +100,7 @@ void CAcbFile::InitializeAcbTables() {
             cue.waveformIndex = reader.PeekUInt16BE(refItemOffset + refCorrection);
 
             uint8_t
-                isStreaming;
+            isStreaming;
             auto hasIsStreaming = GetFieldValueAsNumber(waveformTable, cue.waveformIndex, "Streaming", &isStreaming);
 
             if (hasIsStreaming) {
@@ -116,7 +123,7 @@ void CAcbFile::InitializeAcbTables() {
                 }
 
                 uint8_t
-                    encodeType;
+                encodeType;
                 if (GetFieldValueAsNumber(waveformTable, cue.waveformIndex, "EncodeType", &encodeType)) {
                     cue.encodeType = encodeType;
                 }
@@ -162,12 +169,14 @@ void CAcbFile::InitializeCueNameToWaveformTable() {
 }
 
 void CAcbFile::InitializeAwbArchives() {
-    uint32_t internalAwbSize;
+    uint32_t
+    internalAwbSize;
     if (GetFieldSize(0, "AwbFile", &internalAwbSize) && internalAwbSize > 0) {
         _internalAwb = GetInternalAwb();
     }
 
-    uint32_t externalAwbSize;
+    uint32_t
+    externalAwbSize;
     if (GetFieldSize(0, "StreamAwbAfs2Header", &externalAwbSize) && externalAwbSize > 0) {
         _externalAwb = GetExternalAwb();
     }
@@ -192,13 +201,15 @@ CUtfTable *CAcbFile::GetTable(const char *tableName) {
 }
 
 CUtfTable *CAcbFile::ResolveTable(const char *tableName) {
-    uint64_t tableOffset;
+    uint64_t
+    tableOffset;
 
     if (!GetFieldOffset(0, tableName, &tableOffset)) {
         return nullptr;
     }
 
-    uint32_t tableSize;
+    uint32_t
+    tableSize;
 
     if (!GetFieldSize(0, tableName, &tableSize)) {
         return nullptr;
@@ -210,7 +221,8 @@ CUtfTable *CAcbFile::ResolveTable(const char *tableName) {
 }
 
 CAfs2Archive *CAcbFile::GetInternalAwb() {
-    uint64_t internalAwbOffset;
+    uint64_t
+    internalAwbOffset;
 
     if (!GetFieldOffset(0, "AwbFile", &internalAwbOffset)) {
         return nullptr;
@@ -231,7 +243,7 @@ const std::vector<std::string> &CAcbFile::GetFileNames() const {
 }
 
 IStream *CAcbFile::OpenDataStream(const char *fileName) {
-    IStream *result = nullptr;
+    IStream * result = nullptr;
 
     for (auto &cue : _cues) {
         if (strcmp(cue.cueName, fileName) == 0) {
@@ -248,7 +260,7 @@ IStream *CAcbFile::OpenDataStream(uint32_t cueId) {
 
     sprintf(tempFileName, "cue #%u", cueId);
 
-    IStream *result = nullptr;
+    IStream * result = nullptr;
 
     for (auto &cue : _cues) {
         if (cue.cueId == cueId) {
@@ -265,7 +277,7 @@ IStream *CAcbFile::GetDataStreamFromCueInfo(const ACB_CUE_RECORD &cue, const cha
         return nullptr;
     }
 
-    IStream *result;
+    IStream * result;
 
     if (cue.isStreaming) {
         auto externalAwb = _externalAwb;
@@ -314,6 +326,10 @@ std::string CAcbFile::GetSymbolicFileNameFromCueId(uint32_t cueId) {
     char buffer[40] = {0};
     sprintf(buffer, "dat_%06u.bin", cueId);
     return std::string(buffer);
+}
+
+uint32_t CAcbFile::GetFormatVersion() const {
+    return _formatVersion;
 }
 
 static std::string GetExtensionForEncodeType(uint8_t encodeType) {

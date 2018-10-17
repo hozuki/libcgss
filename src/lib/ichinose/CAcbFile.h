@@ -36,6 +36,10 @@ CGSS_NS_BEGIN
 
         void Initialize() override;
 
+        uint32_t GetFormatVersion() const;
+
+        static const uint32_t KEY_MODIFIER_ENABLED_VERSION;
+
     private:
 
         void InitializeAcbTables();
@@ -65,6 +69,8 @@ CGSS_NS_BEGIN
         std::vector<ACB_CUE_RECORD> _cues;
         std::map<std::string, CUtfTable *> _tables;
         std::map<std::string, uint16_t> _cueNameToWaveform;
+
+        uint32_t _formatVersion;
 
         const char *_fileName;
 
