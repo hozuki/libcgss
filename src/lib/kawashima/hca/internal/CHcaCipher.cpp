@@ -1,13 +1,34 @@
 #include "CHcaCipher.h"
+#include "../../../cgss_cdata.h"
+
+static void TransformKey(uint32_t key1, uint32_t key2, uint16_t mod, uint32_t *pk1, uint32_t *pk2) {
+    auto key = (uint64_t)key2 << 32 | key1;
+    auto k2 = ((uint64_t)mod << 16 | (uint16_t)(~mod + 2));
+
+    auto newKey = key * k2;
+
+    if (pk2) {
+        *pk2 = (uint32_t)(newKey >> 32);
+    }
+
+    if (pk1) {
+        *pk1 = (uint32_t)(newKey & 0xffffffff);
+    }
+}
 
 CGSS_NS_BEGIN
 
     CHcaCipher::CHcaCipher() {
-        Init(HcaCipherType::NoCipher, 0, 0);
+        Init(CHcaCipherConfig(HcaCipherType::NoCipher));
     }
 
-    CHcaCipher::CHcaCipher(HcaCipherType type, uint32_t key1, uint32_t key2) {
-        Init(type, key1, key2);
+    CHcaCipher::CHcaCipher(const HCA_CIPHER_CONFIG &config) {
+        CHcaCipherConfig cfg(config.key, config.keyModifier);
+        Init(cfg);
+    }
+
+    CHcaCipher::CHcaCipher(const CHcaCipherConfig &config) {
+        Init(config);
     }
 
     CHcaCipher::CHcaCipher(const CHcaCipher &other) {
@@ -16,10 +37,19 @@ CGSS_NS_BEGIN
         memcpy(_encryptTable, other._encryptTable, TableSize);
     }
 
-    bool_t CHcaCipher::Init(HcaCipherType type, uint32_t key1, uint32_t key2) {
-        if (!(key1 | key2) && type == HcaCipherType::WithKey) {
+    bool_t CHcaCipher::Init(const CHcaCipherConfig &config) {
+        auto type = static_cast<HcaCipherType>(config.cipherType);
+
+        if (!(config.keyParts.key1 | config.keyParts.key2) && type == HcaCipherType::WithKey) {
             type = HcaCipherType::NoCipher;
         }
+
+        uint32_t key1 = config.keyParts.key1, key2 = config.keyParts.key2;
+
+        if ((key1 && key2) && type == HcaCipherType::WithKey && config.keyModifier) {
+            TransformKey(key1, key2, config.keyModifier, &key1, &key2);
+        }
+
         switch (type) {
             case HcaCipherType::NoCipher:
                 Init0();
@@ -31,7 +61,9 @@ CGSS_NS_BEGIN
                 Init56(key1, key2);
                 break;
         }
+
         _cipherType = type;
+
         return InitEncryptTable();
     }
 
@@ -125,20 +157,9 @@ CGSS_NS_BEGIN
     }
 
     bool_t CHcaCipher::InitEncryptTable() {
-        bool_t b;
         memset(_encryptTable, 0, TableSize);
         for (uint32_t i = 0; i < TableSize; ++i) {
-            b = FALSE;
-            for (uint32_t j = 0; j < TableSize; ++j) {
-                if (_decryptTable[j] == i) {
-                    _encryptTable[i] = (uint8_t)(j & 0xFF);
-                    b = TRUE;
-                    break;
-                }
-            }
-            if (!b) {
-                return FALSE;
-            }
+            _encryptTable[_decryptTable[i]] = (uint8_t)i;
         }
         return TRUE;
     }

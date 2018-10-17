@@ -449,8 +449,4 @@ CGSS_NS_BEGIN
         return FALSE;
     }
 
-    IStream *CUtfTable::GetStream() {
-        return _stream;
-    }
-
 CGSS_NS_END

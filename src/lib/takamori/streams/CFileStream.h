@@ -39,8 +39,6 @@ CGSS_NS_BEGIN
 
         virtual void Flush() override;
 
-        static bool_t FileExists(LPCSTR fileName);
-
     protected:
 
         CFileStream() = default;

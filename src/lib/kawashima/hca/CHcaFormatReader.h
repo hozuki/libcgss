@@ -14,6 +14,8 @@ CGSS_NS_BEGIN
 
         explicit CHcaFormatReader(IStream *baseStream);
 
+        CHcaFormatReader(const CHcaFormatReader &) = delete;
+
         virtual ~CHcaFormatReader();
 
         /**
@@ -27,17 +29,19 @@ CGSS_NS_BEGIN
 
         const HCA_INFO GetHcaInfo() const;
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override final;
+        uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) final;
 
-        virtual bool_t IsWritable() const override final;
+        bool_t IsWritable() const final;
 
-        virtual bool_t IsReadable() const override final;
+        bool_t IsReadable() const final;
 
-        virtual bool_t IsSeekable() const override final;
+        bool_t IsSeekable() const final;
 
-        virtual void SetLength(uint64_t value) override final;
+        void SetLength(uint64_t value) final;
 
-        virtual void Flush() override final;
+        void Flush() final;
+
+        static bool_t IsPossibleHcaStream(IStream *stream);
 
     protected:
 
@@ -48,8 +52,6 @@ CGSS_NS_BEGIN
         IStream *_baseStream;
 
     private:
-
-        CHcaFormatReader(const CHcaFormatReader &) = delete;
 
         void Initialize();
 

@@ -63,8 +63,8 @@ CGSS_NS_BEGIN
         auto &ccFrom = _ccFrom;
         const auto &ccTo = _ccTo;
         ccFrom.cipherType = hcaInfo.cipherType;
-        _cipherFrom = new CHcaCipher(static_cast<HcaCipherType>(ccFrom.cipherType), ccFrom.keyParts.key1, ccFrom.keyParts.key2);
-        _cipherTo = new CHcaCipher(static_cast<HcaCipherType>(ccTo.cipherType), ccTo.keyParts.key1, ccTo.keyParts.key2);
+        _cipherFrom = new CHcaCipher(ccFrom);
+        _cipherTo = new CHcaCipher(ccTo);
     }
 
     const uint8_t *CHcaCipherConverter::ConvertHeader() {

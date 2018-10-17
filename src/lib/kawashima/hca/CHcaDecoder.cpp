@@ -18,11 +18,11 @@
 CGSS_NS_BEGIN
 
     CHcaDecoder::CHcaDecoder(IStream *stream)
-            : MyClass(stream, HCA_DECODER_CONFIG()) {
+        : MyClass(stream, HCA_DECODER_CONFIG()) {
     }
 
     CHcaDecoder::CHcaDecoder(IStream *stream, const HCA_DECODER_CONFIG &decoderConfig)
-            : MyBase(stream) {
+        : MyBase(stream) {
         _cipher = nullptr;
         _ath = nullptr;
         for (auto i = 0; i < ChannelCount; ++i) {
@@ -74,7 +74,7 @@ CGSS_NS_BEGIN
         }
         auto &cipherConfig = _decoderConfig.cipherConfig;
         cipherConfig.cipherType = hcaInfo.cipherType;
-        _cipher = new CHcaCipher(static_cast<HcaCipherType>(cipherConfig.cipherType), cipherConfig.keyParts.key1, cipherConfig.keyParts.key2);
+        _cipher = new CHcaCipher(cipherConfig);
 
         // Prepare the channel decoders.
         memset(_channels, 0, sizeof(_channels));
@@ -189,8 +189,8 @@ CGSS_NS_BEGIN
                 wavNote.noteSize += 4 - (wavNote.noteSize & 3);
             }
         }
-        wavData.dataSize = wavRiff.fmtSamplingSize * (hcaInfo.blockCount * 0x80 * 8  +
-                           (wavSmpl.loopEnd - wavSmpl.loopStart) * _decoderConfig.loopCount);
+        wavData.dataSize = wavRiff.fmtSamplingSize * (hcaInfo.blockCount * 0x80 * 8 +
+                                                      (wavSmpl.loopEnd - wavSmpl.loopStart) * _decoderConfig.loopCount);
         wavRiff.riffSize = static_cast<uint32_t>(0x1C + ((hcaInfo.loopExists && !WaveSettings::SoftLoop) ? sizeof(wavSmpl) : 0) +
                                                  (hcaInfo.commentLength > 0 ? 8 + wavNote.noteSize : 0) + sizeof(wavData) +
                                                  wavData.dataSize);

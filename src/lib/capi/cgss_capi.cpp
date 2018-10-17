@@ -87,7 +87,7 @@ CGSS_API_IMPL(bool_t) cgssHelperFileExists(LPCSTR fileName) {
         return FALSE;
     }
 
-    return CFileStream::FileExists(fileName);
+    return CFileSystem::FileExists(fileName);
 }
 
 CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamRead(CGSS_HANDLE handle, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *read) {

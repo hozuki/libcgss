@@ -10,6 +10,35 @@
 
 CGSS_NS_BEGIN
 
+    class NullHcaReader final : public CHcaFormatReader {
+
+    __extends(CHcaFormatReader, NullHcaReader);
+
+    public:
+
+        explicit NullHcaReader(IStream *baseStream)
+            : MyBase(baseStream) {
+        }
+
+    private:
+
+        uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override {
+            return 0;
+        }
+
+        uint64_t GetPosition() override {
+            return 0;
+        }
+
+        void SetPosition(uint64_t value) override {
+        }
+
+        uint64_t GetLength() override {
+            return 0;
+        }
+
+    };
+
     CHcaFormatReader::CHcaFormatReader(IStream *baseStream)
         : _baseStream(baseStream) {
         memset(&_hcaInfo, 0, sizeof(HCA_INFO));
@@ -337,6 +366,26 @@ CGSS_NS_BEGIN
         cout << "Other:" << endl;
         cout << "  ATH: " << hcaInfo.athType << endl;
         cout << "  Volume adjustment: " << hcaInfo.rvaVolume << endl;
+    }
+
+    bool_t CHcaFormatReader::IsPossibleHcaStream(IStream *stream) {
+        if (!stream) {
+            return FALSE;
+        }
+
+        const auto pos = stream->GetPosition();
+
+        try {
+            NullHcaReader reader(stream);
+        } catch (CException &ex) {
+            return FALSE;
+        } catch (std::runtime_error &err) {
+            return FALSE;
+        }
+
+        stream->SetPosition(pos);
+
+        return TRUE;
     }
 
 CGSS_NS_END

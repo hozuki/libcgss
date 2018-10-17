@@ -2,6 +2,8 @@
 
 #include "../../../cgss_env.h"
 #include "../../../cgss_enum.h"
+#include "../../../cdata/HCA_CIPHER_CONFIG.h"
+#include "../CHcaCipherConfig.h"
 
 CGSS_NS_BEGIN
 
@@ -11,7 +13,9 @@ CGSS_NS_BEGIN
 
         CHcaCipher();
 
-        CHcaCipher(HcaCipherType type, uint32_t key1, uint32_t key2);
+        CHcaCipher(const HCA_CIPHER_CONFIG &config);
+
+        CHcaCipher(const CHcaCipherConfig &config);
 
         CHcaCipher(const CHcaCipher &);
 
@@ -23,7 +27,7 @@ CGSS_NS_BEGIN
 
     private:
 
-        bool_t Init(HcaCipherType type, uint32_t key1, uint32_t key2);
+        bool_t Init(const CHcaCipherConfig &config);
 
         static const uint32_t TableSize = 0x100;
 

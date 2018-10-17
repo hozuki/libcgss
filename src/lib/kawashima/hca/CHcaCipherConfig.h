@@ -28,7 +28,7 @@ CGSS_NS_BEGIN
 
     private:
 
-        void Initialize(uint32_t key1, uint32_t key2);
+        void Initialize(uint32_t key1, uint32_t key2, uint16_t keyModifier);
 
     };
 

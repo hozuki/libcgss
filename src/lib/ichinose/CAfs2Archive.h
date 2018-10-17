@@ -8,7 +8,7 @@ CGSS_NS_BEGIN
 
     struct IStream;
 
-    class CAfs2Archive final {
+    class CGSS_EXPORT CAfs2Archive final {
 
     __root_class(CAfs2Archive);
 
@@ -28,13 +28,15 @@ CGSS_NS_BEGIN
 
         uint16_t GetHcaKeyModifier() const;
 
+        const char *GetFileName() const;
+
     private:
 
         void Initialize();
 
         IStream *_stream;
         uint64_t _streamOffset;
-        const char *_fileName;
+        char *_fileName;
         bool_t _disposeStream;
 
         std::map<uint32_t, AFS2_FILE_RECORD> _files;

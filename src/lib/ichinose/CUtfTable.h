@@ -50,8 +50,6 @@ CGSS_NS_BEGIN
 
         CUtfReader *GetReader() const;
 
-        IStream *GetStream();
-
         std::vector<CUtfTable::UtfRow> _rows;
 
         virtual void Initialize();

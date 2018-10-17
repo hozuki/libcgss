@@ -16,6 +16,10 @@
 #include "takamori/streams/CBinaryReader.h"
 #include "takamori/streams/CBinaryWriter.h"
 
+#include "takamori/CBitConverter.h"
+#include "takamori/CPath.h"
+#include "takamori/CFileSystem.h"
+
 #include "kawashima/hca/CHcaFormatReader.h"
 #include "kawashima/hca/CDefaultWaveGenerator.h"
 #include "kawashima/hca/CHcaDecoder.h"

@@ -36,6 +36,10 @@ CGSS_NS_BEGIN
 
         void Initialize() override;
 
+        CAfs2Archive *GetInternalAwb();
+
+        CAfs2Archive *GetExternalAwb();
+
         uint32_t GetFormatVersion() const;
 
         static const uint32_t KEY_MODIFIER_ENABLED_VERSION;
@@ -50,6 +54,8 @@ CGSS_NS_BEGIN
 
         IStream *GetDataStreamFromCueInfo(const ACB_CUE_RECORD &cue, const char *fileNameForError);
 
+        std::string FindExternalAwbFileName();
+
         /**
          * You do not need to manually delete the pointer retrieved.
          * @param tableName
@@ -57,10 +63,6 @@ CGSS_NS_BEGIN
         CUtfTable *GetTable(const char *tableName);
 
         CUtfTable *ResolveTable(const char *tableName);
-
-        CAfs2Archive *GetInternalAwb();
-
-        CAfs2Archive *GetExternalAwb();
 
         CAfs2Archive *_internalAwb;
         CAfs2Archive *_externalAwb;

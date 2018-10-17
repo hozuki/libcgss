@@ -22,19 +22,19 @@ CGSS_NS_BEGIN
 
         CHcaDecoder(IStream *stream, const HCA_DECODER_CONFIG &decoderConfig);
 
+        CHcaDecoder(const CHcaDecoder &) = delete;
+
         virtual ~CHcaDecoder();
 
-        virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-        virtual uint64_t GetPosition() override;
+        uint64_t GetPosition() override;
 
-        virtual void SetPosition(uint64_t value) override;
+        void SetPosition(uint64_t value) override;
 
-        virtual uint64_t GetLength() override;
+        uint64_t GetLength() override;
 
     private:
-
-        CHcaDecoder(const CHcaDecoder &) = delete;
 
         void InitializeExtra();
 

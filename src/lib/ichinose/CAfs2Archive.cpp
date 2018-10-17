@@ -12,8 +12,12 @@ static const int32_t InvalidCueId = -1;
 CAfs2Archive::CAfs2Archive(cgss::IStream *stream, uint64_t offset, const char *fileName, bool_t disposeStream) {
     _stream = stream;
     _streamOffset = offset;
-    _fileName = fileName;
     _disposeStream = disposeStream;
+
+    const auto fileNameLength = strlen(fileName);
+    _fileName = new char[fileNameLength + 1];
+    memset(_fileName, 0, fileNameLength + 1);
+    strncpy(_fileName, fileName, fileNameLength);
 
     Initialize();
 }
@@ -22,6 +26,11 @@ CAfs2Archive::~CAfs2Archive() {
     if (_disposeStream) {
         delete _stream;
         _stream = nullptr;
+    }
+
+    if (_fileName) {
+        delete[] _fileName;
+        _fileName = nullptr;
     }
 }
 
@@ -117,4 +126,8 @@ uint32_t CAfs2Archive::GetByteAlignment() const {
 
 uint16_t CAfs2Archive::GetHcaKeyModifier() const {
     return _hcaKeyModifier;
+}
+
+const char *CAfs2Archive::GetFileName() const {
+    return _fileName;
 }

@@ -19,6 +19,8 @@ set(UTFTABLE_SOURCE_FILES
         src/apps/utftable/utftable.c ${LIBCGSS_API_FILES})
 set(ACBUNPACK_SOURCE_FILES
         src/apps/acbunpack/acbunpack.cpp ${LIBCGSS_API_FILES})
+set(ACB2WAVS_SOURCE_FILES
+        src/apps/acb2wavs/acb2wavs.cpp ${LIBCGSS_API_FILES})
 
 set(LIBCGSS_DEF_FILE src/cgss.def)
 set(LIBCGSS_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_DEF_FILE})

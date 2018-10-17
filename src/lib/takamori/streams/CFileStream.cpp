@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "../CFileSystem.h"
+
 #ifndef __MINGW_H
 
 #include <algorithm>
@@ -112,15 +114,6 @@ CGSS_NS_BEGIN
         fflush(_fp);
     }
 
-    bool_t CFileStream::FileExists(LPCSTR fileName) {
-        auto fp = fopen(fileName, "r");
-        if (!fp) {
-            return FALSE;
-        }
-        fclose(fp);
-        return TRUE;
-    }
-
     FILE *CFileStream::OpenFile(LPCSTR fileName) {
 #define __OUT() throw CException("Mode/Access: out of range")
 #define __CMB() throw CException("Mode/Access: incompatible")
@@ -167,7 +160,7 @@ CGSS_NS_BEGIN
                 }
                 break;
             case FileMode::CreateNew:
-                if (FileExists(fileName)) {
+                if (CFileSystem::FileExists(fileName)) {
                     __EXT();
                 }
                 switch (a) {
@@ -181,7 +174,7 @@ CGSS_NS_BEGIN
                 }
                 break;
             case FileMode::OpenExisting:
-                if (!FileExists(fileName)) {
+                if (!CFileSystem::FileExists(fileName)) {
                     __NEX();
                 }
                 switch (a) {
@@ -199,7 +192,7 @@ CGSS_NS_BEGIN
                 }
                 break;
             case FileMode::OpenOrCreate:
-                if (!FileExists(fileName)) {
+                if (!CFileSystem::FileExists(fileName)) {
                     CreateFileInternal(fileName);
                 }
                 switch (a) {
@@ -223,7 +216,7 @@ CGSS_NS_BEGIN
     }
 
     void CFileStream::CreateFileInternal(LPCSTR fileName) const {
-        if (FileExists(fileName)) {
+        if (CFileSystem::FileExists(fileName)) {
             return;
         }
         auto fp = fopen(fileName, "w");
