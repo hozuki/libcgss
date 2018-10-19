@@ -218,7 +218,13 @@ CUtfTable *CAcbFile::ResolveTable(const char *tableName) {
 CAfs2Archive *CAcbFile::GetInternalAwb() {
     uint64_t internalAwbOffset;
 
-    if (!GetFieldOffset(0, "AwbFile", &internalAwbOffset)) {
+    if (!GetFieldOffset(0, "AwbFile", &internalAwbOffset) || internalAwbOffset == 0) {
+        return nullptr;
+    }
+
+    uint32_t internalAwbSize;
+
+    if (!GetFieldSize(0, "AwbFile", &internalAwbSize) || internalAwbSize == 0) {
         return nullptr;
     }
 

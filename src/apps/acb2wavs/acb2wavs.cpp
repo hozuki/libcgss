@@ -97,11 +97,16 @@ int DoWork(const string &inputFile, const HCA_CIPHER_CONFIG &cc) {
     dc.decodeFunc = CDefaultWaveGenerator::Decode16BitS;
     dc.cipherConfig = cc;
 
-    CAfs2Archive *archive;
+    CAfs2Archive *archive = nullptr;
     uint32_t formatVersion = acb.GetFormatVersion();
     int r;
 
-    archive = acb.GetInternalAwb();
+    try {
+        archive = acb.GetInternalAwb();
+    } catch (CException &ex) {
+        fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
+        archive = nullptr;
+    }
 
     if (archive) {
         const auto extractDir = CPath::Combine(baseExtractDirPath, "internal");
@@ -120,7 +125,12 @@ int DoWork(const string &inputFile, const HCA_CIPHER_CONFIG &cc) {
         }
     }
 
-    archive = acb.GetExternalAwb();
+    try {
+        archive = acb.GetExternalAwb();
+    } catch (CException &ex) {
+        fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
+        archive = nullptr;
+    }
 
     if (archive) {
         const auto extractDir = CPath::Combine(baseExtractDirPath, "external");
