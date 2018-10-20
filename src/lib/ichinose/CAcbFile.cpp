@@ -79,11 +79,11 @@ void CAcbFile::InitializeAcbTables() {
 
         switch (cue.referenceType) {
             case 2:
+			case 3:
                 synthTable->GetFieldOffset(cue.referenceIndex, "ReferenceItems", &refItemOffset);
                 synthTable->GetFieldSize(cue.referenceIndex, "ReferenceItems", &refItemSize);
                 refCorrection = refItemSize + 2;
                 break;
-            case 3:
             case 8:
                 if (i == 0) {
                     synthTable->GetFieldOffset(0, "ReferenceItems", &refItemOffset);
@@ -335,6 +335,13 @@ string CAcbFile::GetSymbolicFileNameFromCueId(uint32_t cueId) {
     char buffer[40] = {0};
     sprintf(buffer, "dat_%06u.bin", cueId);
     return string(buffer);
+}
+
+string CAcbFile::GetCueNameFromCueId(uint32_t cueId) {
+	for (auto &cue : _cues) {
+		if (cue.waveformId == cueId) return string(cue.cueName);
+	}
+	return CAcbFile::GetSymbolicFileNameFromCueId(cueId);
 }
 
 uint32_t CAcbFile::GetFormatVersion() const {
