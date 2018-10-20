@@ -52,7 +52,7 @@ void PrintHelp() {
 	cout << "\t-n\tUse cue names for output waveforms]" << endl;
 }
 
-static BOOL useCueName = false;
+static char useCueName = 0;
 
 int ParseArgs(int argc, const char *argv[], const char **input, HCA_CIPHER_CONFIG &cc) {
     if (argc < 2) {
@@ -78,7 +78,7 @@ int ParseArgs(int argc, const char *argv[], const char **input, HCA_CIPHER_CONFI
                     }
                     break;
 				case 'n':
-					useCueName = true;
+					useCueName = 1;
 					break;
                 default:
                     return 2;
