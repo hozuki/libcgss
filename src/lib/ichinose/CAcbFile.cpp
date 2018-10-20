@@ -79,11 +79,11 @@ void CAcbFile::InitializeAcbTables() {
 
         switch (cue.referenceType) {
             case 2:
-			case 3:
                 synthTable->GetFieldOffset(cue.referenceIndex, "ReferenceItems", &refItemOffset);
                 synthTable->GetFieldSize(cue.referenceIndex, "ReferenceItems", &refItemSize);
                 refCorrection = refItemSize + 2;
                 break;
+			case 3:
             case 8:
                 if (i == 0) {
                     synthTable->GetFieldOffset(0, "ReferenceItems", &refItemOffset);
