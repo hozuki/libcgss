@@ -34,7 +34,7 @@ CGSS_NS_BEGIN
 
         static std::string GetSymbolicFileNameFromCueId(uint32_t cueId);
 
-		std::string GetCueNameFromCueId(uint32_t cueId);
+        std::string GetCueNameFromCueId(uint32_t cueId);
 
         void Initialize() override;
 
