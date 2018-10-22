@@ -48,11 +48,11 @@ int main(int argc, const char *argv[]) {
 
 void PrintHelp() {
     cout << "Usage:\n" << endl;
-    cout << "acb2wavs <acb file> [-a <key1> -b <key2> -n]" << endl;
+    cout << "acb2wavs <acb file> [-a <key1> -b <key2>] [-n]" << endl;
     cout << "\t-n\tUse cue names for output waveforms]" << endl;
 }
 
-static char useCueName = 0;
+static bool useCueName = false;
 
 int ParseArgs(int argc, const char *argv[], const char **input, HCA_CIPHER_CONFIG &cc) {
     if (argc < 2) {
@@ -78,7 +78,7 @@ int ParseArgs(int argc, const char *argv[], const char **input, HCA_CIPHER_CONFI
                     }
                     break;
                 case 'n':
-                    useCueName = 1;
+                    useCueName = true;
                     break;
                 default:
                     return 2;
@@ -179,13 +179,14 @@ int ProcessAllBinaries(CAcbFile* acb, uint32_t formatVersion, const HCA_DECODER_
 
     for (auto &entry : archive->GetFiles()) {
         auto &record = entry.second;
-        auto extractFileName = CAcbFile::GetSymbolicFileNameFromCueId(record.cueId);
+        std:string extractFileName;
         if (useCueName) {
             extractFileName = acb->GetCueNameFromCueId(record.cueId);
-            fprintf(stdout, "%s ", extractFileName.c_str());
             extractFileName = ReplaceExtension(extractFileName, ".hca", ".wav");
+        } else {
+            extractFileName = CAcbFile::GetSymbolicFileNameFromCueId(record.cueId);
+            extractFileName = ReplaceExtension(extractFileName, ".bin", ".wav");
         }
-        extractFileName = ReplaceExtension(extractFileName, ".bin", ".wav");
 
         auto extractFilePath = CPath::Combine(extractDir, extractFileName);
 

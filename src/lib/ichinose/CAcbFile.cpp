@@ -339,9 +339,13 @@ string CAcbFile::GetSymbolicFileNameFromCueId(uint32_t cueId) {
 
 string CAcbFile::GetCueNameFromCueId(uint32_t cueId) {
     for (auto &cue : _cues) {
-        if (cue.waveformId == cueId) return string(cue.cueName);
+        if (cue.waveformId == cueId) {
+            return string(cue.cueName);
+        }
     }
-    return CAcbFile::GetSymbolicFileNameFromCueId(cueId);
+    char buffer[40] = {0};
+    sprintf(buffer, "dat_%06u.hca", cueId);
+    return string(buffer);
 }
 
 uint32_t CAcbFile::GetFormatVersion() const {
