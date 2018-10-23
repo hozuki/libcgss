@@ -1,0 +1,19 @@
+version: '{build}'
+image:
+  - Visual Studio 2015
+  - Visual Studio 2017
+configuration:
+  - Release
+environment:
+  matrix:
+    - arch: Win64
+    - arch: Win32
+matrix:
+  fast_finish: true
+init:
+  - ps: scripts\configure-cmake.ps1
+build:
+  project: build\vc\cgss.sln
+  verbosity: minimal
+  parallel: true
+test: off
