@@ -4,6 +4,12 @@
 (CGSS). It provides both C and C++ API for HCA audio manipulation. ACB archive support
 is in progress.
 
+[![AppVeyor](https://img.shields.io/appveyor/ci/hozuki/libcgss.svg)](https://ci.appveyor.com/project/hozuki/libcgss)
+[![GitHub contributors](https://img.shields.io/github/contributors/hozuki/libcgss.svg)](https://github.com/hozuki/libcgss/graphs/contributors)
+[![Libraries.io for GitHub](https://img.shields.io/librariesio/github/hozuki/libcgss.svg)](https://github.com/hozuki/libcgss)
+[![GitHub (pre-)release](https://img.shields.io/github/release/hozuki/libcgss/all.svg)](https://github.com/hozuki/libcgss/releases)
+[![Github All Releases](https://img.shields.io/github/downloads/hozuki/libcgss/total.svg)](https://github.com/hozuki/libcgss/releases)
+
 The project consists of a library (*libcgss*) and several other applications.
 
 - Library (*libcgss*)
@@ -25,6 +31,15 @@ The pure C# version of *hcaenc* and *hcacc* can be found in *DereTore* as applic
 
 > \[1\] Download ADX2LE from [here](http://www.adx2le.com/download/index.html), and use
 the DLL located at `tools\hcaenc_lite.dll`.
+
+## Downloads
+
+- [GitHub Releases](https://github.com/hozuki/libcgss/releases)
+- AppVeyor (nightly)
+  - [VC++ 2015 x64](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-x64-vc19-latest.zip?branch=ci-integration&job=Image%3A%20Visual%20Studio%202015%3B%20Environment%3A%20arch%3DWin64)
+  - [VC++ 2015 x86](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-x86-vc19-latest.zip?branch=ci-integration&job=Image%3A%20Visual%20Studio%202015%3B%20Environment%3A%20arch%3DWin32)
+  - [VC++ 2017 x64](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-x64-vc19.1-latest.zip?branch=ci-integration&job=Image%3A%20Visual%20Studio%202017%3B%20Environment%3A%20arch%3DWin64)
+  - [VC++ 2017 x86](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-x86-vc19.1-latest.zip?branch=ci-integration&job=Image%3A%20Visual%20Studio%202017%3B%20Environment%3A%20arch%3DWin32)
 
 ## Example 
 
