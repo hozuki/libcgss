@@ -11,7 +11,7 @@ environment:
 matrix:
   fast_finish: true
 init:
-  - ps: scripts\configure-cmake.ps1
+  - ps: .\scripts\configure-cmake.ps1
 build:
   project: build\vc\cgss.sln
   verbosity: minimal
