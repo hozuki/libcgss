@@ -1,4 +1,4 @@
-[string]$arch = [string]::Empty;
+[String]$arch = [String]::Empty;
 
 if ($Env:ARCH -eq "Win64") {
     $arch = "Win64";
@@ -9,11 +9,11 @@ if ($Env:ARCH -eq "Win64") {
     echo 'Arch: (default -> Win32)';
 }
 
-[string]$workerImage = $Env:APPVEYOR_BUILD_WORKER_IMAGE;
+[String]$workerImage = $Env:APPVEYOR_BUILD_WORKER_IMAGE;
 
 echo "Build image: $workerImage";
 
-[string]$generator = [string]::Empty;
+[String]$generator = [String]::Empty;
 
 if ($workerImage -eq 'Visual Studio 2017') {
     $generator = "Visual Studio 15 2017$arch";
@@ -35,7 +35,7 @@ cd build\vc
 
 cmake --version
 
-[string]$cmakeGenCmd = "cmake ..\.. -G `"$generator`""
+[String]$cmakeGenCmd = "cmake ..\.. -G `"$generator`""
 
 [ScriptBlock]$script = [ScriptBlock]::Create($cmakeGenCmd);
 

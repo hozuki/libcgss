@@ -16,4 +16,9 @@ build:
   project: build\vc\cgss.sln
   verbosity: minimal
   parallel: true
+after_build:
+  - ps: .\scripts\package-artifacts.ps1
 test: off
+artifacts:
+  - path: 'libcgss-*.zip'
+    name: 'Binaries'
