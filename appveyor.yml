@@ -17,6 +17,7 @@ build:
   verbosity: minimal
   parallel: true
 after_build:
+  - cmd: cd %APPVEYOR_BUILD_FOLDER%
   - ps: .\scripts\package-artifacts.ps1
 test: off
 artifacts:
