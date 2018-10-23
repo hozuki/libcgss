@@ -33,7 +33,7 @@ switch ($workerImage) {
 $configuration = $Env:CONFIGURATION;
 
 function Run-Cmd([String]$Command) {
-    [ScriptBlock]$script = [ScriptBlock]::Create($cmd);
+    [ScriptBlock]$script = [ScriptBlock]::Create($Command);
     Invoke-Command -ScriptBlock $script
 }
 
