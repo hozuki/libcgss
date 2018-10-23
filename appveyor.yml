@@ -10,7 +10,7 @@ environment:
     - arch: Win32
 matrix:
   fast_finish: true
-init:
+before_build:
   - ps: .\scripts\configure-cmake.ps1
 build:
   project: build\vc\cgss.sln
