@@ -11,13 +11,13 @@ switch ($arch) {
     'Win32' {
         $buildArch = 'x86';
     }
-    deafult {
+    default {
         echo "Unsupported arch: $arch";
         exit 1;
     }
 }
 
-switch ($vsVersion) {
+switch ($workerImage) {
     'Visual Studio 2017' {
         $vsVersion = 'vc19.1';
     }
