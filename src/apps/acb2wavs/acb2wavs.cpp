@@ -8,13 +8,18 @@
 using namespace cgss;
 using namespace std;
 
+struct Options {
+    HCA_DECODER_CONFIG decoderConfig;
+    bool_t useCueName;
+};
+
 void PrintHelp();
 
-int ParseArgs(int argc, const char *argv[], const char **input, HCA_CIPHER_CONFIG &cc);
+int ParseArgs(int argc, const char *argv[], const char **input, Options &options);
 
-int DoWork(const string &inputFile, const HCA_CIPHER_CONFIG &cc);
+int DoWork(const string &inputFile, const Options &options);
 
-int ProcessAllBinaries(uint32_t formatVersion, const HCA_DECODER_CONFIG &dc, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal);
+int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal);
 
 int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECODER_CONFIG &dc);
 
@@ -33,9 +38,9 @@ int main(int argc, const char *argv[]) {
     }
 
     const char *inputFile;
-    HCA_CIPHER_CONFIG cc = {0};
+    Options options = {0};
 
-    const auto parsed = ParseArgs(argc, argv, &inputFile, cc);
+    const auto parsed = ParseArgs(argc, argv, &inputFile, options);
 
     if (parsed < 0) {
         return 0;
@@ -43,15 +48,16 @@ int main(int argc, const char *argv[]) {
         return parsed;
     }
 
-    return DoWork(inputFile, cc);
+    return DoWork(inputFile, options);
 }
 
 void PrintHelp() {
     cout << "Usage:\n" << endl;
-    cout << "acb2wavs <acb file> [-a <key1> -b <key2>]" << endl;
+    cout << "acb2wavs <acb file> [-a <key1> -b <key2>] [-n]" << endl << endl;
+    cout << "\t-n\tUse cue names for output waveforms" << endl;
 }
 
-int ParseArgs(int argc, const char *argv[], const char **input, HCA_CIPHER_CONFIG &cc) {
+int ParseArgs(int argc, const char *argv[], const char **input, Options &options) {
     if (argc < 2) {
         PrintHelp();
         return -1;
@@ -59,20 +65,26 @@ int ParseArgs(int argc, const char *argv[], const char **input, HCA_CIPHER_CONFI
 
     *input = argv[1];
 
-    cc.keyModifier = 0;
+    options.decoderConfig.waveHeaderEnabled = TRUE;
+    options.decoderConfig.decodeFunc = CDefaultWaveGenerator::Decode16BitS;
+
+    options.decoderConfig.cipherConfig.keyModifier = 0;
 
     for (int i = 2; i < argc; ++i) {
         if (argv[i][0] == '-' || argv[i][0] == '/') {
             switch (argv[i][1]) {
                 case 'a':
                     if (i + 1 < argc) {
-                        cc.keyParts.key1 = atoh<uint32_t>(argv[++i]);
+                        options.decoderConfig.cipherConfig.keyParts.key1 = atoh<uint32_t>(argv[++i]);
                     }
                     break;
                 case 'b':
                     if (i + 1 < argc) {
-                        cc.keyParts.key2 = atoh<uint32_t>(argv[++i]);
+                        options.decoderConfig.cipherConfig.keyParts.key2 = atoh<uint32_t>(argv[++i]);
                     }
+                    break;
+                case 'n':
+                    options.useCueName = TRUE;
                     break;
                 default:
                     return 2;
@@ -83,19 +95,13 @@ int ParseArgs(int argc, const char *argv[], const char **input, HCA_CIPHER_CONFI
     return 0;
 }
 
-int DoWork(const string &inputFile, const HCA_CIPHER_CONFIG &cc) {
+int DoWork(const string &inputFile, const Options &options) {
     const auto baseExtractDirPath = CPath::Combine(CPath::GetDirectoryName(inputFile), "_acb_" + CPath::GetFileName(inputFile));
 
     CFileStream fileStream(inputFile.c_str(), FileMode::OpenExisting, FileAccess::Read);
     CAcbFile acb(&fileStream, inputFile.c_str());
 
     acb.Initialize();
-
-    CHcaDecoderConfig dc;
-
-    dc.waveHeaderEnabled = TRUE;
-    dc.decodeFunc = CDefaultWaveGenerator::Decode16BitS;
-    dc.cipherConfig = cc;
 
     CAfs2Archive *archive = nullptr;
     uint32_t formatVersion = acb.GetFormatVersion();
@@ -112,7 +118,7 @@ int DoWork(const string &inputFile, const HCA_CIPHER_CONFIG &cc) {
         const auto extractDir = CPath::Combine(baseExtractDirPath, "internal");
 
         try {
-            r = ProcessAllBinaries(formatVersion, dc, extractDir, archive, acb.GetStream(), TRUE);
+            r = ProcessAllBinaries(&acb, formatVersion, options, extractDir, archive, acb.GetStream(), TRUE);
         } catch (CException &ex) {
             fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
             r = -1;
@@ -138,7 +144,7 @@ int DoWork(const string &inputFile, const HCA_CIPHER_CONFIG &cc) {
         try {
             CFileStream fs(archive->GetFileName(), FileMode::OpenExisting, FileAccess::Read);
 
-            r = ProcessAllBinaries(formatVersion, dc, extractDir, archive, &fs, TRUE);
+            r = ProcessAllBinaries(&acb, formatVersion, options, extractDir, archive, &fs, TRUE);
         } catch (CException &ex) {
             fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
             r = -1;
@@ -154,7 +160,7 @@ int DoWork(const string &inputFile, const HCA_CIPHER_CONFIG &cc) {
     return 0;
 }
 
-int ProcessAllBinaries(uint32_t formatVersion, const HCA_DECODER_CONFIG &dc, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal) {
+int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal) {
     if (!CFileSystem::DirectoryExists(extractDir)) {
         if (!CFileSystem::MkDir(extractDir)) {
             fprintf(stderr, "Failed to create directory %s.\n", extractDir.c_str());
@@ -163,7 +169,7 @@ int ProcessAllBinaries(uint32_t formatVersion, const HCA_DECODER_CONFIG &dc, con
     }
 
     const auto afsSource = isInternal ? "internal" : "external";
-    HCA_DECODER_CONFIG decoderConfig = dc;
+    HCA_DECODER_CONFIG decoderConfig = options.decoderConfig;
 
     if (formatVersion >= CAcbFile::KEY_MODIFIER_ENABLED_VERSION) {
         decoderConfig.cipherConfig.keyModifier = archive->GetHcaKeyModifier();
@@ -173,8 +179,15 @@ int ProcessAllBinaries(uint32_t formatVersion, const HCA_DECODER_CONFIG &dc, con
 
     for (auto &entry : archive->GetFiles()) {
         auto &record = entry.second;
-        auto extractFileName = CAcbFile::GetSymbolicFileNameFromCueId(record.cueId);
-        extractFileName = ReplaceExtension(extractFileName, ".bin", ".wav");
+        std::string extractFileName;
+
+        if (options.useCueName) {
+            extractFileName = acb->GetCueNameFromCueId(record.cueId);
+            extractFileName = ReplaceExtension(extractFileName, ".hca", ".wav");
+        } else {
+            extractFileName = CAcbFile::GetSymbolicFileNameFromCueId(record.cueId);
+            extractFileName = ReplaceExtension(extractFileName, ".bin", ".wav");
+        }
 
         auto extractFilePath = CPath::Combine(extractDir, extractFileName);
 

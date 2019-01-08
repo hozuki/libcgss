@@ -333,8 +333,20 @@ const char *CAcbFile::GetFileName() const {
 
 string CAcbFile::GetSymbolicFileNameFromCueId(uint32_t cueId) {
     char buffer[40] = {0};
+
     sprintf(buffer, "dat_%06u.bin", cueId);
+
     return string(buffer);
+}
+
+string CAcbFile::GetCueNameFromCueId(uint32_t cueId) {
+    for (auto &cue : _cues) {
+        if (cue.waveformId == cueId) {
+            return string(cue.cueName);
+        }
+    }
+
+    return GetSymbolicFileNameFromCueId(cueId);
 }
 
 uint32_t CAcbFile::GetFormatVersion() const {
