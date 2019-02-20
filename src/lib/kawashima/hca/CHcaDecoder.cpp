@@ -262,20 +262,20 @@ CGSS_NS_BEGIN
         // Actual decoding process.
         auto a = (data.GetBit(9) << 8) - data.GetBit(7);
         for (auto i = 0; i < hcaInfo.channelCount; ++i) {
-            channels[i]->Decode1(&data, hcaInfo.compR09, a, _ath->GetTable());
+            CHcaChannel::Decode1(channels[i], &data, hcaInfo.compR09, a, _ath->GetTable());
         }
         for (auto i = 0; i < 8; ++i) {
             for (auto j = 0; j < hcaInfo.channelCount; ++j) {
-                channels[j]->Decode2(&data);
+                CHcaChannel::Decode2(channels[j], &data);
             }
             for (auto j = 0; j < hcaInfo.channelCount; ++j) {
-                channels[j]->Decode3(hcaInfo.compR09, hcaInfo.compR08, hcaInfo.compR07 + hcaInfo.compR06, hcaInfo.compR05);
+                CHcaChannel::Decode3(channels[j], hcaInfo.compR09, hcaInfo.compR08, hcaInfo.compR07 + hcaInfo.compR06, hcaInfo.compR05);
             }
             for (auto j = 0; j < hcaInfo.channelCount - 1; ++j) {
-                channels[j]->Decode4(i, hcaInfo.compR05 - hcaInfo.compR06, hcaInfo.compR06, hcaInfo.compR07);
+                CHcaChannel::Decode4(channels[j], channels[j + 1], i, hcaInfo.compR05 - hcaInfo.compR06, hcaInfo.compR06, hcaInfo.compR07);
             }
             for (auto j = 0; j < hcaInfo.channelCount; ++j) {
-                channels[j]->Decode5(i);
+                CHcaChannel::Decode5(channels[j], i);
             }
         }
 

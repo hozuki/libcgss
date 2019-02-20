@@ -7,7 +7,7 @@ CGSS_NS_BEGIN
         memset(this, 0, sizeof(CHcaChannel));
     }
 
-    void CHcaChannel::Decode1(CHcaData *data, uint32_t a, int b, const uint8_t *ath) {
+    void CHcaChannel::Decode1(CHcaChannel *inst, CHcaData *data, uint32_t a, int b, const uint8_t *ath) {
         static uint8_t scalelist[] = {
             // v2.0
             0x0E, 0x0E, 0x0E, 0x0E, 0x0E, 0x0E, 0x0D, 0x0D,
@@ -46,39 +46,39 @@ CGSS_NS_BEGIN
         static float *scaleFloat = (float *)scaleInt;
         int32_t v = data->GetBit(3);
         if (v >= 6) {
-            for (uint32_t i = 0; i < count; i++) {
-                value[i] = (int8_t)data->GetBit(6);
+            for (uint32_t i = 0; i < inst->count; i++) {
+                inst->value[i] = (int8_t)data->GetBit(6);
             }
         } else if (v) {
             int32_t v1 = data->GetBit(6), v2 = (1 << v) - 1, v3 = v2 >> 1, v4;
-            value[0] = (int8_t)v1;
-            for (uint32_t i = 1; i < count; i++) {
+            inst->value[0] = (int8_t)v1;
+            for (uint32_t i = 1; i < inst->count; i++) {
                 v4 = data->GetBit(v);
                 if (v4 != v2) {
                     v1 += v4 - v3;
                 } else {
                     v1 = data->GetBit(6);
                 }
-                value[i] = (char)v1;
+                inst->value[i] = (char)v1;
             }
         } else {
-            memset(value, 0, 0x80);
+            memset(inst->value, 0, 0x80);
         }
-        if (type == 2) {
+        if (inst->type == 2) {
             v = data->CheckBit(4);
-            value2[0] = (int8_t)v;
+            inst->value2[0] = (int8_t)v;
             if (v < 15) {
                 for (int32_t i = 0; i < 8; i++) {
-                    value2[i] = (int8_t)data->GetBit(4);
+                    inst->value2[i] = (int8_t)data->GetBit(4);
                 }
             }
         } else {
             for (uint32_t i = 0; i < a; i++) {
-                value3[i] = (int8_t)data->GetBit(6);
+                inst->value3[i] = (int8_t)data->GetBit(6);
             }
         }
-        for (uint32_t i = 0; i < count; i++) {
-            v = value[i];
+        for (uint32_t i = 0; i < inst->count; i++) {
+            v = inst->value[i];
             if (v) {
                 v = ath[i] + ((b + i) >> 8) - ((v * 5) >> 1) + 1;
                 if (v < 0) {
@@ -89,15 +89,15 @@ CGSS_NS_BEGIN
                     v = scalelist[v];
                 }
             }
-            scale[i] = (int8_t)v;
+            inst->scale[i] = (int8_t)v;
         }
-        memset(&scale[count], 0, 0x80 - count);
-        for (uint32_t i = 0; i < count; i++) {
-            base[i] = valueFloat[value[i]] * scaleFloat[scale[i]];
+        memset(&inst->scale[inst->count], 0, 0x80 - inst->count);
+        for (uint32_t i = 0; i < inst->count; i++) {
+            inst->base[i] = valueFloat[inst->value[i]] * scaleFloat[inst->scale[i]];
         }
     }
 
-    void CHcaChannel::Decode2(CHcaData *data) {
+    void CHcaChannel::Decode2(CHcaChannel *inst, CHcaData *data) {
         static char list1[] = {
             0, 2, 3, 3, 4, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12,
         };
@@ -121,9 +121,9 @@ CGSS_NS_BEGIN
             +0, +0, +1, +1, -1, -1, +2, -2, +3, -3, +4, -4, +5, -5, +6, -6,
             +0, +0, +1, -1, +2, -2, +3, -3, +4, -4, +5, -5, +6, -6, +7, -7,
         };
-        for (uint32_t i = 0; i < count; i++) {
+        for (uint32_t i = 0; i < inst->count; i++) {
             float f;
-            int32_t s = scale[i];
+            int32_t s = inst->scale[i];
             int32_t bitSize = list1[s];
             int32_t v = data->GetBit(bitSize);
             if (s < 8) {
@@ -137,13 +137,13 @@ CGSS_NS_BEGIN
                 }
                 f = (float)v;
             }
-            block[i] = base[i] * f;
+            inst->block[i] = inst->base[i] * f;
         }
-        memset(&block[count], 0, sizeof(float) * (0x80 - count));
+        memset(&inst->block[inst->count], 0, sizeof(float) * (0x80 - inst->count));
     }
 
-    void CHcaChannel::Decode3(uint32_t a, uint32_t b, uint32_t c, uint32_t d) {
-        if (type != 2 && b) {
+    void CHcaChannel::Decode3(CHcaChannel *inst, uint32_t a, uint32_t b, uint32_t c, uint32_t d) {
+        if (inst->type != 2 && b) {
             static uint32_t listInt[2][0x40] = {
                 {
                     0x00000000, 0x00000000, 0x32A0B051, 0x32D61B5E, 0x330EA43A, 0x333E0F68, 0x337D3E0C, 0x33A8B6D5,
@@ -169,15 +169,15 @@ CGSS_NS_BEGIN
             static float *listFloat = (float *)listInt[1];
             for (uint32_t i = 0, k = c, l = c - 1; i < a; i++) {
                 for (uint32_t j = 0; j < b && k < d; j++, l--) {
-                    block[k++] = listFloat[value3[i] - value[l]] * block[l];
+                    inst->block[k++] = listFloat[inst->value3[i] - inst->value[l]] * inst->block[l];
                 }
             }
-            block[0x80 - 1] = 0;
+            inst->block[0x80 - 1] = 0;
         }
     }
 
-    void CHcaChannel::Decode4(int32_t index, uint32_t a, uint32_t b, uint32_t c) {
-        if (type == 1 && c) {
+    void CHcaChannel::Decode4(CHcaChannel *inst1, CHcaChannel *inst2, int32_t index, uint32_t a, uint32_t b, uint32_t c) {
+        if (inst1->type == 1 && c) {
             static uint32_t listInt[] = {
                 // v2.0
                 0x40000000, 0x3FEDB6DB, 0x3FDB6DB7, 0x3FC92492, 0x3FB6DB6E, 0x3FA49249, 0x3F924925, 0x3F800000,
@@ -195,10 +195,10 @@ CGSS_NS_BEGIN
                 //0x40000000,0x3FEDB6DB,0x3FDB6DB7,0x3FC92492,0x3FB6DB6E,0x3FA49249,0x3F924925,0x3F800000,
                 //0x3F5B6DB7,0x3F36DB6E,0x3F124925,0x3EDB6DB7,0x3E924925,0x3E124925,0x00000000,0x00000000,
             };
-            float f1 = ((float *)listInt)[this[1].value2[index]];
+            float f1 = ((float *)listInt)[inst2->value2[index]];
             float f2 = f1 - 2.0f;
-            float *s = &block[b];
-            float *d = &this[1].block[b];
+            float *s = &inst1->block[b];
+            float *d = &inst2->block[b];
             for (uint32_t i = 0; i < a; i++) {
                 *(d++) = *s * f2;
                 *(s++) = *s * f1;
@@ -206,7 +206,7 @@ CGSS_NS_BEGIN
         }
     }
 
-    void CHcaChannel::Decode5(int32_t index) {
+    void CHcaChannel::Decode5(CHcaChannel *inst, int32_t index) {
         static uint32_t list1Int[7][0x40] = {
             {
                 0x3DA73D75, 0x3DA73D75, 0x3DA73D75, 0x3DA73D75, 0x3DA73D75, 0x3DA73D75, 0x3DA73D75, 0x3DA73D75,
@@ -374,8 +374,8 @@ CGSS_NS_BEGIN
             }
         };
         float *s, *d, *s1, *s2;
-        s = block;
-        d = wav1;
+        s = inst->block;
+        d = inst->wav1;
         for (int32_t i = 0, count1 = 1, count2 = 0x40; i < 7; i++, count1 <<= 1, count2 >>= 1) {
             float *d1 = d;
             float *d2 = &d[count2];
@@ -393,8 +393,8 @@ CGSS_NS_BEGIN
             s = d;
             d = w;
         }
-        s = wav1;
-        d = block;
+        s = inst->wav1;
+        d = inst->block;
         for (int32_t i = 0, count1 = 0x40, count2 = 1; i < 7; i++, count1 >>= 1, count2 <<= 1) {
             float *list1Float = (float *)list1Int[i];
             float *list2Float = (float *)list2Int[i];
@@ -420,22 +420,22 @@ CGSS_NS_BEGIN
             s = d;
             d = w;
         }
-        d = wav2;
+        d = inst->wav2;
         for (int32_t i = 0; i < 0x80; i++) {
             *(d++) = *(s++);
         }
         s = (float *)list3Int;
-        d = wave[index];
-        s1 = &wav2[0x40];
-        s2 = wav3;
+        d = inst->wave[index];
+        s1 = &inst->wav2[0x40];
+        s2 = inst->wav3;
         for (int32_t i = 0; i < 0x40; i++) {
             *(d++) = *(s1++) * *(s++) + *(s2++);
         }
         for (int32_t i = 0; i < 0x40; i++) {
             *(d++) = *(s++) * *(--s1) - *(s2++);
         }
-        s1 = &wav2[0x40 - 1];
-        s2 = wav3;
+        s1 = &inst->wav2[0x40 - 1];
+        s2 = inst->wav3;
         for (int32_t i = 0; i < 0x40; i++) {
             *(s2++) = *(s1--) * *(--s);
         }
