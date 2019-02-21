@@ -252,7 +252,7 @@ CGSS_NS_BEGIN
         // Decrypt block if needed.
         _cipher->Decrypt(hcaBlockBuffer, hcaInfo.blockSize);
 
-        CHcaData data(hcaBlockBuffer, hcaInfo.blockSize);
+        CHcaData data(hcaBlockBuffer, hcaInfo.blockSize, hcaInfo.blockSize);
 
         const auto magic = data.GetBit(16);
         if (magic != 0xffff) {

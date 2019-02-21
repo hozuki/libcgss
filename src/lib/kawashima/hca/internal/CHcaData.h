@@ -8,7 +8,7 @@ CGSS_NS_BEGIN
 
     public:
 
-        CHcaData(uint8_t *data, uint32_t size);
+        CHcaData(uint8_t *data, uint32_t dataSize, uint32_t size);
 
         CHcaData(CHcaData &) = default;
 
@@ -21,6 +21,7 @@ CGSS_NS_BEGIN
     private:
 
         uint8_t *_data;
+        uint32_t _dataSize;
         int32_t _size;
         int32_t _bit;
 
