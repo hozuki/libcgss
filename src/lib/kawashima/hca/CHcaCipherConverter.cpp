@@ -159,7 +159,7 @@ CGSS_NS_BEGIN
         cipherFrom->Decrypt(blockBuffer, validDataSize);
 
         // Check magic piece of plain text.
-        CHcaData data(blockBuffer, hcaInfo.blockSize);
+        CHcaData data(blockBuffer, hcaInfo.blockSize, hcaInfo.blockSize);
         const auto magic = data.GetBit(16);
         if (magic != 0xffff) {
             char numberBuffer[20] = {0};
