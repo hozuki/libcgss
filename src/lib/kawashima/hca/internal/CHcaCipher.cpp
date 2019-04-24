@@ -2,13 +2,13 @@
 #include "../../../cgss_cdata.h"
 
 static void TransformKey(uint32_t key1, uint32_t key2, uint16_t mod, uint32_t *pk1, uint32_t *pk2) {
-    auto key = (uint64_t)key2 << 32 | key1;
-    auto k2 = ((uint64_t)mod << 16 | (uint16_t)(~mod + 2));
+    auto key = (uint64_t)key2 << 32u | key1;
+    auto k2 = ((uint64_t)mod << 16u | (uint16_t)(~mod + 2));
 
     auto newKey = key * k2;
 
     if (pk2) {
-        *pk2 = (uint32_t)(newKey >> 32);
+        *pk2 = (uint32_t)(newKey >> 32u);
     }
 
     if (pk1) {
@@ -40,13 +40,13 @@ CGSS_NS_BEGIN
     bool_t CHcaCipher::Init(const CHcaCipherConfig &config) {
         auto type = static_cast<HcaCipherType>(config.cipherType);
 
-        if (!(config.keyParts.key1 | config.keyParts.key2) && type == HcaCipherType::WithKey) {
+        if (config.key == 0 && type == HcaCipherType::WithKey) {
             type = HcaCipherType::NoCipher;
         }
 
         uint32_t key1 = config.keyParts.key1, key2 = config.keyParts.key2;
 
-        if ((key1 && key2) && type == HcaCipherType::WithKey && config.keyModifier) {
+        if (config.key != 0 && type == HcaCipherType::WithKey && config.keyModifier) {
             TransformKey(key1, key2, config.keyModifier, &key1, &key2);
         }
 
@@ -87,9 +87,9 @@ CGSS_NS_BEGIN
 
     void CHcaCipher::Init1() {
         for (uint32_t i = 1, v = 0; i < 0xFF; i++) {
-            v = (v * 13 + 11) & 0xFF;
+            v = (v * 13u + 11u) & 0xFFu;
             if (v == 0 || v == 0xFF) {
-                v = (v * 13 + 11) & 0xFF;
+                v = (v * 13u + 11u) & 0xFFu;
             }
             _decryptTable[i] = (uint8_t)v;
         }
@@ -106,8 +106,8 @@ CGSS_NS_BEGIN
         key1--;
         for (uint8_t i = 0; i < 7; i++) {
             t1[i] = (uint8_t)key1;
-            key1 = (key1 >> 8) | (key2 << 24);
-            key2 >>= 8;
+            key1 = (key1 >> 8u) | (key2 << 24u);
+            key2 >>= 8u;
         }
 
         // Generate table #2
@@ -127,8 +127,8 @@ CGSS_NS_BEGIN
         Init56_CreateTable(t31, t1[0]);
         for (uint8_t i = 0; i < 0x10; i++) {
             Init56_CreateTable(t32, t2[i]);
-            uint8_t v = t31[i] << 4;
-            for (uint8_t j = 0; j < 0x10; j++) {
+            uint8_t v = t31[i] << 4u;
+            for (uint8_t j = 0; j < 0x10u; j++) {
                 *(t++) = v | t32[j];
             }
         }
@@ -136,9 +136,9 @@ CGSS_NS_BEGIN
         // Generate CIPH table
         t = &_decryptTable[1];
         for (uint32_t i = 0, v = 0; i < TableSize; i++) {
-            v = (v + 0x11) & 0xFF;
+            v = (v + 0x11u) & 0xFFu;
             uint8_t a = t3[v];
-            if (a != 0 && a != 0xFF) {
+            if (a != 0 && a != 0xFFu) {
                 *(t++) = a;
             }
         }
@@ -147,11 +147,11 @@ CGSS_NS_BEGIN
     }
 
     void CHcaCipher::Init56_CreateTable(uint8_t *r, uint8_t key) {
-        int32_t mul = ((key & 1) << 3) | 5;
-        int32_t add = (key & 0xE) | 1;
-        key >>= 4;
+        uint32_t mul = ((key & 1u) << 3u) | 5u;
+        uint32_t add = (key & 0xEu) | 1u;
+        key >>= 4u;
         for (uint32_t i = 0; i < 0x10; i++) {
-            key = (uint8_t)((key * mul + add) & 0xF);
+            key = (uint8_t)((key * mul + add) & 0xFu);
             *(r++) = key;
         }
     }

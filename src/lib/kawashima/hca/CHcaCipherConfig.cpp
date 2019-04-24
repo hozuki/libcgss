@@ -22,7 +22,7 @@ CGSS_NS_BEGIN
     }
 
     CHcaCipherConfig::CHcaCipherConfig(uint64_t key)
-        : MyClass((uint32_t)(key >> 32), (uint32_t)(key & 0xffffffff)) {
+        : MyClass((uint32_t)(key >> 32u), (uint32_t)(key & 0xffffffff)) {
     }
 
     CHcaCipherConfig::CHcaCipherConfig(uint32_t key1, uint32_t key2, uint16_t keyModifier)
@@ -31,7 +31,7 @@ CGSS_NS_BEGIN
     }
 
     CHcaCipherConfig::CHcaCipherConfig(uint64_t key, uint16_t keyModifier)
-        : MyClass((uint32_t)(key >> 32), (uint32_t)(key & 0xffffffff), keyModifier) {
+        : MyClass((uint32_t)(key >> 32u), (uint32_t)(key & 0xffffffff), keyModifier) {
     }
 
     void CHcaCipherConfig::Initialize(uint32_t key1, uint32_t key2, uint16_t keyModifier) {

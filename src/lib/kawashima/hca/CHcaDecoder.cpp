@@ -144,8 +144,8 @@ CGSS_NS_BEGIN
         if (hcaInfo.commentLength > 0) {
             uint32_t noteSize = 4 + hcaInfo.commentLength + 1;
             // Pad by 4
-            if (noteSize & 3) {
-                noteSize += 4 - (noteSize & 3);
+            if (noteSize & 3u) {
+                noteSize += 4 - (noteSize & 3u);
             }
             sizeNeeded += 8 + noteSize;
         }
@@ -185,8 +185,8 @@ CGSS_NS_BEGIN
         }
         if (hcaInfo.commentLength > 0) {
             wavNote.noteSize = 4 + hcaInfo.commentLength + 1;
-            if (wavNote.noteSize & 3) {
-                wavNote.noteSize += 4 - (wavNote.noteSize & 3);
+            if (wavNote.noteSize & 3u) {
+                wavNote.noteSize += 4 - (wavNote.noteSize & 3u);
             }
         }
         wavData.dataSize = wavRiff.fmtSamplingSize * (hcaInfo.blockCount * 0x80 * 8 +
@@ -260,7 +260,7 @@ CGSS_NS_BEGIN
         }
 
         // Actual decoding process.
-        auto a = (data.GetBit(9) << 8) - data.GetBit(7);
+        auto a = (data.GetBit(9) << 8u) - data.GetBit(7);
         for (auto i = 0; i < hcaInfo.channelCount; ++i) {
             CHcaChannel::Decode1(channels[i], &data, hcaInfo.compR09, a, _ath->GetTable());
         }
@@ -361,7 +361,7 @@ CGSS_NS_BEGIN
         if (!buffer) {
             throw CArgumentException("CHcaDecoder::Read");
         }
-        bufferSize = std::max(0u, std::min(count, static_cast<uint32_t>(bufferSize - offset)));
+        bufferSize = std::min(count, static_cast<uint32_t>(bufferSize - offset));
         if (bufferSize == 0) {
             return bufferSize;
         }
