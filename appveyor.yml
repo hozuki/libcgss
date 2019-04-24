@@ -21,5 +21,17 @@ after_build:
   - ps: .\scripts\package-artifacts.ps1
 test: off
 artifacts:
-  - path: 'libcgss-*.zip'
+  - path: 'libcgss-bin-*.zip'
     name: 'Binaries'
+  - path: 'libcgss-ci-*.zip'
+    name: 'CI auto update'
+deploy:
+  - provider: GitHub
+    description: 'libcgss'
+    auth_token:
+      secure: u+MFjjY665AT4PHJ2bFMINBLnnnwSj1jLnNeFZoWfeYbomTNSPOmdahffmZa+dRH
+    artifact: 'Binaries'             # upload all NuGet packages to release assets
+    draft: false
+    prerelease: false
+    on:
+      appveyor_repo_tag: true        # deploy on tag push only

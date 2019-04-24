@@ -12,7 +12,7 @@ switch ($arch) {
         $buildArch = 'x86';
     }
     default {
-        echo "Unsupported arch: $arch";
+        Write-Output "Unsupported arch: $arch";
         exit 1;
     }
 }
@@ -25,26 +25,26 @@ switch ($workerImage) {
         $vsVersion = 'vc19';
     }
     default {
-        echo "Unsupported worker: $workerImage";
+        Write-Output "Unsupported worker: $workerImage";
         exit 1;
     }
 }
 
 $configuration = $Env:CONFIGURATION;
 
-function Run-Cmd([String]$Command) {
+function Invoke-CommandLine([String]$Command) {
     [ScriptBlock]$script = [ScriptBlock]::Create($Command);
     Invoke-Command -ScriptBlock $script
 }
 
 $7zcmd = "7z a libcgss.zip -r bin\$buildArch\$configuration\*.exe";
-Run-Cmd -Command $7zcmd
+Invoke-CommandLine -Command $7zcmd
 $7zcmd = "7z a libcgss.zip -r bin\$buildArch\$configuration\*.dll";
-Run-Cmd -Command $7zcmd
+Invoke-CommandLine -Command $7zcmd
 
 [String]$buildVersion = $Env:APPVEYOR_BUILD_VERSION;
 
-[String]$dest = "libcgss-$buildArch-$vsVersion-$buildVersion.zip";
+[String]$dest = "libcgss-bin-$buildArch-$vsVersion-$buildVersion.zip";
 Copy-Item -Path 'libcgss.zip' -Destination $dest
-$dest = "libcgss-$buildArch-$vsVersion-latest.zip";
+$dest = "libcgss-ci-$buildArch-$vsVersion-latest.zip";
 Copy-Item -Path 'libcgss.zip' -Destination $dest

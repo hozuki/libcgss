@@ -38,10 +38,10 @@ the DLL located at `tools\hcaenc_lite.dll`.
 
 - [GitHub Releases](https://github.com/hozuki/libcgss/releases)
 - AppVeyor (nightly)
-  - [VC++ 2015 x64](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-x64-vc19-latest.zip?all=true&job=Image%3A%20Visual%20Studio%202015%3B%20Environment%3A%20arch%3DWin64)
-  - [VC++ 2015 x86](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-x86-vc19-latest.zip?all=true&job=Image%3A%20Visual%20Studio%202015%3B%20Environment%3A%20arch%3DWin32)
-  - [VC++ 2017 x64](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-x64-vc19.1-latest.zip?all=true&job=Image%3A%20Visual%20Studio%202017%3B%20Environment%3A%20arch%3DWin64)
-  - [VC++ 2017 x86](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-x86-vc19.1-latest.zip?all=true&job=Image%3A%20Visual%20Studio%202017%3B%20Environment%3A%20arch%3DWin32)
+  - [VC++ 2015 x64](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-ci-x64-vc19-latest.zip?all=true&job=Image%3A%20Visual%20Studio%202015%3B%20Environment%3A%20arch%3DWin64)
+  - [VC++ 2015 x86](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-ci-x86-vc19-latest.zip?all=true&job=Image%3A%20Visual%20Studio%202015%3B%20Environment%3A%20arch%3DWin32)
+  - [VC++ 2017 x64](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-ci-x64-vc19.1-latest.zip?all=true&job=Image%3A%20Visual%20Studio%202017%3B%20Environment%3A%20arch%3DWin64)
+  - [VC++ 2017 x86](https://ci.appveyor.com/api/projects/hozuki/libcgss/artifacts/libcgss-ci-x86-vc19.1-latest.zip?all=true&job=Image%3A%20Visual%20Studio%202017%3B%20Environment%3A%20arch%3DWin32)
 
 ## Example 
 
