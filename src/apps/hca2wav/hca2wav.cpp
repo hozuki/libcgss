@@ -31,7 +31,10 @@ int main(int argc, const char *argv[]) {
     argv0 = const_cast<char **>(argv);
 #endif
 
-    if (!(argc0 == 3 || argc0 == 5)) {
+    if (!(argc0 == 3 || // exe in out
+          argc0 == 5 || // exe in out k1 k2
+          argc == 6 // exe in out k1 k2 km
+    )) {
         PrintHelp();
         return 0;
     }
