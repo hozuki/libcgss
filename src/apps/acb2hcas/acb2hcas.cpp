@@ -40,8 +40,24 @@ T atoh(const char *str);
 template<typename T>
 T atoh(const char *str, int max_length);
 
-int main(int argc, char *argv[]) {
-    return 0;
+int main(int argc, const char *argv[]) {
+    if (argc < 2) {
+        PrintHelp();
+        return 0;
+    }
+
+    const char *inputFile;
+    Options options = {0};
+
+    const auto parsed = ParseArgs(argc, argv, &inputFile, options);
+
+    if (parsed < 0) {
+        return 0;
+    } else if (parsed > 0) {
+        return parsed;
+    }
+
+    return DoWork(inputFile, options);
 }
 
 static void PrintHelp() {
@@ -140,7 +156,7 @@ static int DoWork(const string &inputFile, const Options &options) {
         try {
             CFileStream fs(archive->GetFileName(), FileMode::OpenExisting, FileAccess::Read);
 
-            r = ProcessAllBinaries(&acb, formatVersion, options, extractDir, archive, &fs, TRUE);
+            r = ProcessAllBinaries(&acb, formatVersion, options, extractDir, archive, &fs, FALSE);
         } catch (CException &ex) {
             fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
             r = -1;
@@ -205,7 +221,7 @@ ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options
 
                 WriteHcaKeyFile(hcaKeyFilePath, options.key, keyModifier);
 
-                fprintf(stdout, "exported");
+                fprintf(stdout, "exported\n");
             } catch (CException &ex) {
                 if (CFileSystem::FileExists(extractFilePath)) {
                     CFileSystem::RmFile(extractFilePath);
@@ -225,8 +241,7 @@ ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options
 
 static void CopyStream(IStream *src, IStream *dst) {
     const size_t bufferSize = 10240;
-    uint8_t
-        buffer[bufferSize] = {0};
+    uint8_t buffer[bufferSize] = {0};
     uint32_t read = 1;
 
     while (read > 0) {
@@ -275,18 +290,11 @@ static string ReplaceExtension(const std::string &s, const std::string &oldExt, 
 }
 
 static void WriteHcaKeyFile(const string &fileName, uint64_t key, uint16_t modifier) {
-    std::ofstream fs;
+    CFileStream fs(fileName.c_str(), FileMode::Create, FileAccess::Write);
+    CBinaryWriter writer(&fs);
 
-    fs.open(fileName, ios::out, ios::out);
-
-    if (!fs.is_open()) {
-        return;
-    }
-
-    fs.write(reinterpret_cast<const char *>(&key), sizeof(key));
-    fs.write(reinterpret_cast<const char *>(&modifier), sizeof(modifier));
-
-    fs.close();
+    writer.WriteUInt64BE(key);
+    writer.WriteUInt16BE(modifier);
 }
 
 #define IS_NUM(ch) ('0' <= (ch) && (ch) <= '9')
@@ -303,7 +311,7 @@ T atoh(const char *str, int max_length) {
     max_length = std::min((size_t)max_length, sizeof(T) * 2);
 
     int i = 0;
-    uint32_t ret = 0;
+    T ret = 0;
 
     while (i < max_length && *str) {
         if (IS_NUM(*str)) {

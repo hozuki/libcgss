@@ -144,7 +144,7 @@ static int DoWork(const string &inputFile, const Options &options) {
         try {
             CFileStream fs(archive->GetFileName(), FileMode::OpenExisting, FileAccess::Read);
 
-            r = ProcessAllBinaries(&acb, formatVersion, options, extractDir, archive, &fs, TRUE);
+            r = ProcessAllBinaries(&acb, formatVersion, options, extractDir, archive, &fs, FALSE);
         } catch (CException &ex) {
             fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
             r = -1;
