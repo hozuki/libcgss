@@ -24,12 +24,6 @@ static int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Optio
 
 static int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECODER_CONFIG &dc);
 
-template<typename T>
-T atoh(const char *str);
-
-template<typename T>
-T atoh(const char *str, int max_length);
-
 static string ReplaceExtension(const std::string &s, const std::string &oldExt, const std::string &newExt);
 
 int main(int argc, const char *argv[]) {
