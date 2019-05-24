@@ -33,12 +33,12 @@ static const char *msg_help = ""
     "  hcacc.exe C:\\in.hca C:\\out.hca -ot 1\n"
     "  * This command will convert an HCA file from cipher type 0 (no cipher) to type 1 (with static cipher key).";
 
-int parseArgs(int argc, const char *argv[], const char **input, const char **output,
+static int parseArgs(int argc, const char *argv[], const char **input, const char **output,
               HCA_CIPHER_CONFIG &ccFrom, HCA_CIPHER_CONFIG &ccTo);
 
-uint32_t atoh(const char *str);
+static uint32_t atoh(const char *str);
 
-uint32_t atoh(const char *str, int max_length);
+static uint32_t atoh(const char *str, int max_length);
 
 int main(int argc, const char *argv[]) {
     cgss::CHcaCipherConfig ccFrom, ccTo;
@@ -92,7 +92,7 @@ int main(int argc, const char *argv[]) {
 
 #define CASE_HASH(char1, char2) (uint32_t)(((uint32_t)(char1) << 8) | (uint32_t)(char2))
 
-int parseArgs(int argc, const char *argv[], const char **input, const char **output, HCA_CIPHER_CONFIG &ccFrom,
+static int parseArgs(int argc, const char *argv[], const char **input, const char **output, HCA_CIPHER_CONFIG &ccFrom,
               HCA_CIPHER_CONFIG &ccTo) {
     if (argc < 3) {
         cout << msg_help << endl;
@@ -146,21 +146,21 @@ int parseArgs(int argc, const char *argv[], const char **input, const char **out
 #define IS_UPHEX(ch) ('A' <= (ch) && (ch) <= 'F')
 #define IS_LOHEX(ch) ('a' <= (ch) && (ch) <= 'f')
 
-uint32_t atoh(const char *str) {
+static uint32_t atoh(const char *str) {
     return atoh(str, 8);
 }
 
-uint32_t atoh(const char *str, int max_length) {
+static uint32_t atoh(const char *str, int max_length) {
     max_length = min(max_length, 8);
     int i = 0;
     uint32_t ret = 0;
     while (i < max_length && *str) {
         if (IS_NUM(*str)) {
-            ret = (ret << 4) | (uint32_t)(*str - '0');
+            ret = (ret << 4u) | (uint32_t)(*str - '0');
         } else if (IS_UPHEX(*str)) {
-            ret = (ret << 4) | (uint32_t)(*str - 'A' + 10);
+            ret = (ret << 4u) | (uint32_t)(*str - 'A' + 10);
         } else if (IS_LOHEX(*str)) {
-            ret = (ret << 4) | (uint32_t)(*str - 'a' + 10);
+            ret = (ret << 4u) | (uint32_t)(*str - 'a' + 10);
         } else {
             break;
         }

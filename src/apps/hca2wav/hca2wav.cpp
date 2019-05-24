@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void PrintHelp();
+static void PrintHelp();
 
 template<typename T>
 T hex_alpha_to_integer(const char *a);
@@ -96,7 +96,7 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
-void PrintHelp() {
+static void PrintHelp() {
     uint32_t k1 = 0, k2 = 0;
     k1 = g_CgssKey1;
     k2 = g_CgssKey2;

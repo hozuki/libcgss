@@ -17,15 +17,15 @@
 
 using namespace cgss;
 
-void print_help();
+static void print_help();
 
-void MakeDirectories(const std::string &s);
+static void MakeDirectories(const std::string &s);
 
-std::string GetDirectoryFromPath(const std::string &s);
+static std::string GetDirectoryFromPath(const std::string &s);
 
-std::string GetFileNameFromPath(const std::string &s);
+static std::string GetFileNameFromPath(const std::string &s);
 
-void CopyStream(IStream *src, IStream *dst);
+static void CopyStream(IStream *src, IStream *dst);
 
 int main(int argc, const char *argv[]) {
     if (argc == 1) {
@@ -87,11 +87,11 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
-void print_help() {
+static void print_help() {
     fprintf(stderr, "Usage:\n\n\tacbunpack <file>\n");
 }
 
-std::string GetDirectoryFromPath(const std::string &s) {
+static std::string GetDirectoryFromPath(const std::string &s) {
     const char sep1 = '/', sep2 = '\\';
 
     size_t i1 = s.rfind(sep1, s.length());
@@ -113,7 +113,7 @@ std::string GetDirectoryFromPath(const std::string &s) {
     }
 }
 
-std::string GetFileNameFromPath(const std::string &s) {
+static std::string GetFileNameFromPath(const std::string &s) {
     const char sep1 = '/', sep2 = '\\';
 
     size_t i1 = s.rfind(sep1, s.length());
@@ -135,7 +135,7 @@ std::string GetFileNameFromPath(const std::string &s) {
     }
 }
 
-void CopyStream(IStream *src, IStream *dst) {
+static void CopyStream(IStream *src, IStream *dst) {
     const size_t bufferSize = 10240;
     uint8_t
     buffer[bufferSize] = {0};
@@ -156,13 +156,13 @@ void CopyStream(IStream *src, IStream *dst) {
 
 #if defined(WIN32) || defined(_WIN32)
 
-void MakeDirectories(const std::string &s) {
+static void MakeDirectories(const std::string &s) {
     CreateDirectory(s.c_str(), nullptr);
 }
 
 #else
 
-void MakeDirectories(const std::string &s) {
+static void MakeDirectories(const std::string &s) {
     char str[512] = {0};
 
     strncpy(str, s.c_str(), 512);

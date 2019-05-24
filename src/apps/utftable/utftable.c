@@ -5,15 +5,15 @@
 
 #define INDENT_VALUE (2u)
 
-void print_table(const char *file_name, UTF_TABLE *table);
+static void print_table(const char *file_name, UTF_TABLE *table);
 
-void print_table_recursive(UTF_TABLE *table, uint32_t indent);
+static void print_table_recursive(UTF_TABLE *table, uint32_t indent);
 
-void printf_indent(uint32_t indent);
+static void printf_indent(uint32_t indent);
 
-void fprintf_indent(FILE *out, uint32_t indent);
+static void fprintf_indent(FILE *out, uint32_t indent);
 
-void print_help();
+static void print_help();
 
 int main(int argc, const char *argv[]) {
     if (argc == 1) {
@@ -65,7 +65,7 @@ static const char *version_string = "UTF Schema Reader v0.1";
 #define BOOL_STR(v) ((v) ? "yes" : "no")
 #define PRINT_INDENT() printf_indent(indent)
 
-void print_table(const char *file_name, UTF_TABLE *table) {
+static void print_table(const char *file_name, UTF_TABLE *table) {
     printf(version_string);
     printf("\n\n");
 
@@ -74,7 +74,7 @@ void print_table(const char *file_name, UTF_TABLE *table) {
     print_table_recursive(table, 0);
 }
 
-void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
+static void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
     printf("{\n");
     indent += INDENT_VALUE;
 
@@ -223,15 +223,15 @@ void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
     printf("}");
 }
 
-void print_help() {
+static void print_help() {
     printf("Usage: utftable <file>\n");
 }
 
-void printf_indent(uint32_t indent) {
+static void printf_indent(uint32_t indent) {
     fprintf_indent(stdout, indent);
 }
 
-void fprintf_indent(FILE *out, uint32_t indent) {
+static void fprintf_indent(FILE *out, uint32_t indent) {
     if (indent > 0) {
         fprintf(out, "%*s", indent, "");
     }

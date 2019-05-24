@@ -3,9 +3,9 @@
 
 using namespace std;
 
-void PrintHelp();
+static void PrintHelp();
 
-void PrintInfo(const char *fileName, const HCA_INFO &info);
+static void PrintInfo(const char *fileName, const HCA_INFO &info);
 
 int main(int argc, const char *argv[]) {
     if (argc == 1) {
@@ -35,13 +35,13 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
-void PrintHelp() {
+static void PrintHelp() {
     cout << "hcainfo: HCA file info viewer" << endl << endl;
     cout << "Usage:" << endl;
     cout << "  hcainfo [input files]" << endl << endl;
 }
 
-void PrintInfo(const char *fileName, const HCA_INFO &info) {
+static void PrintInfo(const char *fileName, const HCA_INFO &info) {
     cout << "---- Information of '" << fileName << "' ----" << endl;
     cout << "General:" << endl;
     cout << "  Version: " << info.versionMajor << "." << info.versionMinor << endl;

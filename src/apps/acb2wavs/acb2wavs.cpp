@@ -13,15 +13,15 @@ struct Options {
     bool_t useCueName;
 };
 
-void PrintHelp();
+static void PrintHelp();
 
-int ParseArgs(int argc, const char *argv[], const char **input, Options &options);
+static int ParseArgs(int argc, const char *argv[], const char **input, Options &options);
 
-int DoWork(const string &inputFile, const Options &options);
+static int DoWork(const string &inputFile, const Options &options);
 
-int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal);
+static int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal);
 
-int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECODER_CONFIG &dc);
+static int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECODER_CONFIG &dc);
 
 template<typename T>
 T atoh(const char *str);
@@ -29,7 +29,7 @@ T atoh(const char *str);
 template<typename T>
 T atoh(const char *str, int max_length);
 
-string ReplaceExtension(const std::string &s, const std::string &oldExt, const std::string &newExt);
+static string ReplaceExtension(const std::string &s, const std::string &oldExt, const std::string &newExt);
 
 int main(int argc, const char *argv[]) {
     if (argc < 2) {
@@ -51,13 +51,13 @@ int main(int argc, const char *argv[]) {
     return DoWork(inputFile, options);
 }
 
-void PrintHelp() {
+static void PrintHelp() {
     cout << "Usage:\n" << endl;
     cout << "acb2wavs <acb file> [-a <key1> -b <key2>] [-n]" << endl << endl;
     cout << "\t-n\tUse cue names for output waveforms" << endl;
 }
 
-int ParseArgs(int argc, const char *argv[], const char **input, Options &options) {
+static int ParseArgs(int argc, const char *argv[], const char **input, Options &options) {
     if (argc < 2) {
         PrintHelp();
         return -1;
@@ -95,7 +95,7 @@ int ParseArgs(int argc, const char *argv[], const char **input, Options &options
     return 0;
 }
 
-int DoWork(const string &inputFile, const Options &options) {
+static int DoWork(const string &inputFile, const Options &options) {
     const auto baseExtractDirPath = CPath::Combine(CPath::GetDirectoryName(inputFile), "_acb_" + CPath::GetFileName(inputFile));
 
     CFileStream fileStream(inputFile.c_str(), FileMode::OpenExisting, FileAccess::Read);
@@ -160,7 +160,7 @@ int DoWork(const string &inputFile, const Options &options) {
     return 0;
 }
 
-int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal) {
+static int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal) {
     if (!CFileSystem::DirectoryExists(extractDir)) {
         if (!CFileSystem::MkDir(extractDir)) {
             fprintf(stderr, "Failed to create directory %s.\n", extractDir.c_str());
@@ -227,7 +227,7 @@ int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &opt
     return 0;
 }
 
-int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECODER_CONFIG &dc) {
+static int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECODER_CONFIG &dc) {
     CHcaDecoder decoder(hcaDataStream, dc);
     static const int bufferSize = 10240;
     uint8_t buffer[bufferSize];
@@ -262,11 +262,11 @@ T atoh(const char *str, int max_length) {
 
     while (i < max_length && *str) {
         if (IS_NUM(*str)) {
-            ret = (ret << 4) | (uint32_t)(*str - '0');
+            ret = (ret << 4u) | (uint32_t)(*str - '0');
         } else if (IS_UPHEX(*str)) {
-            ret = (ret << 4) | (uint32_t)(*str - 'A' + 10);
+            ret = (ret << 4u) | (uint32_t)(*str - 'A' + 10);
         } else if (IS_LOHEX(*str)) {
-            ret = (ret << 4) | (uint32_t)(*str - 'a' + 10);
+            ret = (ret << 4u) | (uint32_t)(*str - 'a' + 10);
         } else {
             break;
         }
@@ -278,7 +278,7 @@ T atoh(const char *str, int max_length) {
 }
 
 // https://stackoverflow.com/a/874160
-bool hasEnding(std::string const &fullString, std::string const &ending) {
+static bool hasEnding(std::string const &fullString, std::string const &ending) {
     if (fullString.length() >= ending.length()) {
         return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
     } else {
@@ -286,7 +286,7 @@ bool hasEnding(std::string const &fullString, std::string const &ending) {
     }
 }
 
-string ReplaceExtension(const std::string &s, const std::string &oldExt, const std::string &newExt) {
+static string ReplaceExtension(const std::string &s, const std::string &oldExt, const std::string &newExt) {
     if (s.size() < oldExt.size()) {
         return s;
     }
