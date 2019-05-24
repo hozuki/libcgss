@@ -1,9 +1,10 @@
-#include "../cgssh.h"
-#include "../../lib/cgss_api.h"
-
 #include <iostream>
 #include <string>
 #include <algorithm>
+
+#include "../cgssh.h"
+#include "../../lib/cgss_api.h"
+#include "../common/common.h"
 
 using namespace cgss;
 using namespace std;
@@ -242,39 +243,6 @@ static int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECO
     }
 
     return 0;
-}
-
-#define IS_NUM(ch) ('0' <= (ch) && (ch) <= '9')
-#define IS_UPHEX(ch) ('A' <= (ch) && (ch) <= 'F')
-#define IS_LOHEX(ch) ('a' <= (ch) && (ch) <= 'f')
-
-template<typename T>
-T atoh(const char *str) {
-    return atoh<T>(str, 8);
-}
-
-template<typename T>
-T atoh(const char *str, int max_length) {
-    max_length = std::min((size_t)max_length, sizeof(T) * 2);
-
-    int i = 0;
-    uint32_t ret = 0;
-
-    while (i < max_length && *str) {
-        if (IS_NUM(*str)) {
-            ret = (ret << 4u) | (uint32_t)(*str - '0');
-        } else if (IS_UPHEX(*str)) {
-            ret = (ret << 4u) | (uint32_t)(*str - 'A' + 10);
-        } else if (IS_LOHEX(*str)) {
-            ret = (ret << 4u) | (uint32_t)(*str - 'a' + 10);
-        } else {
-            break;
-        }
-
-        ++str;
-    }
-
-    return ret;
 }
 
 // https://stackoverflow.com/a/874160

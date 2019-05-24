@@ -1,13 +1,12 @@
 #include <iostream>
-#include "../../lib/cgss_api.h"
+
 #include "../cgssh.h"
+#include "../../lib/cgss_api.h"
+#include "../common/common.h"
 
 using namespace std;
 
 static void PrintHelp();
-
-template<typename T>
-T hex_alpha_to_integer(const char *a);
 
 int main(int argc, const char *argv[]) {
     int argc0;
@@ -51,12 +50,12 @@ int main(int argc, const char *argv[]) {
     pKey2 = g_CgssKey2;
 
     if (argc0 >= 5) {
-        pKey1 = hex_alpha_to_integer<uint32_t>(argv0[3]);
-        pKey2 = hex_alpha_to_integer<uint32_t>(argv0[4]);
+        pKey1 = cgss::atoh<uint32_t>(argv0[3]);
+        pKey2 = cgss::atoh<uint32_t>(argv0[4]);
     }
 
     if (argc0 >= 6) {
-        decoderConfig.cipherConfig.keyModifier = hex_alpha_to_integer<uint16_t>(argv0[5]);
+        decoderConfig.cipherConfig.keyModifier = cgss::atoh<uint16_t>(argv0[5]);
     }
 
     // Go!
@@ -106,27 +105,4 @@ static void PrintHelp() {
          << "Example:\n"
          << "    hca2wav C:\\input.hca C:\\output.wav 12345678 90abcdef a1b2"
          << endl;
-}
-
-template<typename T>
-T hex_alpha_to_integer(const char *a) {
-    T val = 0;
-    auto i = 0;
-
-    while (a && *a && i < (sizeof(T) / sizeof(uint8_t) * 2)) {
-        if ('0' <= *a && *a <= '9') {
-            val = (val << 4u) + (*a - '0');
-        } else if ('a' <= *a && *a <= 'f') {
-            val = (val << 4u) + (*a - 'a' + 10);
-        } else if ('A' <= *a && *a <= 'F') {
-            val = (val << 4u) + (*a - 'A' + 10);
-        } else {
-            break;
-        }
-
-        ++i;
-        ++a;
-    }
-
-    return val;
 }

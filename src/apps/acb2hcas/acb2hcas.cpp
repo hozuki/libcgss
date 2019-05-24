@@ -3,8 +3,8 @@
 #include <fstream>
 #include <algorithm>
 
-#include "../cgssh.h"
 #include "../../lib/cgss_api.h"
+#include "../common/common.h"
 
 using namespace std;
 using namespace cgss;
@@ -33,12 +33,6 @@ static void CopyStream(IStream *src, IStream *dst);
 static string ReplaceExtension(const std::string &s, const std::string &oldExt, const std::string &newExt);
 
 static void WriteHcaKeyFile(const string &fileName, uint64_t key, uint16_t modifier = 0);
-
-template<typename T>
-T atoh(const char *str);
-
-template<typename T>
-T atoh(const char *str, int max_length);
 
 int main(int argc, const char *argv[]) {
     if (argc < 2) {
@@ -295,37 +289,4 @@ static void WriteHcaKeyFile(const string &fileName, uint64_t key, uint16_t modif
 
     writer.WriteUInt64BE(key);
     writer.WriteUInt16BE(modifier);
-}
-
-#define IS_NUM(ch) ('0' <= (ch) && (ch) <= '9')
-#define IS_UPHEX(ch) ('A' <= (ch) && (ch) <= 'F')
-#define IS_LOHEX(ch) ('a' <= (ch) && (ch) <= 'f')
-
-template<typename T>
-T atoh(const char *str) {
-    return atoh<T>(str, 8);
-}
-
-template<typename T>
-T atoh(const char *str, int max_length) {
-    max_length = std::min((size_t)max_length, sizeof(T) * 2);
-
-    int i = 0;
-    T ret = 0;
-
-    while (i < max_length && *str) {
-        if (IS_NUM(*str)) {
-            ret = (ret << 4u) | (uint32_t)(*str - '0');
-        } else if (IS_UPHEX(*str)) {
-            ret = (ret << 4u) | (uint32_t)(*str - 'A' + 10);
-        } else if (IS_LOHEX(*str)) {
-            ret = (ret << 4u) | (uint32_t)(*str - 'a' + 10);
-        } else {
-            break;
-        }
-
-        ++str;
-    }
-
-    return ret;
 }
