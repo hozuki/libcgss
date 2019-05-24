@@ -196,7 +196,7 @@ CGSS_NS_BEGIN
                 //0x3F5B6DB7,0x3F36DB6E,0x3F124925,0x3EDB6DB7,0x3E924925,0x3E124925,0x00000000,0x00000000,
             };
             float f1 = ((float *)listInt)[inst2->value2[index]];
-            float f2 = f1 - 2.0f;
+            float f2 = 2.0f - f1;
             float *s = &inst1->block[b];
             float *d = &inst2->block[b];
             for (uint32_t i = 0; i < a; i++) {
