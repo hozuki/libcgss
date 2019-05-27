@@ -1,6 +1,6 @@
 # libcgss
 
-**libcgss** is a helper library for [THE iDOLM@STER Cinderella Girls Starlight Stage](http://cinderella.idolmaster.jp/sl-stage/)
+**libcgss** is a helper library originally for [THE iDOLM@STER Cinderella Girls Starlight Stage](http://cinderella.idolmaster.jp/sl-stage/)
 (CGSS). It provides both C and C++ API for HCA audio and ACB archive manipulation.
 
 [![AppVeyor](https://img.shields.io/appveyor/ci/hozuki/libcgss.svg)](https://ci.appveyor.com/project/hozuki/libcgss)
