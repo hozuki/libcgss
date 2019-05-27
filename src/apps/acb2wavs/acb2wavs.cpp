@@ -9,22 +9,21 @@
 using namespace cgss;
 using namespace std;
 
-struct Options {
+struct Acb2WavsOptions {
     HCA_DECODER_CONFIG decoderConfig;
     bool_t useCueName;
 };
 
 static void PrintHelp();
 
-static int ParseArgs(int argc, const char *argv[], const char **input, Options &options);
+static int ParseArgs(int argc, const char *argv[], const char **input, Acb2WavsOptions &options);
 
-static int DoWork(const string &inputFile, const Options &options);
+static int DoWork(const string &inputFile, const Acb2WavsOptions &options);
 
-static int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal);
+static int
+ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Acb2WavsOptions &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal);
 
 static int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECODER_CONFIG &dc);
-
-static string ReplaceExtension(const std::string &s, const std::string &oldExt, const std::string &newExt);
 
 int main(int argc, const char *argv[]) {
     if (argc < 2) {
@@ -33,7 +32,7 @@ int main(int argc, const char *argv[]) {
     }
 
     const char *inputFile;
-    Options options = {0};
+    Acb2WavsOptions options = {0};
 
     const auto parsed = ParseArgs(argc, argv, &inputFile, options);
 
@@ -52,7 +51,7 @@ static void PrintHelp() {
     cout << "\t-n\tUse cue names for output waveforms" << endl;
 }
 
-static int ParseArgs(int argc, const char *argv[], const char **input, Options &options) {
+static int ParseArgs(int argc, const char *argv[], const char **input, Acb2WavsOptions &options) {
     if (argc < 2) {
         PrintHelp();
         return -1;
@@ -90,7 +89,7 @@ static int ParseArgs(int argc, const char *argv[], const char **input, Options &
     return 0;
 }
 
-static int DoWork(const string &inputFile, const Options &options) {
+static int DoWork(const string &inputFile, const Acb2WavsOptions &options) {
     const auto baseExtractDirPath = CPath::Combine(CPath::GetDirectoryName(inputFile), "_acb_" + CPath::GetFileName(inputFile));
 
     CFileStream fileStream(inputFile.c_str(), FileMode::OpenExisting, FileAccess::Read);
@@ -155,7 +154,8 @@ static int DoWork(const string &inputFile, const Options &options) {
     return 0;
 }
 
-static int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Options &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal) {
+static int
+ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Acb2WavsOptions &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal) {
     if (!CFileSystem::DirectoryExists(extractDir)) {
         if (!CFileSystem::MkDir(extractDir)) {
             fprintf(stderr, "Failed to create directory %s.\n", extractDir.c_str());
@@ -174,27 +174,31 @@ static int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Optio
 
     for (auto &entry : archive->GetFiles()) {
         auto &record = entry.second;
-        std::string extractFileName;
-
-        if (options.useCueName) {
-            extractFileName = acb->GetCueNameFromCueId(record.cueId);
-            extractFileName = ReplaceExtension(extractFileName, ".hca", ".wav");
-        } else {
-            extractFileName = CAcbFile::GetSymbolicFileNameFromCueId(record.cueId);
-            extractFileName = ReplaceExtension(extractFileName, ".bin", ".wav");
-        }
-
-        auto extractFilePath = CPath::Combine(extractDir, extractFileName);
 
         auto fileData = CAcbHelper::ExtractToNewStream(dataStream, record.fileOffsetAligned, (uint32_t)record.fileSize);
 
         const auto isHca = CHcaFormatReader::IsPossibleHcaStream(fileData);
 
-        fprintf(stdout, "Processing %s AFS: #%u (offset=%u, size=%u)...   ", afsSource, (uint32_t)record.cueId, (uint32_t)record.fileOffsetAligned, (uint32_t)record.fileSize);
+        fprintf(stdout, "Processing %s AFS: #%u (offset=%u, size=%u)",
+                afsSource, (uint32_t)record.cueId, (uint32_t)record.fileOffsetAligned, (uint32_t)record.fileSize);
 
         int r;
 
         if (isHca) {
+            std::string extractFileName;
+
+            if (options.useCueName) {
+                extractFileName = acb->GetCueNameFromCueId(record.cueId);
+            } else {
+                extractFileName = CAcbFile::GetSymbolicFileNameFromCueId(record.cueId);
+            }
+
+            extractFileName = common_utils::ReplaceAnyExtension(extractFileName, ".wav");
+
+            auto extractFilePath = CPath::Combine(extractDir, extractFileName);
+
+            fprintf(stdout, " to %s...\n", extractFilePath.c_str());
+
             try {
                 CFileStream fs(extractFilePath.c_str(), FileMode::Create, FileAccess::Write);
 
@@ -213,7 +217,7 @@ static int ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Optio
                 fprintf(stdout, "errored: %s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
             }
         } else {
-            fprintf(stdout, "skipped (not HCA)\n");
+            fprintf(stdout, "... skipped (not HCA)\n");
         }
 
         delete fileData;
@@ -237,36 +241,4 @@ static int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECO
     }
 
     return 0;
-}
-
-// https://stackoverflow.com/a/874160
-static bool hasEnding(std::string const &fullString, std::string const &ending) {
-    if (fullString.length() >= ending.length()) {
-        return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
-    } else {
-        return false;
-    }
-}
-
-static string ReplaceExtension(const std::string &s, const std::string &oldExt, const std::string &newExt) {
-    if (s.size() < oldExt.size()) {
-        return s;
-    }
-
-    auto sl = s;
-    auto extl = oldExt;
-
-    // ALERT!
-    // Since the only usage here is replacing extensions, and we promise that the
-    // extensions are in ASCII, and we don't care about chars before the extension,
-    // we can use this method (tolower()). Otherwise, it causes trouble for non-
-    // ASCII encodings.
-    std::transform(sl.begin(), sl.end(), sl.begin(), ::tolower);
-    std::transform(extl.begin(), extl.end(), extl.begin(), ::tolower);
-
-    if (!hasEnding(sl, extl)) {
-        return s;
-    }
-
-    return s.substr(0, s.size() - oldExt.size()) + newExt;
 }

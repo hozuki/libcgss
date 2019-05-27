@@ -5,7 +5,7 @@
 
 CGSS_NS_BEGIN
 
-    struct IStream {
+    struct CGSS_EXPORT IStream {
 
         IStream(IStream &) = delete;
 

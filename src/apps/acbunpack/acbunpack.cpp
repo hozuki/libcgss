@@ -14,6 +14,7 @@
 #endif
 
 #include "../../lib/cgss_api.h"
+#include "../common/common.h"
 
 using namespace cgss;
 
@@ -24,8 +25,6 @@ static void MakeDirectories(const std::string &s);
 static std::string GetDirectoryFromPath(const std::string &s);
 
 static std::string GetFileNameFromPath(const std::string &s);
-
-static void CopyStream(IStream *src, IStream *dst);
 
 int main(int argc, const char *argv[]) {
     if (argc == 1) {
@@ -74,7 +73,8 @@ int main(int argc, const char *argv[]) {
 
         if (stream) {
             CFileStream fs(extractPath.c_str(), FileMode::Create, FileAccess::Write);
-            CopyStream(stream, &fs);
+
+            common_utils::CopyStream(stream, &fs);
         } else {
             fprintf(stderr, "Cue #%u (%s) cannot be retrieved.\n", i + 1, s.c_str());
         }
@@ -131,25 +131,6 @@ static std::string GetFileNameFromPath(const std::string &s) {
             return (s.substr(i2 + 1));
         } else {
             return std::string("");
-        }
-    }
-}
-
-static void CopyStream(IStream *src, IStream *dst) {
-    const size_t bufferSize = 10240;
-    uint8_t
-    buffer[bufferSize] = {0};
-    uint32_t read = 1;
-
-    while (read > 0) {
-        read = src->Read(buffer, bufferSize, 0, bufferSize);
-
-        if (read > 0) {
-            dst->Write(buffer, bufferSize, 0, read);
-        }
-
-        if (read < bufferSize) {
-            break;
         }
     }
 }

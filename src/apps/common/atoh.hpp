@@ -16,7 +16,7 @@ namespace cgss {
     }
 
     template<typename T>
-    T atoh(const char *str, int max_length) {
+    T atoh(const char *str, size_t max_length) {
         max_length = std::min(static_cast<size_t>(max_length), sizeof(T) * 2);
 
         int i = 0;

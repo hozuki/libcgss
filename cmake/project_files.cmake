@@ -12,7 +12,7 @@ set(CGSS_APP_SOURCE_FILES
         src/apps/cgssh.h)
 
 set(APP_SOURCE_FILES
-        src/apps/common/common.h src/apps/common/atoh.hpp)
+        src/apps/common/common.h src/apps/common/atoh.hpp src/apps/common/utils.h src/apps/common/utils.cpp)
 
 set(HCACC_SOURCE_FILES
         src/apps/hcacc/hcacc.cpp ${CGSS_APP_SOURCE_FILES} ${APP_SOURCE_FILES} ${LIBCGSS_API_FILES})
