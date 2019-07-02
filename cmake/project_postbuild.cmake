@@ -31,7 +31,7 @@ if (${GNU_COMPILER})
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     add_custom_command(TARGET acb2hcas
             POST_BUILD
-            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:acb2hcass>
+            COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:acb2hcas>
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     add_custom_command(TARGET cgss
             POST_BUILD
