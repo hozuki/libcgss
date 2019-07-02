@@ -26,7 +26,7 @@ static int ParseArgs(int argc, const char *argv[], const char **input, Acb2HcasO
 
 static int DoWork(const string &inputFile, const Acb2HcasOptions &options);
 
-int
+static int
 ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Acb2HcasOptions &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal);
 
 static void WriteHcaKeyFile(const string &fileName, uint64_t key, uint16_t modifier = 0);

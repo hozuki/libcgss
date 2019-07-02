@@ -3,17 +3,14 @@
 #ifdef __cplusplus
 
 #if defined(_WIN32) || defined(WIN32)
+#if !defined(NOMINMAX)
 #define NOMINMAX
+#endif
 #endif
 
 #include <algorithm>
 
 namespace cgss {
-
-    template<typename T>
-    T atoh(const char *str) {
-        return atoh<T>(str, 8);
-    }
 
     template<typename T>
     T atoh(const char *str, size_t max_length) {
@@ -39,6 +36,11 @@ namespace cgss {
         }
 
         return ret;
+    }
+
+    template<typename T>
+    T atoh(const char *str) {
+        return atoh<T>(str, 8);
     }
 
 }
