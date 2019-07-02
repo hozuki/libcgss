@@ -10,13 +10,13 @@ CGSS_NS_BEGIN
 
     public:
 
-        CInvalidOperationException();
+        CInvalidOperationException() noexcept;
 
-        CInvalidOperationException(const CInvalidOperationException &) = default;
+        CInvalidOperationException(const CInvalidOperationException &) noexcept;
 
-        explicit CInvalidOperationException(const char *message);
+        explicit CInvalidOperationException(const char *message) noexcept;
 
-        explicit CInvalidOperationException(const std::string &message);
+        explicit CInvalidOperationException(const std::string &message) noexcept;
 
     };
 

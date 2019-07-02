@@ -10,13 +10,13 @@ CGSS_NS_BEGIN
 
     public:
 
-        CNotImplementedException();
+        CNotImplementedException() noexcept;
 
-        CNotImplementedException(const CNotImplementedException &) = default;
+        CNotImplementedException(const CNotImplementedException &) noexcept;
 
-        explicit CNotImplementedException(const char *message);
+        explicit CNotImplementedException(const char *message) noexcept;
 
-        explicit CNotImplementedException(const std::string &message);
+        explicit CNotImplementedException(const std::string &message) noexcept;
 
     };
 

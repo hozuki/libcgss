@@ -10,13 +10,13 @@ CGSS_NS_BEGIN
 
     public:
 
-        CArgumentException();
+        CArgumentException() noexcept;
 
-        CArgumentException(const CArgumentException &) = default;
+        CArgumentException(const CArgumentException &) noexcept;
 
-        explicit CArgumentException(const char *message);
+        explicit CArgumentException(const char *message) noexcept;
 
-        explicit CArgumentException(const std::string &message);
+        explicit CArgumentException(const std::string &message) noexcept;
 
     };
 

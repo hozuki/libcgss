@@ -6,34 +6,38 @@
 
 CGSS_NS_BEGIN
 
-    class CGSS_EXPORT CException {
+    class CGSS_EXPORT CException : public std::exception {
 
-    __root_class(CException);
+    __extends(std::exception, CException);
 
     public:
 
-        CException();
+        CException() noexcept;
 
-        CException(const CException &) = default;
+        CException(const CException &) noexcept;
 
-        explicit CException(CGSS_OP_RESULT result);
+        CException& operator=(const CException &) noexcept;
 
-        explicit CException(const char *message);
+        explicit CException(CGSS_OP_RESULT result) noexcept;
 
-        explicit CException(const std::string &message);
+        explicit CException(const char *message) noexcept;
 
-        CException(CGSS_OP_RESULT result, const std::string &message);
+        explicit CException(const std::string &message) noexcept;
 
-        virtual ~CException() = default;
+        CException(CGSS_OP_RESULT result, std::string message) noexcept;
 
-        virtual const std::string GetExceptionMessage() const;
+        virtual ~CException() noexcept = default;
 
-        virtual CGSS_OP_RESULT GetOpResult() const;
+        virtual const std::string GetExceptionMessage() const noexcept;
+
+        virtual CGSS_OP_RESULT GetOpResult() const noexcept;
+
+        const char *what() const noexcept override;
 
     protected:
 
         std::string _message;
-        const CGSS_OP_RESULT _result;
+        CGSS_OP_RESULT _result;
 
     };
 

@@ -11,13 +11,13 @@ CGSS_NS_BEGIN ;
 
     public:
 
-        CFormatException();
+        CFormatException() noexcept;
 
-        CFormatException(const CFormatException &) = default;
+        CFormatException(const CFormatException &) noexcept;
 
-        explicit CFormatException(const char *message);
+        explicit CFormatException(const char *message) noexcept;
 
-        explicit CFormatException(const std::string &message);
+        explicit CFormatException(const std::string &message) noexcept;
 
     };
 
