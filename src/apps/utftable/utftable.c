@@ -66,9 +66,7 @@ static const char *version_string = "UTF Schema Reader v0.1";
 #define PRINT_INDENT() printf_indent(indent)
 
 static void print_table(const char *file_name, UTF_TABLE *table) {
-    printf(version_string);
-    printf("\n\n");
-
+    printf("%s\n\n", version_string);
     printf("# File: %s\n", file_name);
 
     print_table_recursive(table, 0);
