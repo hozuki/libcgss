@@ -1,6 +1,6 @@
 function Get-UbuntuCodeName()
 {
-    [String]$osReleaseInfo = Get-Content /proc/os-release | Out-String
+    [String]$osReleaseInfo = Get-Content /etc/os-release | Out-String
     [String]$codeNameLine = Write-Output $osReleaseInfo | grep 'UBUNTU_CODENAME=' | Out-String
     $codeNameLine = $codeNameLine.Trim()
     [String[]]$parts = $codeNameLine.Split('=')

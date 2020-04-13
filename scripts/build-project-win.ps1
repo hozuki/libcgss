@@ -1,1 +1,1 @@
-& msbuild cgss.sln /p:Configuration="$env:CONFIGURATION"
+& msbuild build\vc\cgss.sln /p:Configuration="$env:CONFIGURATION"
