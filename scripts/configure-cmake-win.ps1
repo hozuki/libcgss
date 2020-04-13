@@ -3,18 +3,18 @@
 if ($Env:ARCH -eq "Win64")
 {
     $arch = "Win64";
-    Write-Output "Arch: $arch";
+    Write-Host "Arch: $arch";
     # prepare for generator concatenation
     $arch = " $arch";
 }
 else
 {
-    Write-Output 'Arch: (default -> Win32)';
+    Write-Host 'Arch: (default -> Win32)';
 }
 
 [String]$workerImage = $Env:APPVEYOR_BUILD_WORKER_IMAGE;
 
-Write-Output "Build image: $workerImage";
+Write-Host "Build image: $workerImage";
 
 [String]$generator = [String]::Empty;
 [Boolean]$multiPlatform = $false;
@@ -36,12 +36,12 @@ elseif ($workerImage -eq 'Visual Studio 2015')
 }
 else
 {
-    Write-Output 'Error: Unsupported worker image.';
+    Write-Error 'Error: Unsupported worker image.';
     $generator = "Visual Studio 15 2017$arch";
     exit 1;
 }
 
-Write-Output '------******------';
+Write-Host '------******------';
 
 if (![System.IO.Directory]::Exists('build\vc'))
 {
