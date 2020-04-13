@@ -23,13 +23,13 @@ switch ($arch)
 switch ($workerImage)
 {
     'Visual Studio 2019' {
-        $vsVersion = 'vc19.2';
+        $vsVersion = 'vc14.2';
     }
     'Visual Studio 2017' {
-        $vsVersion = 'vc19.1';
+        $vsVersion = 'vc14.1';
     }
     'Visual Studio 2015' {
-        $vsVersion = 'vc19';
+        $vsVersion = 'vc14';
     }
     default {
         Write-Error "Unsupported worker: $workerImage";
@@ -48,6 +48,8 @@ function Invoke-CommandLine([String]$Command)
 $7zcmd = "7z a libcgss.zip -r bin\$buildArch\$configuration\*.exe";
 Invoke-CommandLine -Command $7zcmd
 $7zcmd = "7z a libcgss.zip -r bin\$buildArch\$configuration\*.dll";
+Invoke-CommandLine -Command $7zcmd
+$7zcmd = "7z a libcgss.zip -r bin\$buildArch\$configuration\*.lib";
 Invoke-CommandLine -Command $7zcmd
 
 [String]$buildVersion = $Env:APPVEYOR_BUILD_VERSION;

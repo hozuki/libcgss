@@ -56,7 +56,7 @@ if ($multiPlatform)
 {
     [String]$cmakeGenArch = 'Win32';
 
-    if ($arch -eq 'Win64')
+    if ($Env:ARCH -eq 'Win64')
     {
         $cmakeGenArch = 'x64';
     }

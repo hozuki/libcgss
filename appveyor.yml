@@ -3,22 +3,22 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       CONFIGURATION: Release
-      arch: Win64
+      ARCH: Win64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       CONFIGURATION: Release
-      arch: Win32
+      ARCH: Win32
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CONFIGURATION: Release
-      arch: Win64
+      ARCH: Win64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CONFIGURATION: Release
-      arch: Win32
+      ARCH: Win32
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       CONFIGURATION: Release
-      arch: Win64
+      ARCH: Win64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       CONFIGURATION: Release
-      arch: Win32
+      ARCH: Win32
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
 matrix:
   fast_finish: true
