@@ -25,14 +25,18 @@ The project consists of a library (*libcgss*) and several other applications.
   - *acb2wavs*: Batch converter for HCAs in ACB. [C# equivalent](https://github.com/OpenCGSS/DereTore/tree/master/Apps/Acb2Wavs)
   - *acb2hcas*: Batch exporter for HCAs in ACB. Generates companion `.hcakey` files for [vgmstream](https://github.com/losnoco/vgmstream).
 
-This project has a sister project [**DereTore**](https://github.com/OpenCGSS/DereTore).
+
+Related projects:
+
+- This project has a sister project [**DereTore**](https://github.com/OpenCGSS/DereTore).
 However the strength of C API is better interoperability with other libraries.
 The pure C# version of *hcaenc* and *hcacc* can be found in *DereTore* as applications.
-
-If you are looking for a better HCA decoder for \*NIX and you are a DIY person, have a look at
+- If you are looking for a faster HCA decoder with higher definition for \*NIX and you are a DIY person, have a look at
 [this](https://github.com/Ishotihadus/hca).
+- If you are looking for a small native application for HCA encoding/decoding, have a look at
+[this](https://github.com/hozuki/vgaudio-cpp).
 
-> \[1\] Download ADX2LE from [here](http://www.adx2le.com/download/index.html), and use
+> <sup>\[1\]</sup> Download ADX2LE from [here](http://www.adx2le.com/download/index.html), and use
 the DLL located at `tools\hcaenc_lite.dll`.
 
 ## Downloads
