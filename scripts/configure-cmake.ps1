@@ -1,42 +1,17 @@
-[String]$arch = [String]::Empty;
-
-if ($Env:ARCH -eq "Win64") {
-    $arch = "Win64";
-    Write-Output "Arch: $arch";
-    # prepare for generator concatenation
-    $arch = " $arch";
-} else {
-    Write-Output 'Arch: (default -> Win32)';
+if ($isWindows)
+{
+    $scriptPath = [System.IO.Path]::Combine($PSScriptRoot, "configure-cmake-win.ps1")
+}
+elseif ($isLinux)
+{
+    $scriptPath = [System.IO.Path]::Combine($PSScriptRoot, "configure-cmake-ubuntu.ps1")
 }
 
-[String]$workerImage = $Env:APPVEYOR_BUILD_WORKER_IMAGE;
-
-Write-Output "Build image: $workerImage";
-
-[String]$generator = [String]::Empty;
-
-if ($workerImage -eq 'Visual Studio 2017') {
-    $generator = "Visual Studio 15 2017$arch";
-} elseif ($workerImage -eq 'Visual Studio 2015') {
-    $generator = "Visual Studio 14 2015$arch";
-} else {
-    Write-Output 'Error: Unsupported worker image.';
-    $generator = "Visual Studio 15 2017$arch";
-    exit 1;
+if ($null -ne $scriptPath)
+{
+    . ($scriptPath)
 }
-
-Write-Output '------******------';
-
-if (![System.IO.Directory]::Exists('build\vc')) {
-    mkdir build\vc
+else
+{
+    Write-Error "Error: Platform not supported"
 }
-
-Set-Location build\vc
-
-cmake --version
-
-[String]$cmakeGenCmd = "cmake ..\.. -G `"$generator`""
-
-[ScriptBlock]$script = [ScriptBlock]::Create($cmakeGenCmd);
-
-Invoke-Command -ScriptBlock $script
