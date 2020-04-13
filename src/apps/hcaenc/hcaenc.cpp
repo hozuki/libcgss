@@ -1,31 +1,39 @@
-#include <stdio.h>
+#include <cstdio>
 #include "../../lib/cgss_api.h"
-#include "../../lib/takamori/Utilities.h"
+
+#define VGAUDIO_APP_LINK "https://github.com/hozuki/vgaudio-cpp"
+#define HCAENC_DLL_FILE_NAME "hcaenc_lite.dll"
+#define VGAUDIO_APP_VISIT_MESSAGE "For the standalone version (which does not depend on " HCAENC_DLL_FILE_NAME ") please visit <" VGAUDIO_APP_LINK ">."
+#define HCAENC_APP_NAME "hcaenc"
+
+#ifdef __CGSS_OS_WINDOWS__
 
 #ifdef __CGSS_ARCH_X86__
 
 #include <iostream>
 
-#ifndef __CGSS_OS_WINDOWS__
-#error Currently hcaenc only supports Windows builds because of hcaenc_lite.dll.
-#endif
+#include "../../lib/takamori/Utilities.h"
 
 typedef LONG(__stdcall *HCA_ENC_ENCODE_TO_FILE)
     (LPCSTR lpstrInput, LPCSTR lpstrOutput, LONG nQuality, LONG nCutoff, ULONGLONG ullKey);
 
 using namespace std;
 
-static const char *lib_dllName = "hcaenc_lite.dll";
+static const char *lib_dllName = HCAENC_DLL_FILE_NAME;
 static const char *fn_hcaencEncodeToFile = "hcaencEncodeToFile";
 
 HCA_ENC_ENCODE_TO_FILE hcaencEncodeToFile = nullptr;
 
 static const char *msg_help = ""
-    "hcaenc: HCA Encoder Utility\n\n"
+    HCAENC_APP_NAME ": HCA Encoder Utility\n"
+    "\n"
+    "* requires " HCAENC_DLL_FILE_NAME "\n"
+    VGAUDIO_APP_VISIT_MESSAGE "\n"
+    "\n"
     "Usage:\n"
-    "  hcaenc.exe <input WAVE> <output HCA>\n\n"
+    "  " HCAENC_APP_NAME " <input WAVE> <output HCA>\n\n"
     "Example:\n"
-    "  hcaenc.exe C:\\song_9001.wav C:\\song_9001.hca";
+    "  " HCAENC_APP_NAME " C:\\song_9001.wav C:\\song_9001.hca";
 
 int main(int argc, const char *argv[]) {
     HMODULE hHcaEncDll = nullptr;
@@ -61,15 +69,29 @@ int main(int argc, const char *argv[]) {
     return (int)ret;
 }
 
+#define _MAIN_DEFINED
+
 #else
-#ifdef _MSC_VER
-#pragma message("hcaenc is only supported in 32-bit environments because of hcaenc_lite.dll.")
-#else
-#warning hcaenc is only supported in 32-bit environments because of hcaenc_lite.dll.
+
+#define HCAENC_OBSOLETE_MESSAGE_BASE HCAENC_APP_NAME " is only supported in 32-bit environments because of " HCAENC_DLL_FILE_NAME "."
+
 #endif
 
+#else
+
+#define HCAENC_OBSOLETE_MESSAGE_BASE HCAENC_APP_NAME " is only supported on Windows because of " HCAENC_DLL_FILE_NAME "."
+
+#endif
+
+#ifndef _MAIN_DEFINED
+
+#define HCAENC_OBSOLETE_MESSAGE HCAENC_OBSOLETE_MESSAGE_BASE "\n" VGAUDIO_APP_VISIT_MESSAGE
+
+#pragma message(HCAENC_OBSOLETE_MESSAGE)
+
 int main() {
-    printf("hcaenc is only supported in 32-bit environments because of hcaenc_lite.dll.");
+    static const char *message = HCAENC_OBSOLETE_MESSAGE;
+    printf("%s", message);
     return 0;
 }
 
