@@ -45,6 +45,7 @@ CGSS_NS_BEGIN
     enum class AcbWaveformEncodeType : uint8_t {
         Adx = CGSS_ACB_WAVEFORM_ADX,
         Hca = CGSS_ACB_WAVEFORM_HCA,
+        Hca2 = CGSS_ACB_WAVEFORM_HCA2,
         Vag = CGSS_ACB_WAVEFORM_VAG,
         Atrac3 = CGSS_ACB_WAVEFORM_ATRAC3,
         BcWav = CGSS_ACB_WAVEFORM_BCWAV,
