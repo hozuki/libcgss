@@ -33,10 +33,11 @@ CAcbFile::CAcbFile(IStream *stream, uint64_t streamOffset, const char *fileName)
     _internalAwb = nullptr;
     _externalAwb = nullptr;
     _fileName = fileName;
+    _formatVersion = 0;
 }
 
 CAcbFile::~CAcbFile() {
-    for (auto pair : _tables) {
+    for (const auto &pair : _tables) {
         delete pair.second;
     }
 
@@ -303,9 +304,7 @@ IStream *CAcbFile::GetDataStreamFromCueInfo(const ACB_CUE_RECORD &cue, const cha
 
         auto &file = files.at(cue.waveformId);
 
-        CFileStream fs(file.fileName, FileMode::OpenExisting, FileAccess::Read);
-
-        result = CAcbHelper::ExtractToNewStream(&fs, file.fileOffsetAligned, static_cast<uint32_t>(file.fileSize));
+        result = CAcbHelper::ExtractToNewStream(externalAwb->GetStream(), file.fileOffsetAligned, static_cast<uint32_t>(file.fileSize));
     } else {
         auto internalAwb = _internalAwb;
 
@@ -389,6 +388,7 @@ static string GetExtensionForEncodeType(uint8_t encodeType) {
         case CGSS_ACB_WAVEFORM_ADX:
             return ".adx";
         case CGSS_ACB_WAVEFORM_HCA:
+        case CGSS_ACB_WAVEFORM_HCA2:
             return ".hca";
         case CGSS_ACB_WAVEFORM_VAG:
             return ".vag";

@@ -22,6 +22,8 @@ CGSS_NS_BEGIN
 
         const std::map<uint32_t, AFS2_FILE_RECORD> &GetFiles() const;
 
+        IStream *GetStream() const;
+
         uint32_t GetByteAlignment() const;
 
         uint32_t GetVersion() const;

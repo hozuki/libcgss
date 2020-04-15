@@ -13,6 +13,9 @@ CAfs2Archive::CAfs2Archive(cgss::IStream *stream, uint64_t offset, const char *f
     _stream = stream;
     _streamOffset = offset;
     _disposeStream = disposeStream;
+    _byteAlignment = 0;
+    _version = 0;
+    _hcaKeyModifier = 0;
 
     const auto fileNameLength = strlen(fileName);
     _fileName = new char[fileNameLength + 1];
@@ -54,7 +57,6 @@ bool_t CAfs2Archive::IsAfs2Archive(IStream *stream, uint64_t offset) {
 void CAfs2Archive::Initialize() {
     auto stream = _stream;
     auto offset = _streamOffset;
-    auto acbFileName = _fileName;
 
     if (!IsAfs2Archive(stream, offset)) {
         throw CFormatException("The file is not a valid AFS2 archive.");
@@ -62,20 +64,20 @@ void CAfs2Archive::Initialize() {
 
     CBinaryReader reader(stream);
 
-    auto fileCount = reader.PeekInt32LE(offset + 8);
+    const auto version = reader.PeekUInt32LE(offset + 4);
+    _version = version;
 
-    if (fileCount > 65535) {
+    const auto fileCount = reader.PeekInt32LE(offset + 8);
+
+    if (fileCount > UINT16_MAX) {
         throw CFormatException("File count exceeds max file entries.");
     }
 
-    auto byteAlignment = reader.PeekUInt32LE(offset + 12);
+    const auto byteAlignment = reader.PeekUInt32LE(offset + 12);
     _byteAlignment = byteAlignment & 0xffff;
     _hcaKeyModifier = static_cast<uint16_t>(byteAlignment >> 16);
 
-    auto version = reader.PeekUInt32LE(offset + 4);
-    _version = version;
-
-    auto offsetFieldSize = (version >> 8) & 0xff;
+    const auto offsetFieldSize = (version >> 8) & 0xff;
     uint32_t offsetMask = 0;
 
     for (auto i = 0; i < offsetFieldSize; ++i) {
@@ -118,6 +120,10 @@ const std::map<uint32_t, AFS2_FILE_RECORD> &CAfs2Archive::GetFiles() const {
 
 uint32_t CAfs2Archive::GetVersion() const {
     return _version;
+}
+
+IStream *CAfs2Archive::GetStream() const {
+    return _stream;
 }
 
 uint32_t CAfs2Archive::GetByteAlignment() const {
