@@ -14,7 +14,7 @@ CGSS_NS_BEGIN
 
         CException() noexcept;
 
-        CException(const CException &) noexcept = default;
+        CException(const CException &) noexcept;
 
         CException& operator=(const CException &) noexcept;
 

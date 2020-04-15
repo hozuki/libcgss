@@ -36,6 +36,16 @@ CGSS_NS_BEGIN
 
         std::string GetCueNameFromCueId(uint32_t cueId);
 
+        const ACB_CUE_RECORD *GetCueRecord(const char *waveformFileName);
+
+        const ACB_CUE_RECORD *GetCueRecord(uint32_t cueId);
+
+        const AFS2_FILE_RECORD *GetFileRecord(const char *waveformFileName);
+
+        const AFS2_FILE_RECORD *GetFileRecord(uint32_t cueId);
+
+        bool_t IsCueIdentified(uint32_t cueId);
+
         void Initialize() override;
 
         CAfs2Archive *GetInternalAwb();
@@ -54,7 +64,9 @@ CGSS_NS_BEGIN
 
         void InitializeAwbArchives();
 
-        IStream *GetDataStreamFromCueInfo(const ACB_CUE_RECORD &cue, const char *fileNameForError);
+        const AFS2_FILE_RECORD *GetFileRecord(const ACB_CUE_RECORD *cue);
+
+        IStream *ChooseSourceStream(const ACB_CUE_RECORD *cue);
 
         std::string FindExternalAwbFileName();
 

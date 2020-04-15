@@ -161,7 +161,7 @@ void CAcbFile::InitializeCueNameToWaveformTable() {
 
             cueName += GetExtensionForEncodeType(cue.encodeType);
 
-            strncpy(cue.cueName, cueName.c_str(), ACB_CUE_RECORD_NAME_MAX_LEN);
+            snprintf(cue.cueName, ACB_CUE_RECORD_NAME_MAX_LEN, "%s", cueName.c_str());
 
             _cueNameToWaveform[cueName] = cue.waveformId;
 
@@ -258,71 +258,28 @@ const vector<string> &CAcbFile::GetFileNames() const {
 IStream *CAcbFile::OpenDataStream(const char *fileName) {
     IStream *result = nullptr;
 
-    for (auto &cue : _cues) {
-        if (strcmp(cue.cueName, fileName) == 0) {
-            result = GetDataStreamFromCueInfo(cue, fileName);
-            break;
-        }
+    const auto cue = GetCueRecord(fileName);
+
+    if (cue) {
+        const auto file = GetFileRecord(cue);
+        const auto stream = ChooseSourceStream(cue);
+
+        result = CAcbHelper::ExtractToNewStream(stream, file->fileOffsetAligned, static_cast<uint32_t>(file->fileSize));
     }
 
     return result;
 }
 
 IStream *CAcbFile::OpenDataStream(uint32_t cueId) {
-    char tempFileName[40] = {0};
-
-    sprintf(tempFileName, "cue #%" PRIu32, cueId);
-
     IStream *result = nullptr;
 
-    for (auto &cue : _cues) {
-        if (cue.cueId == cueId) {
-            result = GetDataStreamFromCueInfo(cue, tempFileName);
-            break;
-        }
-    }
+    const auto cue = GetCueRecord(cueId);
 
-    return result;
-}
+    if (cue) {
+        const auto file = GetFileRecord(cue);
+        const auto stream = ChooseSourceStream(cue);
 
-IStream *CAcbFile::GetDataStreamFromCueInfo(const ACB_CUE_RECORD &cue, const char *fileNameForError) {
-    if (!cue.isWaveformIdentified) {
-        return nullptr;
-    }
-
-    IStream *result;
-
-    if (cue.isStreaming) {
-        auto externalAwb = _externalAwb;
-
-        if (externalAwb == nullptr) {
-            return nullptr;
-        }
-
-        auto &files = externalAwb->GetFiles();
-        if (files.find(cue.waveformId) == files.end()) {
-            return nullptr;
-        }
-
-        auto &file = files.at(cue.waveformId);
-
-        result = CAcbHelper::ExtractToNewStream(externalAwb->GetStream(), file.fileOffsetAligned, static_cast<uint32_t>(file.fileSize));
-    } else {
-        auto internalAwb = _internalAwb;
-
-        if (internalAwb == nullptr) {
-            return nullptr;
-        }
-
-        auto &files = internalAwb->GetFiles();
-
-        if (files.find(cue.waveformId) == files.end()) {
-            return nullptr;
-        }
-
-        auto &file = files.at(cue.waveformId);
-
-        result = CAcbHelper::ExtractToNewStream(GetStream(), file.fileOffsetAligned, static_cast<uint32_t>(file.fileSize));
+        result = CAcbHelper::ExtractToNewStream(stream, file->fileOffsetAligned, static_cast<uint32_t>(file->fileSize));
     }
 
     return result;
@@ -335,7 +292,7 @@ const char *CAcbFile::GetFileName() const {
 string CAcbFile::GetSymbolicFileNameFromCueId(uint32_t cueId) {
     char buffer[40] = {0};
 
-    sprintf(buffer, "dat_%06u.bin", cueId);
+    sprintf(buffer, "cue_%06" PRIu32 ".bin", cueId);
 
     return string(buffer);
 }
@@ -348,6 +305,56 @@ string CAcbFile::GetCueNameFromCueId(uint32_t cueId) {
     }
 
     return GetSymbolicFileNameFromCueId(cueId);
+}
+
+const ACB_CUE_RECORD *CAcbFile::GetCueRecord(const char *waveformFileName) {
+    for (auto &cue : _cues) {
+        if (strcmp(cue.cueName, waveformFileName) == 0) {
+            return &cue;
+        }
+    }
+
+    return nullptr;
+}
+
+const ACB_CUE_RECORD *CAcbFile::GetCueRecord(uint32_t cueId) {
+    for (auto &cue : _cues) {
+        if (cue.cueId == cueId) {
+            return &cue;
+        }
+    }
+
+    return nullptr;
+}
+
+const AFS2_FILE_RECORD *CAcbFile::GetFileRecord(const char *waveformFileName) {
+    const auto cue = GetCueRecord(waveformFileName);
+
+    if (cue == nullptr) {
+        return nullptr;
+    }
+
+    return GetFileRecord(cue);
+}
+
+const AFS2_FILE_RECORD *CAcbFile::GetFileRecord(uint32_t cueId) {
+    const auto cue = GetCueRecord(cueId);
+
+    if (cue == nullptr) {
+        return nullptr;
+    }
+
+    return GetFileRecord(cue);
+}
+
+bool_t CAcbFile::IsCueIdentified(uint32_t cueId) {
+    for (auto &cue: _cues) {
+        if (cue.waveformId == cueId) {
+            return cue.isWaveformIdentified;
+        }
+    }
+
+    return FALSE;
 }
 
 uint32_t CAcbFile::GetFormatVersion() const {
@@ -381,6 +388,61 @@ std::string CAcbFile::FindExternalAwbFileName() {
     }
 
     return "";
+}
+
+const AFS2_FILE_RECORD *CAcbFile::GetFileRecord(const ACB_CUE_RECORD *cue) {
+    if (cue == nullptr) {
+        return nullptr;
+    }
+
+    if (!cue->isWaveformIdentified) {
+        return nullptr;
+    }
+
+    if (cue->isStreaming) {
+        auto externalAwb = _externalAwb;
+
+        if (externalAwb == nullptr) {
+            return nullptr;
+        }
+
+        auto &files = externalAwb->GetFiles();
+        if (files.find(cue->waveformId) == files.end()) {
+            return nullptr;
+        }
+
+        auto &file = files.at(cue->waveformId);
+
+        return &file;
+    } else {
+        auto internalAwb = _internalAwb;
+
+        if (internalAwb == nullptr) {
+            return nullptr;
+        }
+
+        auto &files = internalAwb->GetFiles();
+
+        if (files.find(cue->waveformId) == files.end()) {
+            return nullptr;
+        }
+
+        auto &file = files.at(cue->waveformId);
+
+        return &file;
+    }
+}
+
+IStream *CAcbFile::ChooseSourceStream(const ACB_CUE_RECORD *cue) {
+    if (cue == nullptr) {
+        return nullptr;
+    }
+
+    if (cue->isStreaming) {
+        return _externalAwb->GetStream();
+    } else {
+        return this->GetStream();
+    }
 }
 
 static string GetExtensionForEncodeType(uint8_t encodeType) {

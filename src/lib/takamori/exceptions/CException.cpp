@@ -6,6 +6,11 @@ CGSS_NS_BEGIN
         : MyClass("") {
     }
 
+    // Intended
+    CException::CException(const CException &) noexcept
+        : MyBase(), _result(CGSS_OP_GENERIC_FAULT) {
+    }
+
     CException::CException(CGSS_OP_RESULT result) noexcept
         : MyClass(result, "") {
     }

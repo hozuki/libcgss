@@ -6,6 +6,7 @@
 #include "../cgssh.h"
 #include "../../lib/cgss_api.h"
 #include "../common/common.h"
+#include "../common/acbextract.h"
 
 using namespace cgss;
 using namespace std;
@@ -21,8 +22,7 @@ static int ParseArgs(int argc, const char *argv[], const char **input, Acb2WavsO
 
 static int DoWork(const string &inputFile, const Acb2WavsOptions &options);
 
-static int
-ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Acb2WavsOptions &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal);
+static int ProcessHca(AcbWalkCallbackParams *params);
 
 static int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECODER_CONFIG &dc);
 
@@ -91,137 +91,49 @@ static int ParseArgs(int argc, const char *argv[], const char **input, Acb2WavsO
 }
 
 static int DoWork(const string &inputFile, const Acb2WavsOptions &options) {
-    const auto baseExtractDirPath = CPath::Combine(CPath::GetDirectoryName(inputFile), "_acb_" + CPath::GetFileName(inputFile));
+    AcbWalkOptions o;
 
-    CFileStream fileStream(inputFile.c_str(), FileMode::OpenExisting, FileAccess::Read);
-    CAcbFile acb(&fileStream, inputFile.c_str());
+    o.callback = ProcessHca;
+    o.decoderConfig = options.decoderConfig;
+    o.useCueName = options.useCueName;
 
-    acb.Initialize();
-
-    CAfs2Archive *archive = nullptr;
-    uint32_t formatVersion = acb.GetFormatVersion();
-    int r;
-
-    try {
-        archive = acb.GetInternalAwb();
-    } catch (CException &ex) {
-        fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
-        archive = nullptr;
-    }
-
-    if (archive) {
-        const auto extractDir = CPath::Combine(baseExtractDirPath, "internal");
-
-        try {
-            r = ProcessAllBinaries(&acb, formatVersion, options, extractDir, archive, acb.GetStream(), TRUE);
-        } catch (CException &ex) {
-            fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
-            r = -1;
-        }
-
-        delete archive;
-
-        if (r != 0) {
-            return r;
-        }
-    }
-
-    try {
-        archive = acb.GetExternalAwb();
-    } catch (CException &ex) {
-        fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
-        archive = nullptr;
-    }
-
-    if (archive) {
-        const auto extractDir = CPath::Combine(baseExtractDirPath, "external");
-
-        try {
-            CFileStream fs(archive->GetFileName(), FileMode::OpenExisting, FileAccess::Read);
-
-            r = ProcessAllBinaries(&acb, formatVersion, options, extractDir, archive, &fs, FALSE);
-        } catch (CException &ex) {
-            fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
-            r = -1;
-        }
-
-        delete archive;
-
-        if (r != 0) {
-            return r;
-        }
-    }
-
-    return 0;
+    return AcbWalk(inputFile, &o);
 }
 
-static int
-ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Acb2WavsOptions &options, const string &extractDir, CAfs2Archive *archive, IStream *dataStream, bool_t isInternal) {
-    if (!CFileSystem::DirectoryExists(extractDir)) {
-        if (!CFileSystem::MkDir(extractDir)) {
-            fprintf(stderr, "Failed to create directory %s.\n", extractDir.c_str());
-            return -1;
-        }
-    }
+static int ProcessHca(AcbWalkCallbackParams *params) {
+    const auto afsSource = params->isInternal ? "internal" : "external";
+    const auto isHca = CHcaFormatReader::IsPossibleHcaStream(params->entryDataStream);
 
-    const auto afsSource = isInternal ? "internal" : "external";
-    HCA_DECODER_CONFIG decoderConfig = options.decoderConfig;
+    fprintf(stdout, "Processing %s AFS: #%" PRIu32 " (offset=%" PRIu32 ", size=%" PRIu32 ")",
+            afsSource, (uint32_t)params->cueInfo.id, (uint32_t)params->cueInfo.offset, (uint32_t)params->cueInfo.size);
 
-    if (formatVersion >= CAcbFile::KEY_MODIFIER_ENABLED_VERSION) {
-        decoderConfig.cipherConfig.keyModifier = archive->GetHcaKeyModifier();
-    } else {
-        decoderConfig.cipherConfig.keyModifier = 0;
-    }
+    int r;
 
-    for (auto &entry : archive->GetFiles()) {
-        auto &record = entry.second;
+    if (isHca) {
+        HCA_DECODER_CONFIG decoderConfig = params->walkOptions->decoderConfig;
 
-        auto fileData = CAcbHelper::ExtractToNewStream(dataStream, record.fileOffsetAligned, (uint32_t)record.fileSize);
+        const string extractFilePath = common_utils::ReplaceAnyExtension(params->extractPathHint, ".wav");
+        fprintf(stdout, "Decoding to %s...\n", extractFilePath.c_str());
 
-        const auto isHca = CHcaFormatReader::IsPossibleHcaStream(fileData);
+        try {
+            CFileStream fs(extractFilePath.c_str(), FileMode::Create, FileAccess::Write);
 
-        fprintf(stdout, "Processing %s AFS: #%" PRIu32 " (offset=%" PRIu32 ", size=%" PRIu32 ")",
-                afsSource, (uint32_t)record.cueId, (uint32_t)record.fileOffsetAligned, (uint32_t)record.fileSize);
+            r = DecodeHca(params->entryDataStream, &fs, decoderConfig);
 
-        int r;
-
-        if (isHca) {
-            std::string extractFileName;
-
-            if (options.useCueName) {
-                extractFileName = acb->GetCueNameFromCueId(record.cueId);
+            if (r == 0) {
+                fprintf(stdout, "decoded\n");
             } else {
-                extractFileName = CAcbFile::GetSymbolicFileNameFromCueId(record.cueId);
+                fprintf(stdout, "errored\n");
+            }
+        } catch (CException &ex) {
+            if (CFileSystem::FileExists(extractFilePath)) {
+                CFileSystem::RmFile(extractFilePath);
             }
 
-            extractFileName = common_utils::ReplaceAnyExtension(extractFileName, ".wav");
-
-            auto extractFilePath = CPath::Combine(extractDir, extractFileName);
-
-            fprintf(stdout, " to %s...\n", extractFilePath.c_str());
-
-            try {
-                CFileStream fs(extractFilePath.c_str(), FileMode::Create, FileAccess::Write);
-
-                r = DecodeHca(fileData, &fs, decoderConfig);
-
-                if (r == 0) {
-                    fprintf(stdout, "decoded\n");
-                } else {
-                    fprintf(stdout, "errored\n");
-                }
-            } catch (CException &ex) {
-                if (CFileSystem::FileExists(extractFilePath)) {
-                    CFileSystem::RmFile(extractFilePath);
-                }
-
-                fprintf(stdout, "errored: %s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
-            }
-        } else {
-            fprintf(stdout, "... skipped (not HCA)\n");
+            fprintf(stdout, "errored: %s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
         }
-
-        delete fileData;
+    } else {
+        fprintf(stdout, "... skipped (not HCA)\n");
     }
 
     return 0;

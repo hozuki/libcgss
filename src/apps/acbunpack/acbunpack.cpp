@@ -16,6 +16,7 @@
 
 #include "../../lib/cgss_api.h"
 #include "../common/common.h"
+#include "../common/acbextract.h"
 
 using namespace cgss;
 
@@ -26,6 +27,8 @@ static void MakeDirectories(const std::string &s);
 static std::string GetDirectoryFromPath(const std::string &s);
 
 static std::string GetFileNameFromPath(const std::string &s);
+
+static int ExtractFile(AcbWalkCallbackParams *params);
 
 int main(int argc, const char *argv[]) {
     if (argc == 1) {
@@ -40,50 +43,18 @@ int main(int argc, const char *argv[]) {
         return -1;
     }
 
-    CFileStream fileStream(filePath, FileMode::OpenExisting, FileAccess::Read);
-    CAcbFile acb(&fileStream, filePath);
+    AcbWalkOptions options;
+    options.useCueName = true;
+    options.callback = ExtractFile;
 
-    acb.Initialize();
+    const auto r = AcbWalk(filePath, &options);
 
-    const std::string fileDir = GetDirectoryFromPath(filePath);
-    const std::string extractDir = fileDir + "/_acb_" + GetFileNameFromPath(filePath) + "/";
+    return r;
+}
 
-    MakeDirectories(extractDir);
-
-    const auto &fileNames = acb.GetFileNames();
-
-    uint32_t i = 0;
-
-    for (const auto &fileName : fileNames) {
-        auto s = fileName;
-        auto isCueNonEmpty = !s.empty();
-
-        if (!isCueNonEmpty) {
-            s = CAcbFile::GetSymbolicFileNameFromCueId(i);
-        }
-
-        auto extractPath = extractDir + s;
-
-        IStream *stream;
-
-        if (isCueNonEmpty) {
-            stream = acb.OpenDataStream(s.c_str());
-        } else {
-            stream = acb.OpenDataStream(i);
-        }
-
-        if (stream) {
-            CFileStream fs(extractPath.c_str(), FileMode::Create, FileAccess::Write);
-
-            common_utils::CopyStream(stream, &fs);
-        } else {
-            fprintf(stderr, "Cue #%" PRIu32 " (%s) cannot be retrieved.\n", i + 1, s.c_str());
-        }
-
-        delete stream;
-
-        ++i;
-    }
+static int ExtractFile(AcbWalkCallbackParams *params) {
+    CFileStream fs(params->extractPathHint.c_str(), FileMode::Create, FileAccess::Write);
+    common_utils::CopyStream(params->entryDataStream, &fs);
 
     return 0;
 }
