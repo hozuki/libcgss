@@ -16,6 +16,14 @@ CGSS_NS_BEGIN
             CHcaReaderBase = 0x03
         };
 
+        CHandleManager(const CHandleManager &) = delete;
+
+        CHandleManager(CHandleManager &&) = delete;
+
+        CHandleManager &operator=(const CHandleManager &) = delete;
+
+        CHandleManager &operator=(CHandleManager &&) = delete;
+
         uint32_t alloc(IStream *p, HandleType type);
 
         void free(uint32_t handle, bool_t dispose = TRUE);
@@ -30,11 +38,9 @@ CGSS_NS_BEGIN
 
     private:
 
-        CHandleManager();
+        CHandleManager() noexcept;
 
         ~CHandleManager();
-
-        CHandleManager(CHandleManager &) = delete;
 
         static CHandleManager *_instance;
 

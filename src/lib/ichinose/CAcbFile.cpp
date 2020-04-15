@@ -1,4 +1,6 @@
 #include <string>
+#include <cinttypes>
+
 #include "../cgss_cenum.h"
 #include "CAfs2Archive.h"
 #include "../cgss_cdata.h"
@@ -269,7 +271,7 @@ IStream *CAcbFile::OpenDataStream(const char *fileName) {
 IStream *CAcbFile::OpenDataStream(uint32_t cueId) {
     char tempFileName[40] = {0};
 
-    sprintf(tempFileName, "cue #%u", cueId);
+    sprintf(tempFileName, "cue #%" PRIu32, cueId);
 
     IStream *result = nullptr;
 

@@ -77,14 +77,14 @@ static void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
     indent += INDENT_VALUE;
 
     PRINT_INDENT();
-    printf("@%s (encrypted: %s, field count: %u, row count: %u)\n", table->tableName,
+    printf("@%s (encrypted: %s, field count: %" PRIu32 ", row count: %" PRIu32 ")\n", table->tableName,
            BOOL_STR(table->isEncrypted), table->header.fieldCount, table->header.rowCount);
 
     for (uint32_t i = 0; i < table->header.rowCount; ++i) {
         UTF_ROW *currentRow = table->rows + i;
 
         PRINT_INDENT();
-        printf("@%s [%u] = {\n", table->tableName, i);
+        printf("@%s [%" PRIu32 "] = {\n", table->tableName, i);
         indent += INDENT_VALUE;
 
         if (table->header.fieldCount == 0) {
@@ -139,7 +139,7 @@ static void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
             }
 
             PRINT_INDENT();
-            printf("%08x (row+%08x) %2x %s [%s] =", currentField->offset, currentField->offsetInRow,
+            printf("%08" PRIx32 " (row+%08" PRIx32 ") %2x %s [%s] =", currentField->offset, currentField->offsetInRow,
                    (currentField->storage | currentField->type), currentField->name, columnTypeName);
 
             const char *constantTypeStr;
@@ -201,7 +201,7 @@ static void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
 
                         cgssUtfFreeTable(tbl);
                     } else {
-                        printf("%s (size %u = 0x%x)", constantTypeStr, currentField->value.data.size, currentField->value.data.size);
+                        printf("%s (size %" PRIu32 " = 0x%" PRIx32 ")", constantTypeStr, currentField->value.data.size, currentField->value.data.size);
                     }
                     break;
                 default:

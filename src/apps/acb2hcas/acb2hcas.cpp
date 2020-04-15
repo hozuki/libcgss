@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <cinttypes>
 
 #include "../../lib/cgss_api.h"
 #include "../common/common.h"
@@ -182,14 +183,16 @@ ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Acb2HcasOptions 
         keyModifier = 0;
     }
 
-    for (auto &entry : archive->GetFiles()) {
+    const auto &fileList = archive->GetFiles();
+
+    for (auto &entry : fileList) {
         auto &record = entry.second;
 
         auto fileData = CAcbHelper::ExtractToNewStream(dataStream, record.fileOffsetAligned, (uint32_t)record.fileSize);
 
         const auto isHca = CHcaFormatReader::IsPossibleHcaStream(fileData);
 
-        fprintf(stdout, "Processing %s AFS: #%u (offset=%u, size=%u)",
+        fprintf(stdout, "Processing %s AFS: #%" PRIu32 " (offset=%" PRIu32 ", size=%" PRIu32 ")",
                 afsSource, (uint32_t)record.cueId, (uint32_t)record.fileOffsetAligned, (uint32_t)record.fileSize);
 
         if (isHca) {

@@ -14,10 +14,6 @@ CGSS_NS_BEGIN
         : MyClass(std::string(message)) {
     }
 
-    CException::CException(const cgss::CException &exception) noexcept
-        : MyBase(), _result(exception._result), _message(exception._message) {
-    }
-
     CException::CException(const std::string &message) noexcept
         : MyClass(CGSS_OP_GENERIC_FAULT, message) {
     }
@@ -33,7 +29,7 @@ CGSS_NS_BEGIN
         return *this;
     }
 
-    const std::string CException::GetExceptionMessage() const noexcept {
+    const std::string &CException::GetExceptionMessage() const noexcept {
         return _message;
     }
 

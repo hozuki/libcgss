@@ -1,6 +1,7 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdint>
+#include <cstring>
+#include <cinttypes>
 
 #if defined(_WIN32) || defined(WIN32)
 
@@ -76,7 +77,7 @@ int main(int argc, const char *argv[]) {
 
             common_utils::CopyStream(stream, &fs);
         } else {
-            fprintf(stderr, "Cue #%u (%s) cannot be retrieved.\n", i + 1, s.c_str());
+            fprintf(stderr, "Cue #%" PRIu32 " (%s) cannot be retrieved.\n", i + 1, s.c_str());
         }
 
         delete stream;

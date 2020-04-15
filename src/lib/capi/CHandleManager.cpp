@@ -2,6 +2,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include <cinttypes>
+
 #include "CHandleManager.h"
 #include "../takamori/exceptions/CArgumentException.h"
 
@@ -9,7 +11,7 @@ CGSS_NS_BEGIN
 
     CHandleManager *CHandleManager::_instance = new CHandleManager();
 
-    CHandleManager::CHandleManager() {
+    CHandleManager::CHandleManager() noexcept {
         HandleRecord record = {};
         record.ptr = nullptr;
         record.type = HandleType::None;
@@ -28,7 +30,7 @@ CGSS_NS_BEGIN
         const auto iter = _handles.find(handle);
         if (iter == _handles.cend()) {
             char buffer[100] = {0};
-            sprintf(buffer, "Handle %u is invalid.", handle);
+            sprintf(buffer, "Handle %" PRIu32 " is invalid.", handle);
             throw CArgumentException(buffer);
         }
         return iter->second.type;
@@ -38,7 +40,7 @@ CGSS_NS_BEGIN
         const auto iter = _handles.find(handle);
         if (iter == _handles.cend()) {
             char buffer[100] = {0};
-            sprintf(buffer, "Handle %u is invalid.", handle);
+            sprintf(buffer, "Handle %" PRIu32 " is invalid.", handle);
             throw CArgumentException(buffer);
         }
         return iter->second.ptr;
@@ -69,7 +71,7 @@ CGSS_NS_BEGIN
         const auto iter = _handles.find(handle);
         if (iter == _handles.cend()) {
             char buffer[100] = {0};
-            sprintf(buffer, "Handle %u is invalid.", handle);
+            sprintf(buffer, "Handle %" PRIu32 " is invalid.", handle);
             throw CArgumentException(buffer);
         }
         if (dispose) {

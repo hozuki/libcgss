@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <cinttypes>
 
 #include "../cgssh.h"
 #include "../../lib/cgss_api.h"
@@ -179,7 +180,7 @@ ProcessAllBinaries(CAcbFile *acb, uint32_t formatVersion, const Acb2WavsOptions 
 
         const auto isHca = CHcaFormatReader::IsPossibleHcaStream(fileData);
 
-        fprintf(stdout, "Processing %s AFS: #%u (offset=%u, size=%u)",
+        fprintf(stdout, "Processing %s AFS: #%" PRIu32 " (offset=%" PRIu32 ", size=%" PRIu32 ")",
                 afsSource, (uint32_t)record.cueId, (uint32_t)record.fileOffsetAligned, (uint32_t)record.fileSize);
 
         int r;

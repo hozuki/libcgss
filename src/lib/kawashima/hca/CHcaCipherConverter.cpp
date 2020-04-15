@@ -4,6 +4,8 @@
 
 #include <string>
 #include <algorithm>
+#include <cinttypes>
+
 #include "CHcaCipherConverter.h"
 #include "../../common/quick_utils.h"
 #include "internal/CHcaCipher.h"
@@ -150,7 +152,7 @@ CGSS_NS_BEGIN
 
         if (ComputeChecksum(blockBuffer, hcaInfo.blockSize, 0) != 0) {
             char numberBuffer[20] = {0};
-            sprintf(numberBuffer, "%u", blockIndex);
+            sprintf(numberBuffer, "%" PRIu32, blockIndex);
             throw CFormatException(std::string("CHcaCipherConverter::ConvertBlock @ Block#") + numberBuffer);
         }
 
@@ -163,7 +165,7 @@ CGSS_NS_BEGIN
         const auto magic = data.GetBit(16);
         if (magic != 0xffff) {
             char numberBuffer[20] = {0};
-            sprintf(numberBuffer, "%u", blockIndex);
+            sprintf(numberBuffer, "%" PRIu32, blockIndex);
             throw CFormatException(std::string("CHcaCipherConverter::ConvertBlock @ Block#") + numberBuffer);
         }
 

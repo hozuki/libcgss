@@ -14,7 +14,7 @@ CGSS_NS_BEGIN
 
         CException() noexcept;
 
-        CException(const CException &) noexcept;
+        CException(const CException &) noexcept = default;
 
         CException& operator=(const CException &) noexcept;
 
@@ -28,7 +28,7 @@ CGSS_NS_BEGIN
 
         virtual ~CException() noexcept = default;
 
-        virtual const std::string GetExceptionMessage() const noexcept;
+        virtual const std::string &GetExceptionMessage() const noexcept;
 
         virtual CGSS_OP_RESULT GetOpResult() const noexcept;
 
