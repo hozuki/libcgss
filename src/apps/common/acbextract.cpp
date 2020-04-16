@@ -28,8 +28,8 @@ int AcbWalk(const std::string &inputAcbFile, AcbWalkOptions *options) {
 
     acb.Initialize();
 
-    CAfs2Archive *archive = nullptr;
-    uint32_t formatVersion = acb.GetFormatVersion();
+    CAfs2Archive *archive;
+    const uint32_t formatVersion = acb.GetFormatVersion();
     int r;
 
     try {
@@ -90,7 +90,7 @@ int AcbWalk(const std::string &inputAcbFile, AcbWalkOptions *options) {
 static int ProcessAllBinaries(CAcbFile &acb, uint32_t formatVersion, AcbWalkOptions *options, const string &extractDir, CAfs2Archive *archive, IStream *archiveDataStream, bool_t isInternal, unordered_set<uint32_t> &extractedCueIds) {
     if (!CFileSystem::DirectoryExists(extractDir)) {
         if (!CFileSystem::MkDir(extractDir)) {
-            fprintf(stderr, "Failed to create directory %s.\n", extractDir.c_str());
+            fprintf(stderr, "Failed to create directory '%s.\n", extractDir.c_str());
             return -1;
         }
     }
@@ -121,21 +121,29 @@ static int ProcessAllBinaries(CAcbFile &acb, uint32_t formatVersion, AcbWalkOpti
             const auto &fileNames = acb.GetFileNames();
             uint32_t i = 0;
 
-            for (const auto &extractFileName : fileNames) {
-                if (extractFileName.empty()) {
+            for (const auto &fileName : fileNames) {
+                if (fileName.empty()) {
                     continue;
                 }
 
-                p.extractPathHint = CPath::Combine(extractDir, extractFileName);
-
-                auto entryDataStream = acb.OpenDataStream(extractFileName.c_str());
+                auto entryDataStream = acb.OpenDataStream(fileName.c_str());
 
                 if (entryDataStream) {
                     p.entryDataStream = entryDataStream;
 
-                    const auto fileRecord = acb.GetFileRecord(extractFileName.c_str());
+                    const auto fileRecord = acb.GetFileRecord(fileName.c_str());
 
                     assert(fileRecord != nullptr);
+
+                    string extractFileName;
+
+                    if (options->useCueName) {
+                        extractFileName = fileName;
+                    } else {
+                        extractFileName = acb.GetSymbolicFileNameHintFromCueId(fileRecord->cueId);
+                    }
+
+                    p.extractPathHint = CPath::Combine(extractDir, extractFileName);
 
                     p.cueInfo.id = fileRecord->cueId;
                     p.cueInfo.offset = fileRecord->fileOffsetAligned;
@@ -145,7 +153,7 @@ static int ProcessAllBinaries(CAcbFile &acb, uint32_t formatVersion, AcbWalkOpti
 
                     extractedCueIds.insert(fileRecord->cueId);
                 } else {
-                    fprintf(stderr, "Cue #%" PRIu32 " (%s) cannot be retrieved.\n", i + 1, extractFileName.c_str());
+                    fprintf(stderr, "Cue #%" PRIu32 " (%s) cannot be retrieved.\n", i + 1, fileName.c_str());
                 }
 
                 ++i;
@@ -172,7 +180,7 @@ static int ProcessAllBinaries(CAcbFile &acb, uint32_t formatVersion, AcbWalkOpti
                 if (options->useCueName) {
                     extractFileName = acb.GetCueNameFromCueId(record.cueId);
                 } else {
-                    extractFileName = CAcbFile::GetSymbolicFileNameFromCueId(record.cueId);
+                    extractFileName = acb.GetSymbolicFileNameHintFromCueId(record.cueId);
                 }
 
                 auto entryDataStream = CAcbHelper::ExtractToNewStream(archiveDataStream, record.fileOffsetAligned, (uint32_t)record.fileSize);

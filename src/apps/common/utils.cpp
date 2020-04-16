@@ -25,12 +25,12 @@ string common_utils::ReplaceExtension(const string &s, const string &oldExt, con
     auto extl = oldExt;
 
     // ALERT!
-    // Since the only usage here is replacing extensions, and we promise that the
+    // Since the only usage here is replacing extensions, and we guarantee that the
     // extensions are in ASCII, and we don't care about chars before the extension,
     // we can use this method (tolower()). Otherwise, it causes trouble for non-
     // ASCII encodings.
-    std::transform(sl.begin(), sl.end(), sl.begin(), ::tolower);
-    std::transform(extl.begin(), extl.end(), extl.begin(), ::tolower);
+    std::transform(sl.begin(), sl.end(), sl.begin(), std::tolower);
+    std::transform(extl.begin(), extl.end(), extl.begin(), std::tolower);
 
     if (!hasEnding(sl, extl)) {
         return s;

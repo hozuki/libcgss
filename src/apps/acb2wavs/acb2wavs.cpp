@@ -8,8 +8,8 @@
 #include "../common/common.h"
 #include "../common/acbextract.h"
 
-using namespace cgss;
 using namespace std;
+using namespace cgss;
 
 struct Acb2WavsOptions {
     HCA_DECODER_CONFIG decoderConfig;
@@ -18,7 +18,7 @@ struct Acb2WavsOptions {
 
 static void PrintHelp();
 
-static int ParseArgs(int argc, const char *argv[], const char **input, Acb2WavsOptions &options);
+static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOptions &options);
 
 static int DoWork(const string &inputFile, const Acb2WavsOptions &options);
 
@@ -27,20 +27,20 @@ static int ProcessHca(AcbWalkCallbackParams *params);
 static int DecodeHca(IStream *hcaDataStream, IStream *waveStream, const HCA_DECODER_CONFIG &dc);
 
 int main(int argc, const char *argv[]) {
-    if (argc < 2) {
-        PrintHelp();
-        return 0;
-    }
-
-    const char *inputFile;
+    string inputFile;
     Acb2WavsOptions options = {0};
 
-    const auto parsed = ParseArgs(argc, argv, &inputFile, options);
+    const auto parsed = ParseArgs(argc, argv, inputFile, options);
 
     if (parsed < 0) {
         return 0;
     } else if (parsed > 0) {
         return parsed;
+    }
+
+    if (!cgssHelperFileExists(inputFile.c_str())) {
+        fprintf(stderr, "File '%s' does not exist or cannot be opened.\n", inputFile.c_str());
+        return -1;
     }
 
     return DoWork(inputFile, options);
@@ -52,13 +52,13 @@ static void PrintHelp() {
     cout << "\t-n\tUse cue names for output waveforms" << endl;
 }
 
-static int ParseArgs(int argc, const char *argv[], const char **input, Acb2WavsOptions &options) {
+static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOptions &options) {
     if (argc < 2) {
         PrintHelp();
         return -1;
     }
 
-    *input = argv[1];
+    inputFile = argv[1];
 
     options.decoderConfig.waveHeaderEnabled = TRUE;
     options.decoderConfig.decodeFunc = CDefaultWaveGenerator::Decode16BitS;
@@ -82,6 +82,7 @@ static int ParseArgs(int argc, const char *argv[], const char **input, Acb2WavsO
                     options.useCueName = TRUE;
                     break;
                 default:
+                    fprintf(stderr, "Unknown option: %s\n", argv[i]);
                     return 2;
             }
         }
@@ -113,7 +114,7 @@ static int ProcessHca(AcbWalkCallbackParams *params) {
         HCA_DECODER_CONFIG decoderConfig = params->walkOptions->decoderConfig;
 
         const string extractFilePath = common_utils::ReplaceAnyExtension(params->extractPathHint, ".wav");
-        fprintf(stdout, "Decoding to %s...\n", extractFilePath.c_str());
+        fprintf(stdout, ": decoding to %s...\n", extractFilePath.c_str());
 
         try {
             CFileStream fs(extractFilePath.c_str(), FileMode::Create, FileAccess::Write);

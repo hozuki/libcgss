@@ -34,6 +34,8 @@ CGSS_NS_BEGIN
 
         static std::string GetSymbolicFileNameFromCueId(uint32_t cueId);
 
+        std::string GetSymbolicFileNameHintFromCueId(uint32_t cueId);
+
         std::string GetCueNameFromCueId(uint32_t cueId);
 
         const ACB_CUE_RECORD *GetCueRecord(const char *waveformFileName);
@@ -53,6 +55,10 @@ CGSS_NS_BEGIN
         CAfs2Archive *GetExternalAwb();
 
         uint32_t GetFormatVersion() const;
+
+        std::string GetFileExtensionHint(uint32_t cueId);
+
+        std::string GetFileExtensionHint(const char *waveformFileName);
 
         static const uint32_t KEY_MODIFIER_ENABLED_VERSION;
 

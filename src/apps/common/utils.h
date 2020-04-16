@@ -25,6 +25,7 @@ namespace cgss {
 
     public:
 
+        [[deprecated]]
         static std::string ReplaceExtension(const std::string &s, const std::string &oldExt, const std::string &newExt);
 
         static std::string ReplaceAnyExtension(const std::string &s, const std::string &newExt);

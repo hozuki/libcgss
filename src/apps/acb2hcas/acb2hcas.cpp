@@ -1,6 +1,5 @@
 #include <string>
 #include <iostream>
-#include <fstream>
 #include <algorithm>
 #include <cinttypes>
 
@@ -24,7 +23,7 @@ struct Acb2HcasOptions {
 
 static void PrintHelp();
 
-static int ParseArgs(int argc, const char *argv[], const char **input, Acb2HcasOptions &options);
+static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOptions &options);
 
 static int DoWork(const string &inputFile, const Acb2HcasOptions &options);
 
@@ -33,20 +32,20 @@ static int ProcessHca(AcbWalkCallbackParams *params);
 static void WriteHcaKeyFile(const string &fileName, uint64_t key, uint16_t modifier = 0);
 
 int main(int argc, const char *argv[]) {
-    if (argc < 2) {
-        PrintHelp();
-        return 0;
-    }
-
-    const char *inputFile;
+    string inputFile;
     Acb2HcasOptions options = {0};
 
-    const auto parsed = ParseArgs(argc, argv, &inputFile, options);
+    const auto parsed = ParseArgs(argc, argv, inputFile, options);
 
     if (parsed < 0) {
         return 0;
     } else if (parsed > 0) {
         return parsed;
+    }
+
+    if (!cgssHelperFileExists(inputFile.c_str())) {
+        fprintf(stderr, "File '%s' does not exist or cannot be opened.\n", inputFile.c_str());
+        return -1;
     }
 
     return DoWork(inputFile, options);
@@ -61,13 +60,13 @@ static void PrintHelp() {
     cout << "\t-n\tUse cue names for output waveforms" << endl;
 }
 
-static int ParseArgs(int argc, const char *argv[], const char **input, Acb2HcasOptions &options) {
+static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOptions &options) {
     if (argc < 2) {
         PrintHelp();
         return -1;
     }
 
-    *input = argv[1];
+    inputFile = argv[1];
 
     for (int i = 2; i < argc; ++i) {
         if (argv[i][0] == '-' || argv[i][0] == '/') {
@@ -91,6 +90,7 @@ static int ParseArgs(int argc, const char *argv[], const char **input, Acb2HcasO
                     options.useCueName = TRUE;
                     break;
                 default:
+                    fprintf(stderr, "Unknown option: %s\n", argv[i]);
                     return 2;
             }
         }

@@ -17,6 +17,8 @@
 using namespace cgss;
 using namespace std;
 
+#define DEFAULT_BINARY_FILE_EXTENSION ".bin"
+
 static string GetExtensionForEncodeType(uint8_t encodeType);
 
 template<typename T>
@@ -290,9 +292,20 @@ const char *CAcbFile::GetFileName() const {
 }
 
 string CAcbFile::GetSymbolicFileNameFromCueId(uint32_t cueId) {
-    char buffer[40] = {0};
+    char buffer[256] = {0};
 
-    sprintf(buffer, "cue_%06" PRIu32 ".bin", cueId);
+    sprintf(buffer, "cue_%06" PRIu32 DEFAULT_BINARY_FILE_EXTENSION, cueId);
+
+    return string(buffer);
+}
+
+string CAcbFile::GetSymbolicFileNameHintFromCueId(uint32_t cueId) {
+    char buffer[256] = {0};
+
+    const auto extHint = GetFileExtensionHint(cueId);
+    const auto ext = extHint.empty() ? DEFAULT_BINARY_FILE_EXTENSION : extHint.c_str();
+
+    sprintf(buffer, "cue_%06" PRIu32 "%s", cueId, ext);
 
     return string(buffer);
 }
@@ -304,7 +317,7 @@ string CAcbFile::GetCueNameFromCueId(uint32_t cueId) {
         }
     }
 
-    return GetSymbolicFileNameFromCueId(cueId);
+    return GetSymbolicFileNameHintFromCueId(cueId);
 }
 
 const ACB_CUE_RECORD *CAcbFile::GetCueRecord(const char *waveformFileName) {
@@ -359,6 +372,26 @@ bool_t CAcbFile::IsCueIdentified(uint32_t cueId) {
 
 uint32_t CAcbFile::GetFormatVersion() const {
     return _formatVersion;
+}
+
+std::string CAcbFile::GetFileExtensionHint(uint32_t cueId) {
+    const auto cue = GetCueRecord(cueId);
+
+    if (cue == nullptr) {
+        return std::string();
+    } else {
+        return GetExtensionForEncodeType(cue->encodeType);
+    }
+}
+
+std::string CAcbFile::GetFileExtensionHint(const char *waveformFileName) {
+    const auto cue = GetCueRecord(waveformFileName);
+
+    if (cue == nullptr) {
+        return std::string();
+    } else {
+        return GetExtensionForEncodeType(cue->encodeType);
+    }
 }
 
 std::string CAcbFile::FindExternalAwbFileName() {
@@ -462,10 +495,12 @@ static string GetExtensionForEncodeType(uint8_t encodeType) {
             return ".bcwav";
         case CGSS_ACB_WAVEFORM_NINTENDO_DSP:
             return ".dsp";
+        default:
+            break;
     }
 
     char buffer[20] = {0};
-    sprintf(buffer, ".et-%d.bin", static_cast<int32_t>(encodeType));
+    sprintf(buffer, ".et-%" PRId32 DEFAULT_BINARY_FILE_EXTENSION, static_cast<int32_t>(encodeType));
 
     return string(buffer);
 }
