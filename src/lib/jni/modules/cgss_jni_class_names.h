@@ -18,6 +18,8 @@ CGSS_JNI_NS_BEGIN
             extern const char *HcaFormatReader_Path;
             extern const char *HcaDecoder_Name;
             extern const char *HcaDecoder_Path;
+            extern const char *HcaCipherConverter_Name;
+            extern const char *HcaCipherConverter_Path;
             extern const char *HcaCipherConfig_Name;
             extern const char *HcaCipherConfig_Path;
             extern const char *HcaCipherType_Name;

@@ -16,6 +16,8 @@ CGSS_JNI_NS_BEGIN
             const char *HcaFormatReader_Path = "moe/mottomo/cgss/kawashima/HcaFormatReader";
             const char *HcaDecoder_Name = "moe.mottomo.cgss.kawashima.HcaDecoder";
             const char *HcaDecoder_Path = "moe/mottomo/cgss/kawashima/HcaDecoder";
+            const char *HcaCipherConverter_Name = "moe.mottomo.cgss.kawashima.HcaCipherConverter";
+            const char *HcaCipherConverter_Path = "moe/mottomo/cgss/kawashima/HcaCipherConverter";
             const char *HcaCipherConfig_Name = "moe.mottomo.cgss.kawashima.HcaCipherConfig";
             const char *HcaCipherConfig_Path = "moe/mottomo/cgss/kawashima/HcaCipherConfig";
             const char *HcaCipherType_Name = "moe.mottomo.cgss.kawashima.HcaCipherType";
