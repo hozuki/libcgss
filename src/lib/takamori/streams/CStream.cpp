@@ -22,11 +22,11 @@ CGSS_NS_BEGIN
         }
     }
 
-    uint8_t CStream::ReadByte() {
+    int32_t CStream::ReadByte() {
         uint8_t b = 0;
         auto read = Read(&b, 1, 0, 1);
         if (read < 1) {
-            throw CException(CGSS_OP_BUFFER_TOO_SMALL);
+            b = -1;
         }
         return b;
     }

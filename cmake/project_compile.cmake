@@ -1,7 +1,4 @@
 target_compile_definitions(cgss PRIVATE __CGSS_BUILDING_DLL__)
-if (TARGET cgss_jni)
-    target_compile_definitions(cgss_jni PRIVATE __CGSS_BUILDING_DLL__ PRIVATE __CGSS_WITH_JNI__)
-endif ()
 target_compile_definitions(hcacc PRIVATE __COMPILE_WITH_CGSS_KEYS)
 target_compile_definitions(hcaenc PRIVATE __COMPILE_WITH_CGSS_KEYS)
 target_compile_definitions(hca2wav PRIVATE __COMPILE_WITH_CGSS_KEYS)
@@ -25,9 +22,4 @@ elseif (MSVC)
     set_target_properties(cgss
             PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    if (TARGET cgss_jni)
-        set_target_properties(cgss_jni
-                PROPERTIES
-                ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    endif ()
 endif ()

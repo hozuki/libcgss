@@ -1,5 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#include <cstdlib>
+#include <cstdio>
 
 #include "../CFileSystem.h"
 
@@ -31,10 +35,25 @@ CGSS_NS_BEGIN
         : MyClass(fileName, mode, FileAccess::ReadWrite) {
     }
 
-    CFileStream::CFileStream(LPCSTR fileName, FileMode mode, FileAccess access) {
+    CFileStream::CFileStream(LPCSTR fileName, FileMode mode, FileAccess access)
+        : _isReadable(FALSE), _isWritable(FALSE), _isSeekable(FALSE) {
         _mode = mode;
         _access = access;
         _fp = OpenFile(fileName);
+    }
+
+    CFileStream::CFileStream(const string &fileName)
+        : MyClass(fileName.c_str()) {
+    }
+
+    CFileStream::CFileStream(const string &fileName, FileMode mode)
+        : MyClass(fileName.c_str(), mode) {
+
+    }
+
+    CFileStream::CFileStream(const string &fileName, FileMode mode, FileAccess access)
+        : MyClass(fileName.c_str(), mode, access) {
+
     }
 
     CFileStream::~CFileStream() {
@@ -215,7 +234,7 @@ CGSS_NS_BEGIN
         return fopen(fileName, fileMode);
     }
 
-    void CFileStream::CreateFileInternal(LPCSTR fileName) const {
+    void CFileStream::CreateFileInternal(LPCSTR fileName) {
         if (CFileSystem::FileExists(fileName)) {
             return;
         }

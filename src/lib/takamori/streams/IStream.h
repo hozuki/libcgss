@@ -31,7 +31,7 @@ CGSS_NS_BEGIN
 
         virtual void SetLength(uint64_t value) PURE;
 
-        virtual uint8_t ReadByte() PURE;
+        virtual int32_t ReadByte() PURE;
 
         virtual uint32_t WriteByte(uint8_t value) PURE;
 

@@ -45,9 +45,6 @@ CGSS_NS_BEGIN
         Initialize();
     }
 
-    CHcaFormatReader::~CHcaFormatReader() {
-    }
-
     const uint16_t *CHcaFormatReader::ChecksumTable = new uint16_t[256] {
         0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
         0x8033, 0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022,
@@ -91,7 +88,7 @@ CGSS_NS_BEGIN
         return wInitSum;
     }
 
-    const HCA_INFO CHcaFormatReader::GetHcaInfo() const {
+    const HCA_INFO &CHcaFormatReader::GetHcaInfo() const {
         return _hcaInfo;
     }
 

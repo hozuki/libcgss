@@ -2,9 +2,15 @@
 
 #include "CStream.h"
 
+#if defined(__CGSS_WITH_JNI__)
+
+#include <jni.h>
+
+#endif
+
 CGSS_NS_BEGIN
 
-    class CGSS_EXPORT CMemoryStream : public CStream {
+    class CGSS_EXPORT CMemoryStream final : public CStream {
 
     __extends(CStream, CMemoryStream);
 
@@ -19,27 +25,35 @@ CGSS_NS_BEGIN
 
         CMemoryStream(uint8_t *buffer, uint64_t bufferSize, bool_t isWritable);
 
-        virtual ~CMemoryStream();
+        CMemoryStream(const CMemoryStream &) = delete;
 
-        virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        CMemoryStream(CMemoryStream &&) = delete;
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        CMemoryStream &operator=(const CMemoryStream &) = delete;
 
-        virtual bool_t IsWritable() const override;
+        CMemoryStream &operator=(CMemoryStream &&) = delete;
 
-        virtual bool_t IsReadable() const override;
+        ~CMemoryStream() override;
 
-        virtual bool_t IsSeekable() const override;
+        uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-        virtual uint64_t GetPosition() override;
+        uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 
-        virtual void SetPosition(uint64_t value) override;
+        bool_t IsWritable() const override;
 
-        virtual uint64_t GetLength() override;
+        bool_t IsReadable() const override;
 
-        virtual void SetLength(uint64_t value) override;
+        bool_t IsSeekable() const override;
 
-        virtual void Flush() override;
+        uint64_t GetPosition() override;
+
+        void SetPosition(uint64_t value) override;
+
+        uint64_t GetLength() override;
+
+        void SetLength(uint64_t value) override;
+
+        void Flush() override;
 
         virtual uint64_t GetCapacity() const;
 
@@ -51,9 +65,11 @@ CGSS_NS_BEGIN
 
         virtual const uint8_t *ToArray();
 
-    private:
+#if defined(__CGSS_WITH_JNI__)
+        jobject javaBuffer;
+#endif
 
-        CMemoryStream(const CMemoryStream &) = delete;
+    private:
 
         bool_t IsResizable() const;
 

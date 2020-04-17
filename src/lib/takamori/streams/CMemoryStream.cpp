@@ -34,6 +34,10 @@ CGSS_NS_BEGIN
         _isResizable = isResizable;
         _isExternalBuffer = FALSE;
         _position = 0;
+
+#if defined(__CGSS_WITH_JNI__)
+        javaBuffer = nullptr;
+#endif
     }
 
     CMemoryStream::CMemoryStream(uint8_t *buffer, uint64_t bufferSize)
@@ -47,6 +51,10 @@ CGSS_NS_BEGIN
         _isResizable = FALSE;
         _isExternalBuffer = TRUE;
         _position = 0;
+
+#if defined(__CGSS_WITH_JNI__)
+        javaBuffer = nullptr;
+#endif
     }
 
     CMemoryStream::~CMemoryStream() {

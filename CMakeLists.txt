@@ -13,12 +13,12 @@ include(cmake/project_files.cmake)
 include(cmake/project_targets.cmake)
 include(cmake/project_properties.cmake)
 
-# Override JNI build (disabled by default in jni_support.cmake)
-# set(BUILD_JNI_INTERFACE 0)
-
-include(cmake/jni_support.cmake)
-
 include(cmake/project_prebuild.cmake)
 include(cmake/project_compile.cmake)
 include(cmake/project_link.cmake)
 include(cmake/project_postbuild.cmake)
+
+# Override JNI build (disabled by default in jni_support.cmake)
+#set(BUILD_JNI_LIBRARY ON)
+
+include(cmake/jni_support.cmake)

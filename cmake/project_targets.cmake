@@ -7,7 +7,3 @@ add_executable(acbunpack ${ACBUNPACK_SOURCE_FILES})
 add_executable(acb2wavs ${ACB2WAVS_SOURCE_FILES})
 add_executable(acb2hcas ${ACB2HCAS_SOURCE_FILES})
 add_library(cgss SHARED ${LIBCGSS_SOURCE_FILES})
-
-if (${BUILD_JNI_INTERFACE})
-    add_library(cgss_jni SHARED ${LIBCGSS_JNI_SOURCE_FILES})
-endif ()

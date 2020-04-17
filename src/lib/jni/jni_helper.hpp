@@ -1,194 +1,101 @@
 #pragma once
 
-#include "cgss_jni.h"
+#include <jni.h>
+#include <cgss_api.h>
 
-struct jni {
+#include "jni_string.h"
 
-    static intptr_t get_ptr_field(JNIEnv *env, jobject object) {
-        const jclass nativeObjectClass = env->GetObjectClass(object);
-        if (!nativeObjectClass) {
-            return static_cast<intptr_t>(NULL);
+CGSS_NS_BEGIN
+
+    namespace jni {
+
+        namespace java_exceptions {
+
+            extern const char *IOException;
+            extern const char *IllegalArgumentException;
+            extern const char *CgssException;
+
         }
-        const jfieldID nativePtrFieldID = env->GetFieldID(nativeObjectClass, "nativePtr", "J");
-        if (!nativePtrFieldID) {
-            return static_cast<intptr_t>(NULL);
+
+        template<class TOut, class TIn>
+        static TOut direct_cast(const TIn &in) {
+            return *(TOut *)&in;
+        };
+
+        void *getNativePtr(JNIEnv *env, jobject object);
+
+        /**
+         *
+         * @remarks
+         *   This function is not robust. To make it work correctly, you must ensure (actual type of the pointer is noted as U):
+         *   1) T is a supertype of U;
+         *   2) There is no multiple inheritance in the type tree until T;
+         *   3) The compiler implements inheritance by V-table approach. (Fortunately mainstream compilers act this way.)
+         *
+         * @tparam T Desired type of the pointer.
+         * @param env
+         * @param object The Java object that holds a pointer field.
+         * @return
+         */
+        template<class T>
+        T *getNativePtrAs(JNIEnv *env, jobject object) {
+            auto ptr = getNativePtr(env, object);
+            return reinterpret_cast<T *>(ptr);
         }
-        jlong ptrValue = env->GetLongField(object, nativePtrFieldID);
-        return static_cast<intptr_t>(ptrValue);
+
+        void setNativePtr(JNIEnv *env, jobject object, const void *ptr);
+
+        template<class T>
+        void setNativePtrAs(JNIEnv *env, jobject object, const T *ptr) {
+            setNativePtr(env, object, reinterpret_cast<const void *>(ptr));
+        }
+
+        jboolean getBooleanField(JNIEnv *env, jobject thiz, const char *name);
+
+        jbyte getByteField(JNIEnv *env, jobject thiz, const char *name);
+
+        jshort getShortField(JNIEnv *env, jobject thiz, const char *name);
+
+        jint getIntField(JNIEnv *env, jobject thiz, const char *name);
+
+        jlong getLongField(JNIEnv *env, jobject thiz, const char *name);
+
+        jfloat getFloatField(JNIEnv *env, jobject thiz, const char *name);
+
+        jdouble getDoubleField(JNIEnv *env, jobject thiz, const char *name);
+
+        jobject getObjectField(JNIEnv *env, jobject thiz, const char *name, const char *fullClassName);
+
+        void setField(JNIEnv *env, jobject thiz, const char *name, jboolean val);
+
+        void setField(JNIEnv *env, jobject thiz, const char *name, jbyte val);
+
+        void setField(JNIEnv *env, jobject thiz, const char *name, jshort val);
+
+        void setField(JNIEnv *env, jobject thiz, const char *name, jint val);
+
+        void setField(JNIEnv *env, jobject thiz, const char *name, jlong val);
+
+        void setField(JNIEnv *env, jobject thiz, const char *name, jfloat val);
+
+        void setField(JNIEnv *env, jobject thiz, const char *name, jdouble val);
+
+        /**
+         *
+         * @param env
+         * @param thiz
+         * @param name
+         * @param fullClassName Complete class name with dot (.) as identifier separator (like that in C#). Does not support private classes.
+         * @param val
+         */
+        void setField(JNIEnv *env, jobject thiz, const char *name, const char *fullClassName, jobject val);
+
+        int32_t computeAvailableBufferSize(int32_t bufferSize, int32_t offset, int32_t count);
+
+        void throwCgssException(JNIEnv *env, const std::string &message, CGSS_OP_RESULT opResult = CGSS_OP_GENERIC_FAULT);
+
+        void throwCgssException(JNIEnv *env, const CException &exception);
+
     }
 
-    template<class T>
-    static T *get_ptr_field_t(JNIEnv *env, jobject object) {
-        auto ptr = get_ptr_field(env, object);
-        // TODO: ?
-        return (T *)ptr;
-    }
-
-    static void set_ptr_field(JNIEnv *env, jobject object, intptr_t ptr) {
-        const jclass nativeObjectClass = env->GetObjectClass(object);
-        if (!nativeObjectClass) {
-            return;
-        }
-        const jfieldID nativePtrFieldID = env->GetFieldID(nativeObjectClass, "nativePtr", "J");
-        if (!nativePtrFieldID) {
-            return;
-        }
-        env->SetLongField(object, nativePtrFieldID, static_cast<jlong>(ptr));
-    }
-
-    template<class T>
-    static void set_ptr_field_t(JNIEnv *env, jobject object, const T *ptr) {
-        set_ptr_field(env, object, (intptr_t)ptr);
-    }
-
-    static jbyte getByteField(JNIEnv *env, jobject thiz, const char *name) {
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            throw std::runtime_error("jni::getByteField");
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, "B");
-        if (!fieldID) {
-            throw std::runtime_error("jni::getByteField");
-        }
-        auto val = env->GetByteField(thiz, fieldID);
-        return val;
-    }
-
-    static jint getIntField(JNIEnv *env, jobject thiz, const char *name) {
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            throw std::runtime_error("jni::getIntField");
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, "I");
-        if (!fieldID) {
-            throw std::runtime_error("jni::getIntField");
-        }
-        auto val = env->GetIntField(thiz, fieldID);
-        return val;
-    }
-
-    static jlong getLongField(JNIEnv *env, jobject thiz, const char *name) {
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            throw std::runtime_error("jni::getLongField");
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, "J");
-        if (!fieldID) {
-            throw std::runtime_error("jni::getLongField");
-        }
-        auto val = env->GetLongField(thiz, fieldID);
-        return val;
-    }
-
-    static jobject getObjectField(JNIEnv *env, jobject thiz, const char *name, const char *fullClassName) {
-        char cls[256] = "L";
-        strncat(cls, fullClassName, 254);
-        for (auto i = 0; i < 256 && cls[i]; ++i) {
-            if (cls[i] == '.') {
-                cls[i] = '/';
-            }
-        }
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            throw std::runtime_error("jni::getObjectField");
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, cls);
-        if (!fieldID) {
-            throw std::runtime_error("jni::getObjectField");
-        }
-        auto val = env->GetObjectField(thiz, fieldID);
-        return val;
-    }
-
-    static void setField(JNIEnv *env, jobject thiz, const char *name, jbyte val) {
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            return;
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, "B");
-        if (!fieldID) {
-            return;
-        }
-        env->SetByteField(thiz, fieldID, val);
-    }
-
-    static void setField(JNIEnv *env, jobject thiz, const char *name, jshort val) {
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            return;
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, "S");
-        if (!fieldID) {
-            return;
-        }
-        env->SetShortField(thiz, fieldID, val);
-    }
-
-    static void setField(JNIEnv *env, jobject thiz, const char *name, jint val) {
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            return;
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, "I");
-        if (!fieldID) {
-            return;
-        }
-        env->SetIntField(thiz, fieldID, val);
-    }
-
-    static void setField(JNIEnv *env, jobject thiz, const char *name, jlong val) {
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            return;
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, "J");
-        if (!fieldID) {
-            return;
-        }
-        env->SetLongField(thiz, fieldID, val);
-    }
-
-    static void setField(JNIEnv *env, jobject thiz, const char *name, jboolean val) {
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            return;
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, "Z");
-        if (!fieldID) {
-            return;
-        }
-        env->SetBooleanField(thiz, fieldID, val);
-    }
-
-    static void setField(JNIEnv *env, jobject thiz, const char *name, jfloat val) {
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            return;
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, "F");
-        if (!fieldID) {
-            return;
-        }
-        env->SetFloatField(thiz, fieldID, val);
-    }
-
-    static void setField(JNIEnv *env, jobject thiz, const char *name, const char *fullClassName, jobject val) {
-        char cls[256] = "L";
-        strncat(cls, fullClassName, 254);
-        for (auto i = 0; i < 256 && cls[i]; ++i) {
-            if (cls[i] == '.') {
-                cls[i] = '/';
-            }
-        }
-        const jclass clazz = env->GetObjectClass(thiz);
-        if (!clazz) {
-            return;
-        }
-        const jfieldID fieldID = env->GetFieldID(clazz, name, cls);
-        if (!fieldID) {
-            return;
-        }
-        env->SetObjectField(thiz, fieldID, val);
-    }
-
-};
+CGSS_NS_END

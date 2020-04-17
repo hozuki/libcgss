@@ -13,8 +13,6 @@ CGSS_NS_BEGIN
 
         explicit CBinaryWriter(IStream *baseStream);
 
-        CBinaryWriter() = delete;
-
         CBinaryWriter(const CBinaryWriter &) = delete;
 
         uint32_t WriteInt8(int8_t v);

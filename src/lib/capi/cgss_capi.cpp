@@ -231,12 +231,12 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamSetLength(CGSS_HANDLE handle, uint64_t l
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamReadByte(CGSS_HANDLE handle, _OUT_ uint8_t *byte) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssStreamReadByte(CGSS_HANDLE handle, _OUT_ int32_t *byte) {
     CHECK_HANDLE(handle);
     try {
-        const auto r = to_stream(handle)->ReadByte();
+        const auto byt = to_stream(handle)->ReadByte();
         if (byte) {
-            *byte = r;
+            *byte = byt;
         }
     } catch (const CException &ex) {
         return ex.GetOpResult();

@@ -24,7 +24,13 @@ CGSS_NS_BEGIN
 
         CHcaDecoder(const CHcaDecoder &) = delete;
 
-        virtual ~CHcaDecoder();
+        CHcaDecoder(CHcaDecoder &&) = delete;
+
+        CHcaDecoder &operator=(const CHcaDecoder &) = delete;
+
+        CHcaDecoder &operator=(CHcaDecoder &&) = delete;
+
+        ~CHcaDecoder() override;
 
         uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
 

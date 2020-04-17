@@ -24,7 +24,7 @@ CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamGetPosition(CGSS_HANDLE handle, _OUT_ ui
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamSetPosition(CGSS_HANDLE handle, uint64_t position);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamGetLength(CGSS_HANDLE handle, _OUT_ uint64_t *length);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamSetLength(CGSS_HANDLE handle, uint64_t length);
-CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamReadByte(CGSS_HANDLE handle, _OUT_ uint8_t *byte);
+CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamReadByte(CGSS_HANDLE handle, _OUT_ int32_t *byte);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamWriteByte(CGSS_HANDLE handle, uint8_t byte);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamFlush(CGSS_HANDLE handle);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamCopyTo(CGSS_HANDLE source, CGSS_HANDLE destination);

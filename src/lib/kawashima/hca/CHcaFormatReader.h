@@ -16,7 +16,7 @@ CGSS_NS_BEGIN
 
         CHcaFormatReader(const CHcaFormatReader &) = delete;
 
-        virtual ~CHcaFormatReader();
+        ~CHcaFormatReader() override = default;
 
         /**
          * Retrieves the HCA meta information.
@@ -27,7 +27,7 @@ CGSS_NS_BEGIN
 
         void GetHcaInfo(HCA_INFO *pInfo) const;
 
-        const HCA_INFO GetHcaInfo() const;
+        const HCA_INFO &GetHcaInfo() const;
 
         uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) final;
 

@@ -37,10 +37,4 @@ if (${GNU_COMPILER})
             POST_BUILD
             COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss>
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    if (TARGET cgss_jni)
-        add_custom_command(TARGET cgss_jni
-                POST_BUILD
-                COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss_jni>
-                WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    endif ()
 endif ()

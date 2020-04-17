@@ -15,7 +15,7 @@ CGSS_NS_BEGIN
 
         virtual void Seek(int64_t offset, StreamSeekOrigin origin) override;
 
-        virtual uint8_t ReadByte() override;
+        virtual int32_t ReadByte() override;
 
         virtual uint32_t WriteByte(uint8_t value) override;
 

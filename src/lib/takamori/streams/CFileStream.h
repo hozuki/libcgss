@@ -1,11 +1,13 @@
 #pragma once
 
 #include <cstdio>
+#include <string>
+
 #include "CStream.h"
 
 CGSS_NS_BEGIN
 
-    class CGSS_EXPORT CFileStream : public CStream {
+    class CGSS_EXPORT CFileStream final : public CStream {
 
     __extends(CStream, CFileStream);
 
@@ -17,39 +19,47 @@ CGSS_NS_BEGIN
 
         CFileStream(LPCSTR fileName, FileMode mode, FileAccess access);
 
-        virtual ~CFileStream();
+        explicit CFileStream(const std::string &fileName);
 
-        virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        CFileStream(const std::string &fileName, FileMode mode);
 
-        virtual uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
-
-        virtual bool_t IsWritable() const override;
-
-        virtual bool_t IsReadable() const override;
-
-        virtual bool_t IsSeekable() const override;
-
-        virtual uint64_t GetPosition() override;
-
-        virtual void SetPosition(uint64_t value) override;
-
-        virtual uint64_t GetLength() override;
-
-        virtual void SetLength(uint64_t value) override;
-
-        virtual void Flush() override;
-
-    protected:
-
-        CFileStream() = default;
-
-    private:
+        CFileStream(const std::string &fileName, FileMode mode, FileAccess access);
 
         CFileStream(const CFileStream &) = delete;
 
+        CFileStream(CFileStream &&) = delete;
+
+        CFileStream &operator=(const CFileStream &) = delete;
+
+        CFileStream &operator=(CFileStream &&) = delete;
+
+        ~CFileStream() override;
+
+        uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+
+        uint32_t Write(const void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+
+        bool_t IsWritable() const override;
+
+        bool_t IsReadable() const override;
+
+        bool_t IsSeekable() const override;
+
+        uint64_t GetPosition() override;
+
+        void SetPosition(uint64_t value) override;
+
+        uint64_t GetLength() override;
+
+        void SetLength(uint64_t value) override;
+
+        void Flush() override;
+
+    private:
+
         FILE *OpenFile(LPCSTR fileName);
 
-        void CreateFileInternal(LPCSTR fileName) const;
+        static void CreateFileInternal(LPCSTR fileName);
 
     private:
 

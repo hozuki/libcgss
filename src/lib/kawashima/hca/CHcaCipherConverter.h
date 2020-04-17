@@ -23,15 +23,23 @@ CGSS_NS_BEGIN
           */
         CHcaCipherConverter(IStream *stream, const HCA_CIPHER_CONFIG &cryptFrom, const HCA_CIPHER_CONFIG &cryptTo);
 
-        virtual ~CHcaCipherConverter();
+        CHcaCipherConverter(const CHcaCipherConverter &) = delete;
 
-        virtual uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+        CHcaCipherConverter(CHcaCipherConverter &&) = delete;
 
-        virtual uint64_t GetPosition() override;
+        CHcaCipherConverter &operator=(const CHcaCipherConverter &) = delete;
 
-        virtual void SetPosition(uint64_t value) override;
+        CHcaCipherConverter &operator=(CHcaCipherConverter &&) = delete;
 
-        virtual uint64_t GetLength() override;
+        ~CHcaCipherConverter() override;
+
+        uint32_t Read(void *buffer, uint32_t bufferSize, size_t offset, uint32_t count) override;
+
+        uint64_t GetPosition() override;
+
+        void SetPosition(uint64_t value) override;
+
+        uint64_t GetLength() override;
 
     private:
 
@@ -46,10 +54,6 @@ CGSS_NS_BEGIN
         uint8_t *_headerBuffer;
         std::map<uint32_t, const uint8_t *> _blockBuffers;
         uint64_t _position;
-
-    private:
-
-        CHcaCipherConverter(const CHcaCipherConverter &) = delete;
 
     };
 

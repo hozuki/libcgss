@@ -13,6 +13,8 @@ CGSS_NS_BEGIN
 
         explicit CBinaryReader(IStream *baseStream);
 
+        CBinaryReader(const CBinaryReader &) = delete;
+
         int8_t ReadInt8() const;
 
         uint8_t ReadUInt8() const;
@@ -326,10 +328,6 @@ CGSS_NS_BEGIN
         void Flush() override;
 
     private:
-
-        CBinaryReader() = delete;
-
-        CBinaryReader(const CBinaryReader &) = delete;
 
         IStream *_baseStream;
 
