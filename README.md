@@ -130,7 +130,7 @@ Requirements:
 - General:
   - CMake (>=3.2)
 - Windows:
-  - MSVC (>=19.0, VC++ 2015) or Cygwin/GCC (>=5.0) or MinGW/GCC (>=5.0)
+  - MSVC (>=14.0, VC++ 2015) or Cygwin/GCC (>=5.0) or MinGW/GCC (>=5.0)
 - macOS and Linux:
   - GCC (>=5.0)
 
