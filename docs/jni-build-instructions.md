@@ -1,5 +1,5 @@
 # JNI Build Instructions
 
-1. Run `bindings/java/scripts/Invoke-GenHeaders.ps1`
-2. Enable JNI support in `CMakeLists.txt`: uncomment the option
-3. Build the project.
+1. Set environment variable: `CGSS_BUILD_JNI_LIBRARY=ON`.
+2. Run `bindings/java/scripts/Invoke-GenHeaders.ps1`.
+3. Run CMake to generate and/or build the project.

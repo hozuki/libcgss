@@ -80,6 +80,49 @@ int main() {
 }
 ```
 
+It also offers a simple Java binding. [Example usage](bindings/java/src/moe/mottomo/cgss/example/App.java):
+
+```java
+import moe.mottomo.cgss.kawashima.HcaDecoder;
+import moe.mottomo.cgss.kawashima.HcaDecoderConfig;
+import moe.mottomo.cgss.takamori.FileAccess;
+import moe.mottomo.cgss.takamori.FileMode;
+import moe.mottomo.cgss.takamori.FileStream;
+
+public class App {
+
+    public static void main(String[] args) throws Exception {
+        try (FileStream fsIn = new FileStream("input.hca", FileMode.OPEN_EXISTING, FileAccess.READ)) {
+            try (FileStream fsOut = new FileStream("output.wav", FileMode.CREATE, FileAccess.WRITE)) {
+                HcaDecoderConfig config = new HcaDecoderConfig();
+                config.cipherConfig.setKey1(0x12345678);
+                config.cipherConfig.setKey2(0x90abcdef);
+                config.cipherConfig.setKeyModifier((short)0xab12);
+
+                try (HcaDecoder decoder = new HcaDecoder(fsIn, config)) {
+                    final int bufferSize = 4096;
+                    byte[] buffer = new byte[bufferSize];
+                    int read;
+
+                    do {
+                        read = decoder.read(buffer, 0, bufferSize);
+
+                        if (read > 0) {
+                            fsOut.write(buffer, 0, read);
+                        }
+                    } while (read > 0);
+                }
+            }
+        }
+
+        System.out.println("Complete.");
+    }
+
+}
+```
+
+C# users can write a P/Invoke wrapper to utilize the C interface.
+
 ## Building
 
 Requirements:
@@ -91,15 +134,22 @@ Requirements:
 - macOS and Linux:
   - GCC (>=5.0)
 
-For Windows users, please use CMake GUI (supplied with CMake) to generate a Visual Studio solution.
-
-For macOS and Linux users, you can simply invoke the script `build.sh`.
-
 > **Remarks:**
 >
 > 1. I personally recommend you to use Cygwin rather than MinGW. The latter seems to lack
 > support of properly handling `try...catch` statements.
 > 2. Linux build is tested on Windows Subsystem for Linux (WSL) using GCC 6.2.0.
+
+Steps:
+
+1. Run PowerShell script: `scripts/configure-cmake.ps1`;
+2. Run PowerShell script: `scripts/build-project.ps1`;
+
+Artifacts can be found in `bin` directory.
+
+More information:
+
+- [JNI library building instructions](docs/jni-build-instructions.md)
 
 ## API & Manual
 
