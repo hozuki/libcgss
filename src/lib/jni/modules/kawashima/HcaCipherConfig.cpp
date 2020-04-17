@@ -9,8 +9,12 @@ void ApplyCipherConfigObject(JNIEnv *env, jobject config, HCA_CIPHER_CONFIG &cfg
 
     {
         auto cipherTypeClass = env->FindClass(jni::cgss_class_names::HcaCipherType_Path);
+        jni::checkClassInJava(env, cipherTypeClass, jni::cgss_class_names::HcaCipherType_Name);
+
         auto valueMethodSignature = jni::signature::param_types >> jni::signature::return_type >> jni::signature::jint >> jni::signature::to_string;
         auto valueMethodId = env->GetMethodID(cipherTypeClass, "value", valueMethodSignature.c_str());
+        jni::checkMethodInJava(env, valueMethodId, jni::cgss_class_names::HcaCipherType_Name, "value");
+
         auto cipherTypeValue = env->CallIntMethod(cipherType, valueMethodId);
 
         cfg.cipherType = static_cast<CGSS_HCA_CIPHER_TYPE>(cipherTypeValue);
