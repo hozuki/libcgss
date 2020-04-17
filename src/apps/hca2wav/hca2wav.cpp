@@ -6,6 +6,8 @@
 
 using namespace std;
 
+static void PrintAppTitle(ostream &out);
+
 static void PrintHelp();
 
 int main(int argc, const char *argv[]) {
@@ -37,6 +39,8 @@ int main(int argc, const char *argv[]) {
         PrintHelp();
         return 0;
     }
+
+    PrintAppTitle(cout);
 
     // Configure decoder.
     cgss::CHcaDecoderConfig decoderConfig;
@@ -95,12 +99,21 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
+static void PrintAppTitle(ostream &out) {
+    out << "hca2wav: HCA decoding utility" << endl << endl;
+}
+
 static void PrintHelp() {
+    PrintAppTitle(cerr);
+
     uint32_t k1 = 0, k2 = 0;
+
+#if __COMPILE_WITH_CGSS_KEYS
     k1 = g_CgssKey1;
     k2 = g_CgssKey2;
-    cout << "hca2wav: Utility for decoding HCA to wave audio\n\n"
-         << "Usage:\n"
+#endif
+
+    cerr << "Usage:\n"
          << "    hca2wav <in file> <out file> [<decode key 1 = " << hex << k1 << "> <decode key 2 = " << hex << k2 << ">] [<keymod>]\n"
          << "Example:\n"
          << "    hca2wav C:\\input.hca C:\\output.wav 12345678 90abcdef a1b2"

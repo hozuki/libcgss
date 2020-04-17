@@ -21,6 +21,8 @@ struct Acb2HcasOptions {
     bool_t useCueName;
 };
 
+static void PrintAppTitle(ostream &out);
+
 static void PrintHelp();
 
 static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOptions &options);
@@ -51,13 +53,28 @@ int main(int argc, const char *argv[]) {
     return DoWork(inputFile, options);
 }
 
+static void PrintAppTitle(ostream &out) {
+    out << "acb2hcas: ACB w/ HCA batch unpacking utility" << endl << endl;
+}
+
 static void PrintHelp() {
-    cout << "Usage:\n" << endl;
-    cout << "acb2hcas <acb file> [-a <key1> -b <key2>] [-k <key>] [-n]" << endl << endl;
-    cout << "\t-a\tKey, lower 32 bits (in hexadecimal)" << endl;
-    cout << "\t-b\tKey, higher 32 bits (in hexadecimal)" << endl;
-    cout << "\t-k\tKey, 64 bits (in hexadecimal)" << endl;
-    cout << "\t-n\tUse cue names for output waveforms" << endl;
+    PrintAppTitle(cerr);
+
+    uint32_t k1 = 0, k2 = 0;
+
+#if __COMPILE_WITH_CGSS_KEYS
+    k1 = g_CgssKey1;
+    k2 = g_CgssKey2;
+#endif
+
+    const auto key = (static_cast<uint64_t>(k2) << 32u) | static_cast<uint64_t>(k1);
+
+    cerr << "Usage:\n" << endl;
+    cerr << "acb2hcas <acb file> [-a <key1 = " << hex << k1 << ">] [-b <key2 = " << hex << k2 << ">] [-k <key = " << hex << key << ">] [-n]" << endl << endl;
+    cerr << "\t-a\tKey, lower 32 bits (in hexadecimal)" << endl;
+    cerr << "\t-b\tKey, higher 32 bits (in hexadecimal)" << endl;
+    cerr << "\t-k\tKey, 64 bits (in hexadecimal)" << endl;
+    cerr << "\t-n\tUse cue names for output waveforms" << endl;
 }
 
 static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOptions &options) {
@@ -67,6 +84,11 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOp
     }
 
     inputFile = argv[1];
+
+#if __COMPILE_WITH_CGSS_KEYS
+    options.keyParts.key1 = g_CgssKey1;
+    options.keyParts.key2 = g_CgssKey2;
+#endif
 
     for (int i = 2; i < argc; ++i) {
         if (argv[i][0] == '-' || argv[i][0] == '/') {
@@ -100,6 +122,8 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOp
 }
 
 static int DoWork(const string &inputFile, const Acb2HcasOptions &options) {
+    PrintAppTitle(cout);
+
     AcbWalkOptions o;
 
     o.callback = ProcessHca;

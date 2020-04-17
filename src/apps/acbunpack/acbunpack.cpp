@@ -12,6 +12,8 @@ struct AcbUnpackOptions {
     bool_t useCueName;
 };
 
+static void PrintAppTitle(FILE *out);
+
 static void PrintHelp();
 
 static int ParseArgs(int argc, const char *argv[], string &inputFile, AcbUnpackOptions &options);
@@ -41,6 +43,8 @@ int main(int argc, const char *argv[]) {
 }
 
 static int DoWork(const string &inputFile, const AcbUnpackOptions &options) {
+    PrintAppTitle(stdout);
+
     AcbWalkOptions o;
     o.useCueName = options.useCueName;
     o.callback = ExtractFile;
@@ -57,12 +61,21 @@ static int ExtractFile(AcbWalkCallbackParams *params) {
     return 0;
 }
 
+static void PrintAppTitle(FILE *out) {
+    static const char *appName = "acbunpack: ACB archive unpack utility";
+    static const char *appVersion = "v0.1";
+
+    fprintf(out, "%s %s\n\n", appName, appVersion);
+}
+
 static void PrintHelp() {
+    PrintAppTitle(stderr);
+
     static const char *helpMessage = "Usage:\n"
                                      "\n"
-                                     "\tacbunpack <file> [-n]\n"
+                                     "acbunpack <file> [-n]\n"
                                      "\n"
-                                     "\t-n Use cue names for output waveforms\n";
+                                     "\t-n\tUse cue names for output waveforms\n";
     fprintf(stderr, "%s", helpMessage);
 }
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <inttypes.h>
+
 #include "../../lib/cgss_api.h"
-#include "../../lib/cdata/UTF_FIELD.h"
 
 #define INDENT_VALUE (2u)
 
@@ -12,6 +12,8 @@ static void print_table_recursive(UTF_TABLE *table, uint32_t indent);
 static void printf_indent(uint32_t indent);
 
 static void fprintf_indent(FILE *out, uint32_t indent);
+
+static void print_app_title(FILE *out);
 
 static void print_help();
 
@@ -60,31 +62,30 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
-static const char *version_string = "UTF Schema Reader v0.1";
-
 #define BOOL_STR(v) ((v) ? "yes" : "no")
 #define PRINT_INDENT() printf_indent(indent)
 
 static void print_table(const char *file_name, UTF_TABLE *table) {
-    printf("%s\n\n", version_string);
-    printf("# File: %s\n", file_name);
+    print_app_title(stdout);
+
+    fprintf(stdout, "# File: %s\n\n", file_name);
 
     print_table_recursive(table, 0);
 }
 
 static void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
-    printf("{\n");
+    fprintf(stdout, "{\n");
     indent += INDENT_VALUE;
 
     PRINT_INDENT();
-    printf("@%s (encrypted: %s, field count: %" PRIu32 ", row count: %" PRIu32 ")\n", table->tableName,
-           BOOL_STR(table->isEncrypted), table->header.fieldCount, table->header.rowCount);
+    fprintf(stdout, "@%s (encrypted: %s, field count: %" PRIu32 ", row count: %" PRIu32 ")\n", table->tableName,
+            BOOL_STR(table->isEncrypted), table->header.fieldCount, table->header.rowCount);
 
     for (uint32_t i = 0; i < table->header.rowCount; ++i) {
         UTF_ROW *currentRow = table->rows + i;
 
         PRINT_INDENT();
-        printf("@%s [%" PRIu32 "] = {\n", table->tableName, i);
+        fprintf(stdout, "@%s [%" PRIu32 "] = {\n", table->tableName, i);
         indent += INDENT_VALUE;
 
         if (table->header.fieldCount == 0) {
@@ -139,8 +140,8 @@ static void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
             }
 
             PRINT_INDENT();
-            printf("%08" PRIx32 " (row+%08" PRIx32 ") %2" PRIx32 " %s [%s] =", currentField->offset, currentField->offsetInRow,
-                   ((uint32_t)currentField->storage | (uint32_t)currentField->type), currentField->name, columnTypeName);
+            fprintf(stdout, "%08" PRIx32 " (row+%08" PRIx32 ") %2" PRIx32 " %s [%s] =", currentField->offset, currentField->offsetInRow,
+                    ((uint32_t)currentField->storage | (uint32_t)currentField->type), currentField->name, columnTypeName);
 
             const char *constantTypeStr;
 
@@ -208,21 +209,35 @@ static void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
                     break;
             }
 
-            printf("\n");
+            fprintf(stdout, "\n");
         }
 
         indent -= INDENT_VALUE;
         PRINT_INDENT();
-        printf("}\n");
+        fprintf(stdout, "}\n");
     }
     indent -= INDENT_VALUE;
 
     PRINT_INDENT();
-    printf("}");
+    fprintf(stdout, "}");
+}
+
+static void print_app_title(FILE *out) {
+    static const char *app_description = "utftable: UTF schema reader";
+    static const char *version_string = "v0.1";
+
+    fprintf(out, "%s %s\n\n", app_description, version_string);
 }
 
 static void print_help() {
-    printf("Usage: utftable <file>\n");
+    print_app_title(stderr);
+
+    static const char *help_message =
+        "Usage:\n"
+        "\n"
+        "utftable <file>\n";
+
+    fprintf(stderr, "%s", help_message);
 }
 
 static void printf_indent(uint32_t indent) {

@@ -1,8 +1,9 @@
 target_compile_definitions(cgss PRIVATE __CGSS_BUILDING_DLL__)
-target_compile_definitions(hcacc PRIVATE __COMPILE_WITH_CGSS_KEYS)
-target_compile_definitions(hcaenc PRIVATE __COMPILE_WITH_CGSS_KEYS)
-target_compile_definitions(hca2wav PRIVATE __COMPILE_WITH_CGSS_KEYS)
-target_compile_definitions(acb2wavs PRIVATE __COMPILE_WITH_CGSS_KEYS)
+target_compile_definitions(hcacc PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
+target_compile_definitions(hcaenc PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
+target_compile_definitions(hca2wav PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
+target_compile_definitions(acb2wavs PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
+target_compile_definitions(acb2hcas PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
 
 # http://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
 if (MINGW OR CYGWIN)

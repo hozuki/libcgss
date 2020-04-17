@@ -3,6 +3,8 @@
 
 using namespace std;
 
+static void PrintAppTitle(std::ostream &out);
+
 static void PrintHelp();
 
 static void PrintInfo(const char *fileName, const HCA_INFO &info);
@@ -13,13 +15,25 @@ int main(int argc, const char *argv[]) {
         return 0;
     }
 
+    PrintAppTitle(cout);
+    bool anyFileFailed = false;
+
     try {
         for (auto i = 1; i < argc; ++i) {
             const auto fileName = argv[i];
+
+            if (!cgssHelperFileExists(fileName)) {
+                anyFileFailed = true;
+                cerr << "Error: File '" << fileName << "' does not exist." << endl;
+                continue;
+            }
+
             cgss::CFileStream fileStream(fileName, cgss::FileMode::OpenExisting, cgss::FileAccess::Read);
             cgss::CHcaDecoder decoder(&fileStream);
+
             HCA_INFO hcaInfo;
             decoder.GetHcaInfo(hcaInfo);
+
             PrintInfo(fileName, hcaInfo);
         }
     } catch (const cgss::CException &ex) {
@@ -32,13 +46,19 @@ int main(int argc, const char *argv[]) {
         cerr << "std::runtime_error: " << ex.what() << endl;
         return 1;
     }
-    return 0;
+
+    return anyFileFailed ? -1 : 0;
+}
+
+static void PrintAppTitle(std::ostream &out) {
+    out << "hcainfo: HCA file info viewer" << endl << endl;
 }
 
 static void PrintHelp() {
-    cout << "hcainfo: HCA file info viewer" << endl << endl;
-    cout << "Usage:" << endl;
-    cout << "  hcainfo [input files]" << endl << endl;
+    PrintAppTitle(cerr);
+
+    cerr << "Usage:" << endl;
+    cerr << "  hcainfo <HCA file 1> [<HCA file 2> [...]]" << endl;
 }
 
 static void PrintInfo(const char *fileName, const HCA_INFO &info) {

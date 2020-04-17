@@ -16,6 +16,8 @@ struct Acb2WavsOptions {
     bool_t useCueName;
 };
 
+static void PrintAppTitle(ostream &out);
+
 static void PrintHelp();
 
 static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOptions &options);
@@ -38,6 +40,8 @@ int main(int argc, const char *argv[]) {
         return parsed;
     }
 
+    PrintAppTitle(cout);
+
     if (!cgssHelperFileExists(inputFile.c_str())) {
         fprintf(stderr, "File '%s' does not exist or cannot be opened.\n", inputFile.c_str());
         return -1;
@@ -46,10 +50,23 @@ int main(int argc, const char *argv[]) {
     return DoWork(inputFile, options);
 }
 
+static void PrintAppTitle(ostream &out) {
+    out << "acb2wavs: ACB w/ HCA batch unpacking and decoding utility" << endl << endl;
+}
+
 static void PrintHelp() {
-    cout << "Usage:\n" << endl;
-    cout << "acb2wavs <acb file> [-a <key1> -b <key2>] [-n]" << endl << endl;
-    cout << "\t-n\tUse cue names for output waveforms" << endl;
+    PrintAppTitle(cerr);
+
+    uint32_t k1 = 0, k2 = 0;
+
+#if __COMPILE_WITH_CGSS_KEYS
+    k1 = g_CgssKey1;
+    k2 = g_CgssKey2;
+#endif
+
+    cerr << "Usage:\n" << endl;
+    cerr << "acb2wavs <acb file> [-a <key1 = " << hex << k1 << ">[ [-b <key2 = " << hex << k2 << ">] [-n]" << endl << endl;
+    cerr << "\t-n\tUse cue names for output waveforms" << endl;
 }
 
 static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOptions &options) {
@@ -62,6 +79,11 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOp
 
     options.decoderConfig.waveHeaderEnabled = TRUE;
     options.decoderConfig.decodeFunc = CDefaultWaveGenerator::Decode16BitS;
+
+#if __COMPILE_WITH_CGSS_KEYS
+    options.decoderConfig.cipherConfig.keyParts.key1 = g_CgssKey1;
+    options.decoderConfig.cipherConfig.keyParts.key2 = g_CgssKey2;
+#endif
 
     options.decoderConfig.cipherConfig.keyModifier = 0;
 

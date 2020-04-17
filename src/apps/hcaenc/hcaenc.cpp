@@ -24,16 +24,9 @@ static const char *fn_hcaencEncodeToFile = "hcaencEncodeToFile";
 
 HCA_ENC_ENCODE_TO_FILE hcaencEncodeToFile = nullptr;
 
-static const char *msg_help = ""
-    HCAENC_APP_NAME ": HCA Encoder Utility\n"
-    "\n"
-    "* requires " HCAENC_DLL_FILE_NAME "\n"
-    VGAUDIO_APP_VISIT_MESSAGE "\n"
-    "\n"
-    "Usage:\n"
-    "  " HCAENC_APP_NAME " <input WAVE> <output HCA>\n\n"
-    "Example:\n"
-    "  " HCAENC_APP_NAME " C:\\song_9001.wav C:\\song_9001.hca";
+static void PrintAppTitle(FILE *out);
+
+static void PrintHelp();
 
 int main(int argc, const char *argv[]) {
     HMODULE hHcaEncDll = nullptr;
@@ -45,12 +38,14 @@ int main(int argc, const char *argv[]) {
     ULONGLONG key = 0ul;
 
     if (argc < 3) {
-        cout << msg_help << endl;
+        PrintHelp();
         return 0;
-    } else {
-        inputFile = argv[1];
-        outputFile = argv[2];
     }
+
+    PrintAppTitle(stdout);
+
+    inputFile = argv[1];
+    outputFile = argv[2];
 
     hHcaEncDll = cgss::Utilities::LoadDynamicLibrary(lib_dllName);
     LONG ret = 0;
@@ -67,6 +62,25 @@ int main(int argc, const char *argv[]) {
         cerr << "ERROR: Failed to load <" << lib_dllName << ">" << endl;
     }
     return (int)ret;
+}
+
+static void PrintAppTitle(FILE *out) {
+    static const char *appTitle = HCAENC_APP_NAME ": HCA encoder utility\n\n";
+
+    fprintf(out, "%s", appTitle);
+}
+
+static void PrintHelp() {
+    PrintAppTitle(stderr);
+
+    static const char *msg_help = "* requires " HCAENC_DLL_FILE_NAME "\n"
+                                  VGAUDIO_APP_VISIT_MESSAGE "\n"
+                                  "\n"
+                                  "Usage:\n"
+                                  "  " HCAENC_APP_NAME " <input WAVE> <output HCA>\n\n"
+                                  "Example:\n"
+                                  "  " HCAENC_APP_NAME " C:\\song_9001.wav C:\\song_9001.hca\n";
+    fprintf(stderr, "%s", msg_help);
 }
 
 #define _MAIN_DEFINED
@@ -91,7 +105,7 @@ int main(int argc, const char *argv[]) {
 
 int main() {
     static const char *message = HCAENC_OBSOLETE_MESSAGE;
-    printf("%s", message);
+    fprintf(stderr, "%s\n", message);
     return 0;
 }
 

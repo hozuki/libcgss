@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include <iostream>
 
 #ifndef __MINGW_H
@@ -15,30 +15,16 @@
 
 using namespace std;
 
-static const char *msg_help = ""
-                              "hcacc: HCA Cipher Conversion Utility\n\n"
-                              "Usage:\n"
-                              "  hcacc.exe <input HCA> <output HCA> [extra options]\n\n"
-                              "Extra options:\n"
-                              "  -ot <output HCA cipher type>\n"
-                              "  -i1 <input HCA key 1 (if necessary)>\n"
-                              "  -i2 <input HCA key 2 (if necessary)>\n"
-                              "  -o1 <output HCA key 1>\n"
-                              "  -o2 <output HCA key 2>\n\n"
-                              "Remarks:\n"
-                              "  - Valid cipher types are: 0, 1, 56.\n"
-                              "  - Keys are entered in 4 byte hex form, e.g.: 0403F18B.\n"
-                              "  - Default value of all arguments is 0, unless " cgss_str(__COMPILE_WITH_CGSS_KEYS) " is set during compilation.\n\n"
-                              "Example:\n"
-                              "  hcacc.exe C:\\in.hca C:\\out.hca -ot 1\n"
-                              "  * This command will convert an HCA file from cipher type 0 (no cipher) to type 1 (with static cipher key).";
+static void PrintAppTitle(ostream &out);
 
-static int parseArgs(int argc, const char *argv[], const char **input, const char **output,
-                     HCA_CIPHER_CONFIG &ccFrom, HCA_CIPHER_CONFIG &ccTo);
+static void PrintHelp();
+
+static int ParseArgs(int argc, const char **argv, const char **input, const char **output, HCA_CIPHER_CONFIG &ccFrom, HCA_CIPHER_CONFIG &ccTo);
 
 int main(int argc, const char *argv[]) {
-    cgss::CHcaCipherConfig ccFrom, ccTo;
     const char *fileNameFrom, *fileNameTo;
+
+    cgss::CHcaCipherConfig ccFrom, ccTo;
 
     memset(&ccFrom, 0, sizeof(HCA_CIPHER_CONFIG));
     memset(&ccTo, 0, sizeof(HCA_CIPHER_CONFIG));
@@ -49,7 +35,8 @@ int main(int argc, const char *argv[]) {
     ccTo.keyParts.key1 = g_CgssKey1;
     ccTo.keyParts.key2 = g_CgssKey2;
 
-    int r = parseArgs(argc, argv, &fileNameFrom, &fileNameTo, ccFrom, ccTo);
+    int r = ParseArgs(argc, argv, &fileNameFrom, &fileNameTo, ccFrom, ccTo);
+
     if (r > 0) {
         // An error occurred.
         cerr << "Argument error: " << r << endl;
@@ -57,6 +44,13 @@ int main(int argc, const char *argv[]) {
     } else if (r < 0) {
         // Help message is printed.
         return 0;
+    }
+
+    PrintAppTitle(cout);
+
+    if (!cgssHelperFileExists(fileNameFrom)) {
+        cerr << "Error: File '" << fileNameFrom << "' does not exist." << endl;
+        return -1;
     }
 
     try {
@@ -88,12 +82,12 @@ int main(int argc, const char *argv[]) {
 
 #define CASE_HASH(char1, char2) (uint32_t)(((uint32_t)(char1) << 8u) | (uint32_t)(char2))
 
-static int parseArgs(int argc, const char *argv[], const char **input, const char **output, HCA_CIPHER_CONFIG &ccFrom,
-                     HCA_CIPHER_CONFIG &ccTo) {
+static int ParseArgs(int argc, const char **argv, const char **input, const char **output, HCA_CIPHER_CONFIG &ccFrom, HCA_CIPHER_CONFIG &ccTo) {
     if (argc < 3) {
-        cout << msg_help << endl;
+        PrintHelp();
         return -1;
     }
+
     *input = argv[1];
     *output = argv[2];
 
@@ -139,4 +133,38 @@ static int parseArgs(int argc, const char *argv[], const char **input, const cha
         }
     }
     return 0;
+}
+
+static void PrintAppTitle(ostream &out) {
+    out << "hcacc: HCA cipher conversion utility" << endl << endl;
+}
+
+static void PrintHelp() {
+    PrintAppTitle(cerr);
+
+    static const char *msg_help = "Usage:\n"
+                                  "  hcacc.exe <input HCA> <output HCA> [extra options]\n\n"
+                                  "Extra options:\n"
+                                  "  -ot <output HCA cipher type>\n"
+                                  "  -i1 <input HCA key 1 (if necessary)>\n"
+                                  "  -i2 <input HCA key 2 (if necessary)>\n"
+                                  "  -o1 <output HCA key 1>\n"
+                                  "  -o2 <output HCA key 2>\n\n"
+                                  "Remarks:\n"
+                                  "  - Valid cipher types are: 0, 1, 56.\n"
+                                  "  - Keys are entered in 4 byte hex form, e.g.: 0403F18B.\n"
+                                  "  - Default value of all arguments is 0, unless " cgss_str(__COMPILE_WITH_CGSS_KEYS) " is set during compilation.\n\n"
+                                  "Example:\n"
+                                  "  hcacc.exe C:\\in.hca C:\\out.hca -ot 1\n"
+                                  "  * This command will convert an HCA file from cipher type 0 (no cipher) to type 1 (with static cipher key).\n";
+
+    cerr << msg_help << endl;
+
+#if __COMPILE_WITH_CGSS_KEYS
+#define CGSS_KEYS_DEFINED_STATUS "yes"
+#else
+#define CGSS_KEYS_DEFINED_STATUS "no"
+#endif
+
+    cerr << "Info:\n  CGSS keys included in current release: " CGSS_KEYS_DEFINED_STATUS << endl;
 }
