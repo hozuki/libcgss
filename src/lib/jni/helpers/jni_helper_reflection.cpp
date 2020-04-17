@@ -8,6 +8,7 @@
 
 #include "jni_helper_reflection.h"
 #include "jni_helper_string.h"
+#include "jni_helper_signature.h"
 
 CGSS_JNI_NS_BEGIN
 
@@ -30,7 +31,8 @@ CGSS_JNI_NS_BEGIN
                 return nullptr;
             }
 
-            jmethodID getter = env->GetMethodID(nativeObjectClass, "getNativePtr", "()J");
+            auto getterSignature = signature::param_types >> signature::return_type >> signature::jlong >> signature::to_string;
+            jmethodID getter = env->GetMethodID(nativeObjectClass, "getNativePtr", getterSignature.c_str());
             checkMethodInJava(env, getter, classNameDescription, "getNativePtr():long");
 
             if (getter == nullptr) {
@@ -53,7 +55,8 @@ CGSS_JNI_NS_BEGIN
                 return;
             }
 
-            jmethodID setter = env->GetMethodID(nativeObjectClass, "setNativePtr", "(J)V");
+            auto setterSignature = signature::param_types >> signature::jlong >> signature::return_type >> signature::jvoid >> signature::to_string;
+            jmethodID setter = env->GetMethodID(nativeObjectClass, "setNativePtr", setterSignature.c_str());
             checkMethodInJava(env, setter, classNameDescription, "setNativePtr(long):void");
 
             if (setter == nullptr) {
@@ -394,7 +397,8 @@ CGSS_JNI_NS_BEGIN
 
         void throwCgssException(JNIEnv *env, const std::string &message, CGSS_OP_RESULT opResult) {
             auto clazz = env->FindClass(java_exceptions::CgssException);
-            auto methodId = env->GetMethodID(clazz, "<init>", "(Ljava/lang/String;I)V");
+            auto ctorSignature = signature::param_types >> signature::jstring >> signature::jint >> signature::return_type >> signature::jvoid >> signature::to_string;
+            auto methodId = env->GetMethodID(clazz, "<init>", ctorSignature.c_str());
 
             auto javaStr = ansiToUtf8(env, message);
             auto opResultInt = static_cast<jint>(opResult);

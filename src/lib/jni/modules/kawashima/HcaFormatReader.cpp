@@ -79,7 +79,8 @@ JNIEXPORT jobject JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_getHca
             break;
         }
 
-        jmethodID hcaInfoCtor = env->GetMethodID(hcaInfoClass, "<init>", "()V");
+        auto ctorSignature = jni::signature::param_types >> jni::signature::return_type >> jni::signature::jvoid >> jni::signature::to_string;
+        jmethodID hcaInfoCtor = env->GetMethodID(hcaInfoClass, "<init>", ctorSignature.c_str());
         jni::checkMethodInJava(env, hcaInfoCtor, jni::cgss_class_names::HcaInfo_Name, "<init>");
 
         if (hcaInfoCtor == nullptr) {
@@ -133,7 +134,7 @@ JNIEXPORT jobject JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_getHca
         auto cipherTypeClass = env->FindClass(jni::cgss_class_names::HcaCipherType_Path);
         jni::checkClassInJava(env, cipherTypeClass, jni::cgss_class_names::HcaCipherType_Name);
 
-        auto methodSignature = std::string("(I)L") + jni::cgss_class_names::HcaCipherType_Path + ";";
+        auto methodSignature = jni::signature::param_types >> jni::signature::jint >> jni::signature::return_type >> jni::signature::jobject(jni::cgss_class_names::HcaCipherType_Name) >> jni::signature::to_string;
         auto valueOfMethod = env->GetStaticMethodID(cipherTypeClass, "valueOf", methodSignature.c_str());
         jni::checkMethodInJava(env, valueOfMethod, jni::cgss_class_names::HcaCipherType_Name, "valueOf");
 

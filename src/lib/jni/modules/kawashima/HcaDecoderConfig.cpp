@@ -24,7 +24,8 @@ void ApplyDecoderConfigObject(JNIEnv *env, jobject config, HCA_DECODER_CONFIG &c
 
     if (decodeFunc != nullptr) {
         auto decodeFuncClass = env->FindClass(jni::cgss_class_names::HcaDecodeFunction_Path);
-        auto valueMethodId = env->GetMethodID(decodeFuncClass, "value", "()I");
+        auto valueMethodSignature = jni::signature::param_types >> jni::signature::return_type >> jni::signature::jint >> jni::signature::to_string;
+        auto valueMethodId = env->GetMethodID(decodeFuncClass, "value", valueMethodSignature.c_str());
 
         auto decodeFuncValue = env->CallIntMethod(decodeFunc, valueMethodId);
 
