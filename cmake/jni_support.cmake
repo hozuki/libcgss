@@ -1,10 +1,10 @@
 if ($ENV{CGSS_BUILD_JNI_LIBRARY})
-    set(BUILD_JNI_LIBRARY ON)
-elseif (NOT DEFINED BUILD_JNI_LIBRARY)
-    set(BUILD_JNI_LIBRARY OFF)
+    set(CGSS_BUILD_JNI_LIBRARY ON)
+elseif (NOT DEFINED CGSS_BUILD_JNI_LIBRARY)
+    set(CGSS_BUILD_JNI_LIBRARY OFF)
 endif ()
 
-if (${BUILD_JNI_LIBRARY})
+if (${CGSS_BUILD_JNI_LIBRARY})
     # http://public.kitware.com/pipermail/cmake/2012-June/050674.html
     macro(header_directories base_path return_list)
         file(GLOB_RECURSE new_list ${base_path}/*.h)

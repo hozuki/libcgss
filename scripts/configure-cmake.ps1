@@ -1,4 +1,4 @@
-if ($env:BUILD_JNI_LIBRARY)
+if ($env:CGSS_BUILD_JNI_LIBRARY)
 {
     $scriptPath = [System.IO.Path]::Combine($PSScriptRoot, "../bindings/java/scripts/Invoke-GenHeaders.ps1")
 

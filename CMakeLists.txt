@@ -19,6 +19,6 @@ include(cmake/project_link.cmake)
 include(cmake/project_postbuild.cmake)
 
 # Override JNI build (disabled by default in jni_support.cmake)
-#set(BUILD_JNI_LIBRARY ON)
+#set(CGSS_BUILD_JNI_LIBRARY ON)
 
 include(cmake/jni_support.cmake)

@@ -20,7 +20,7 @@ environment:
       CONFIGURATION: Release
       ARCH: Win32
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
-  BUILD_JNI_LIBRARY: ON
+  CGSS_BUILD_JNI_LIBRARY: ON
 matrix:
   fast_finish: true
 for:
