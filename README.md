@@ -44,82 +44,9 @@ the DLL located at `tools\hcaenc_lite.dll`.
 - [GitHub Releases](https://github.com/hozuki/libcgss/releases)
 - [AppVeyor (CI auto build, may not be stable)](https://ci.appveyor.com/project/hozuki/libcgss)
 
-## Example 
+## Examples
 
-A quick example, from [hca2wav](src/apps/hca2wav/hca2wav.cpp):
-
-```cpp
-#include "cgss_api.h"
-
-int main() {
-    cgss::CHcaDecoderConfig decoderConfig;
-    decoderConfig.decodeFunc = cgss::CDefaultWaveGenerator::Decode16BitS;
-    decoderConfig.waveHeaderEnabled = TRUE;
-    decoderConfig.cipherConfig.keyParts.key1 = 0x12345678;
-    decoderConfig.cipherConfig.keyParts.key2 = 0x90abcdef;
-    
-    try {
-        cgss::CFileStream fileIn(HCA_FILE_NAME, cgss::FileMode::OpenExisting, cgss::FileAccess::Read),
-            fileOut(WAV_FILE_NAME, cgss::FileMode::Create, cgss::FileAccess::Write);
-        cgss::CHcaDecoder hcaDecoder(&fileIn, decoderConfig);
-    
-        uint32_t read = 1;
-        static const uint32_t bufferSize = 1024;
-        uint8_t buffer[bufferSize];
-        while (read > 0) {
-            read = hcaDecoder.Read(buffer, bufferSize, 0, bufferSize);
-            if (read > 0) {
-                fileOut.Write(buffer, bufferSize, 0, read);
-            }
-        }
-    } catch (const cgss::CException &ex) {
-        cerr << "Exception: " << ex.GetExceptionMessage() << ", code=" << ex.GetOpResult() << endl;
-        return ex.GetOpResult();
-    }
-    return 0;
-}
-```
-
-It also offers a simple Java binding. [Example usage](bindings/java/src/moe/mottomo/cgss/example/App.java):
-
-```java
-import moe.mottomo.cgss.kawashima.HcaDecoder;
-import moe.mottomo.cgss.kawashima.HcaDecoderConfig;
-import moe.mottomo.cgss.takamori.FileAccess;
-import moe.mottomo.cgss.takamori.FileMode;
-import moe.mottomo.cgss.takamori.FileStream;
-
-public class App {
-
-    public static void main(String[] args) throws Exception {
-        try (FileStream fsIn = new FileStream("input.hca", FileMode.OPEN_EXISTING, FileAccess.READ)) {
-            try (FileStream fsOut = new FileStream("output.wav", FileMode.CREATE, FileAccess.WRITE)) {
-                HcaDecoderConfig config = new HcaDecoderConfig();
-                config.cipherConfig.setKey1(0x12345678);
-                config.cipherConfig.setKey2(0x90abcdef);
-                config.cipherConfig.setKeyModifier((short)0xab12);
-
-                try (HcaDecoder decoder = new HcaDecoder(fsIn, config)) {
-                    final int bufferSize = 4096;
-                    byte[] buffer = new byte[bufferSize];
-                    int read;
-
-                    do {
-                        read = decoder.read(buffer, 0, bufferSize);
-
-                        if (read > 0) {
-                            fsOut.write(buffer, 0, read);
-                        }
-                    } while (read > 0);
-                }
-            }
-        }
-
-        System.out.println("Complete.");
-    }
-
-}
-```
+Have a look at some examples [here](docs/examples.md).
 
 C# users can write a P/Invoke wrapper to utilize the C interface.
 
@@ -150,6 +77,7 @@ Artifacts can be found in `bin` directory.
 More information:
 
 - [JNI library building instructions](docs/jni-build-instructions.md)
+- [PHP extension](https://github.com/towa0131/php-cgss) by [@towa0131](https://github.com/towa0131)
 
 ## API & Manual
 
