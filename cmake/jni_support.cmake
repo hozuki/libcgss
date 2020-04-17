@@ -29,10 +29,10 @@ if (${CGSS_BUILD_JNI_LIBRARY})
     set(JAVA_LIBRARY_PATH ${JAVA_HOME}/lib)
 
     file(GLOB_RECURSE LIBCGSS_JNI_HEADER_FILES bindings/java/target/headers/*.h)
-    set(LIBCGSS_JNI_INTF_FILES src/lib/jni/jni_helper.hpp src/lib/jni/jni_helper.cpp src/lib/jni/jni_string.h src/lib/jni/jni_string.cpp)
-    set(LIBCGSS_JNI_IMPL_FILES src/lib/jni/modules/takamori/NativeStream.cpp src/lib/jni/modules/takamori/FileStream.cpp src/lib/jni/modules/takamori/MemoryStream.cpp src/lib/jni/modules/kawashima/HcaFormatReader.cpp src/lib/jni/modules/kawashima/HcaDecoder.cpp)
+    set(LIBCGSS_JNI_HELPER_FILES src/lib/jni/helpers/cgss_jni_ns.h src/lib/jni/jni_helper.h src/lib/jni/helpers/jni_helper_string.h src/lib/jni/helpers/jni_helper_string.cpp src/lib/jni/helpers/jni_helper_reflection.h src/lib/jni/helpers/jni_helper_reflection.cpp src/lib/jni/helpers/jni_helper_math.h src/lib/jni/helpers/jni_helper_math.cpp)
+    set(LIBCGSS_JNI_IMPL_FILES src/lib/jni/modules/cgss_jni_class_names.cpp src/lib/jni/modules/cgss_jni_class_names.h src/lib/jni/modules/takamori/NativeStream.cpp src/lib/jni/modules/takamori/FileStream.cpp src/lib/jni/modules/takamori/MemoryStream.cpp src/lib/jni/modules/kawashima/HcaFormatReader.cpp src/lib/jni/modules/kawashima/HcaDecoder.cpp)
 
-    set(LIBCGSS_JNI_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_JNI_HEADER_FILES} ${LIBCGSS_JNI_INTF_FILES} ${LIBCGSS_JNI_IMPL_FILES})
+    set(LIBCGSS_JNI_SOURCE_FILES ${LIBCGSS_SOURCE_FILES} ${LIBCGSS_JNI_HEADER_FILES} ${LIBCGSS_JNI_HELPER_FILES} ${LIBCGSS_JNI_IMPL_FILES})
 
     # New target
     add_library(cgss_jni SHARED ${LIBCGSS_JNI_SOURCE_FILES})

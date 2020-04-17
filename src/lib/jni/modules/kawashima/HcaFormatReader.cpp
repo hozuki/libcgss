@@ -1,7 +1,8 @@
 #include <jni.h>
 #include <cgss_api.h>
 
-#include "../../jni_helper.hpp"
+#include "../../jni_helper.h"
+#include "../cgss_jni_class_names.h"
 
 using namespace cgss;
 
@@ -11,7 +12,7 @@ extern "C" {
 
 JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_isWritable
     (JNIEnv *env, jobject thiz) {
-    auto reader = jni::getNativePtrAs<CHcaFormatReader>(env, thiz);
+    auto reader = jni::getNativePtrAs<CHcaFormatReader>(env, thiz, jni::cgss_class_names::HcaFormatReader_Name);
 
     if (reader == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: HcaFormatReader::isWritable: pointer is null");
@@ -23,7 +24,7 @@ JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_isWri
 
 JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_isReadable
     (JNIEnv *env, jobject thiz) {
-    auto reader = jni::getNativePtrAs<CHcaFormatReader>(env, thiz);
+    auto reader = jni::getNativePtrAs<CHcaFormatReader>(env, thiz, jni::cgss_class_names::HcaFormatReader_Name);
 
     if (reader == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: HcaFormatReader::isReadable: pointer is null");
@@ -35,7 +36,7 @@ JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_isRea
 
 JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_isSeekable
     (JNIEnv *env, jobject thiz) {
-    auto reader = jni::getNativePtrAs<CHcaFormatReader>(env, thiz);
+    auto reader = jni::getNativePtrAs<CHcaFormatReader>(env, thiz, jni::cgss_class_names::HcaFormatReader_Name);
 
     if (reader == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: HcaFormatReader::isSeekable: pointer is null");
@@ -47,7 +48,7 @@ JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_isSee
 
 JNIEXPORT jobject JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_getHcaInfo
     (JNIEnv *env, jobject thiz) {
-    auto reader = jni::getNativePtrAs<CHcaFormatReader>(env, thiz);
+    auto reader = jni::getNativePtrAs<CHcaFormatReader>(env, thiz, jni::cgss_class_names::HcaFormatReader_Name);
 
     if (reader == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: HcaFormatReader::getHcaInfo: pointer is null");
@@ -71,13 +72,15 @@ JNIEXPORT jobject JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_getHca
     jobject hca = nullptr;
 
     do {
-        jclass hcaInfoClass = env->FindClass("moe/mottomo/cgss/kawashima/HcaInfo");
+        jclass hcaInfoClass = env->FindClass(jni::cgss_class_names::HcaInfo_Path);
+        jni::checkClassInJava(env, hcaInfoClass, jni::cgss_class_names::HcaInfo_Name);
 
         if (hcaInfoClass == nullptr) {
             break;
         }
 
         jmethodID hcaInfoCtor = env->GetMethodID(hcaInfoClass, "<init>", "()V");
+        jni::checkMethodInJava(env, hcaInfoCtor, jni::cgss_class_names::HcaInfo_Name, "<init>");
 
         if (hcaInfoCtor == nullptr) {
             break;
@@ -90,7 +93,7 @@ JNIEXPORT jobject JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_getHca
         return nullptr;
     }
 
-#define set_field(type, name) jni::setField(env, hca, cgss_xstr(name), jni::direct_cast<j##type>(info. name))
+#define set_field(type, name) jni::setField(env, hca, cgss_xstr(name), jni::direct_cast<j##type>(info. name), jni::cgss_class_names::HcaInfo_Name)
 
     set_field(short, versionMajor);
     set_field(short, versionMinor);
@@ -121,17 +124,22 @@ JNIEXPORT jobject JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_getHca
 
 #undef set_field
 
-    jni::setField(env, hca, "loopExists", static_cast<jboolean>(info.loopExists));
+    jni::setField(env, hca, "loopExists", static_cast<jboolean>(info.loopExists), jni::cgss_class_names::HcaInfo_Name);
 
     auto jstrComment = jni::ansiToUtf8(env, info.comment);
-    jni::setField(env, hca, "comment", "java.lang.String", jstrComment);
+    jni::setField(env, hca, "comment", jstrComment, jni::cgss_class_names::HcaInfo_Name);
 
     {
-        auto cipherTypeClass = env->FindClass("moe/mottomo/cgss/kawashima/HcaCipherType");
-        auto method = env->GetStaticMethodID(cipherTypeClass, "valueOf", "(I)Lmoe/mottomo/cgss/kawashima/HcaCipherType;");
-        auto obj = env->CallStaticObjectMethod(cipherTypeClass, method, static_cast<jint>(info.cipherType));
+        auto cipherTypeClass = env->FindClass(jni::cgss_class_names::HcaCipherType_Path);
+        jni::checkClassInJava(env, cipherTypeClass, jni::cgss_class_names::HcaCipherType_Name);
 
-        jni::setField(env, hca, "cipherType", "moe/mottomo/cgss/kawashima/HcaCipherType", obj);
+        auto methodSignature = std::string("(I)L") + jni::cgss_class_names::HcaCipherType_Path + ";";
+        auto valueOfMethod = env->GetStaticMethodID(cipherTypeClass, "valueOf", methodSignature.c_str());
+        jni::checkMethodInJava(env, valueOfMethod, jni::cgss_class_names::HcaCipherType_Name, "valueOf");
+
+        auto obj = env->CallStaticObjectMethod(cipherTypeClass, valueOfMethod, static_cast<jint>(info.cipherType));
+
+        jni::setField(env, hca, "cipherType", jni::cgss_class_names::HcaCipherType_Path, obj, jni::cgss_class_names::HcaInfo_Name);
     }
 
     return hca;
@@ -144,7 +152,7 @@ JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_kawashima_HcaFormatReader_isPos
         return JNI_FALSE;
     }
 
-    auto nativeStream = jni::getNativePtrAs<IStream>(env, stream);
+    auto nativeStream = jni::getNativePtrAs<IStream>(env, stream, jni::cgss_class_names::NativeStream_Name);
 
     if (nativeStream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IllegalArgumentException), "JNI: HcaFormatReader::isPossibleHcaStream: stream pointer is null");

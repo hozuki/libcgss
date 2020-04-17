@@ -1,7 +1,8 @@
 #include <jni.h>
 #include <cgss_api.h>
 
-#include "../../jni_helper.hpp"
+#include "../../jni_helper.h"
+#include "../cgss_jni_class_names.h"
 
 using namespace cgss;
 
@@ -11,7 +12,7 @@ extern "C" {
 
 JNIEXPORT jint JNICALL Java_moe_mottomo_cgss_takamori_NativeStream_readByte
     (JNIEnv *env, jobject thiz) {
-    auto stream = jni::getNativePtrAs<CStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CStream>(env, thiz, jni::cgss_class_names::NativeStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: NativeStream::readByte: pointer is null");
@@ -31,7 +32,7 @@ JNIEXPORT jint JNICALL Java_moe_mottomo_cgss_takamori_NativeStream_readByte
 
 JNIEXPORT jint JNICALL Java_moe_mottomo_cgss_takamori_NativeStream_writeByte
     (JNIEnv *env, jobject thiz, jbyte byte) {
-    auto stream = jni::getNativePtrAs<CStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CStream>(env, thiz, jni::cgss_class_names::NativeStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: NativeStream::writeByte: pointer is null");
@@ -58,14 +59,14 @@ JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_NativeStream_copyTo
         return;
     }
 
-    auto src = jni::getNativePtrAs<CStream>(env, thiz);
+    auto src = jni::getNativePtrAs<CStream>(env, thiz, jni::cgss_class_names::NativeStream_Name);
 
     if (src == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: CStream::copyTo: src pointer is null");
         return;
     }
 
-    auto *dest = jni::getNativePtrAs<CStream>(env, destStream);
+    auto *dest = jni::getNativePtrAs<CStream>(env, destStream, jni::cgss_class_names::NativeStream_Name);
 
     if (dest == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: CStream::copyTo: dest pointer is null");
@@ -83,7 +84,7 @@ JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_NativeStream_copyTo
 
 JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_NativeStream_seek
     (JNIEnv *env, jobject thiz, jlong offset, jint origin) {
-    auto stream = jni::getNativePtrAs<CStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CStream>(env, thiz, jni::cgss_class_names::NativeStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: NativeStream::seek: pointer is null");

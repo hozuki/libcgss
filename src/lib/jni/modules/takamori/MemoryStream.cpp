@@ -1,7 +1,8 @@
 #include <jni.h>
 #include <cgss_api.h>
 
-#include "../../jni_helper.hpp"
+#include "../../jni_helper.h"
+#include "../cgss_jni_class_names.h"
 
 using namespace cgss;
 
@@ -40,7 +41,7 @@ JNIEXPORT jint JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_read
         return 0;
     }
 
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::read: pointer is null");
@@ -50,7 +51,7 @@ JNIEXPORT jint JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_read
     ReadFromUnderlyingJavaBuffer(env, stream);
 
     const auto bufferSize = env->GetArrayLength(buffer);
-    auto maxRead = jni::computeAvailableBufferSize(bufferSize, offset, count);
+    auto maxRead = jni::math::computeAvailableBufferSize(bufferSize, offset, count);
 
     if (maxRead == 0) {
         return 0;
@@ -84,7 +85,7 @@ JNIEXPORT jint JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_write
         return 0;
     }
 
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::write: pointer is null");
@@ -92,7 +93,7 @@ JNIEXPORT jint JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_write
     }
 
     const auto bufferSize = env->GetArrayLength(buffer);
-    auto maxWrite = jni::computeAvailableBufferSize(bufferSize, offset, count);
+    auto maxWrite = jni::math::computeAvailableBufferSize(bufferSize, offset, count);
 
     if (maxWrite == 0) {
         return 0;
@@ -124,7 +125,7 @@ JNIEXPORT jint JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_write
 
 JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_isWritable
     (JNIEnv *env, jobject thiz) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::isWritable: pointer is null");
@@ -136,7 +137,7 @@ JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_isWritabl
 
 JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_isReadable
     (JNIEnv *env, jobject thiz) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::isReadable: pointer is null");
@@ -148,7 +149,7 @@ JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_isReadabl
 
 JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_isSeekable
     (JNIEnv *env, jobject thiz) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::isSeekable: pointer is null");
@@ -160,7 +161,7 @@ JNIEXPORT jboolean JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_isSeekabl
 
 JNIEXPORT jlong JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_getPosition
     (JNIEnv *env, jobject thiz) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::getPosition: pointer is null");
@@ -177,7 +178,7 @@ JNIEXPORT jlong JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_getPosition
 
 JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_setPosition
     (JNIEnv *env, jobject thiz, jlong position) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::setPosition: pointer is null");
@@ -193,7 +194,7 @@ JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_setPosition
 
 JNIEXPORT jlong JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_getLength
     (JNIEnv *env, jobject thiz) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::getLength: pointer is null");
@@ -210,7 +211,7 @@ JNIEXPORT jlong JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_getLength
 
 JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_setLength
     (JNIEnv *env, jobject thiz, jlong length) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::setLength: pointer is null");
@@ -226,7 +227,7 @@ JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_setLength
 
 JNIEXPORT jbyteArray JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_toArray
     (JNIEnv *env, jobject thiz) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::toArray: pointer is null");
@@ -252,7 +253,7 @@ JNIEXPORT jbyteArray JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_toArray
 
 JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_flush
     (JNIEnv *env, jobject thiz) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         env->ThrowNew(env->FindClass(jni::java_exceptions::IOException), "JNI: MemoryStream::flush: pointer is null");
@@ -266,7 +267,7 @@ JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_initNewBuffer
     (JNIEnv *env, jobject thiz, jlong capacity, jboolean resizable) {
     auto mem = new CMemoryStream(capacity, resizable);
 
-    jni::setNativePtr(env, thiz, mem);
+    jni::setNativePtr(env, thiz, mem, jni::cgss_class_names::MemoryStream_Name);
 }
 
 JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_initExtBuffer
@@ -285,7 +286,7 @@ JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_initExtBuffer
 
     auto mem = new CMemoryStream(extBuffer, bufferSize, writable);
 
-    jni::setNativePtr(env, thiz, mem);
+    jni::setNativePtr(env, thiz, mem, jni::cgss_class_names::MemoryStream_Name);
 
     // Maintain a global reference to the buffer array
     mem->javaBuffer = env->NewGlobalRef(buffer);
@@ -293,7 +294,7 @@ JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_initExtBuffer
 
 JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_dispose
     (JNIEnv *env, jobject thiz) {
-    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz);
+    auto stream = jni::getNativePtrAs<CMemoryStream>(env, thiz, jni::cgss_class_names::MemoryStream_Name);
 
     if (stream == nullptr) {
         return;
@@ -310,7 +311,7 @@ JNIEXPORT void JNICALL Java_moe_mottomo_cgss_takamori_MemoryStream_dispose
 
     delete stream;
 
-    jni::setNativePtr(env, thiz, nullptr);
+    jni::setNativePtr(env, thiz, nullptr, jni::cgss_class_names::MemoryStream_Name);
 }
 
 #ifdef __cplusplus

@@ -1,15 +1,14 @@
+#pragma once
+
 #include <string>
 #include <jni.h>
-#include <cgss_env.h>
 
-CGSS_NS_BEGIN
+#include "cgss_jni_ns.h"
 
-    namespace jni {
+CGSS_JNI_NS_BEGIN
 
         std::string utf8ToAnsi(JNIEnv *env, jstring str);
 
         jstring ansiToUtf8(JNIEnv *env, const std::string &str);
 
-    }
-
-CGSS_NS_END
+CGSS_JNI_NS_END

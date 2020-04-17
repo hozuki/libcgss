@@ -1,4 +1,4 @@
-#include "jni_string.h"
+#include "jni_helper_string.h"
 
 #if defined(WIN32) || defined(_WIN32)
 
@@ -8,9 +8,7 @@
 
 #endif
 
-CGSS_NS_BEGIN
-
-    namespace jni {
+CGSS_JNI_NS_BEGIN
 
         static char *utf8ToAnsi(const char *str);
 
@@ -98,6 +96,4 @@ CGSS_NS_BEGIN
 
 #endif
 
-    }
-
-CGSS_NS_END
+CGSS_JNI_NS_END
