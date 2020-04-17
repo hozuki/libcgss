@@ -54,30 +54,32 @@ if (${CGSS_BUILD_JNI_LIBRARY})
     set_target_properties(cgss_jni
             PROPERTIES
             VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK}"
-            SOVERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+            SOVERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+            )
 
     if (MSVC)
         set_target_properties(cgss_jni
                 PROPERTIES
                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
-                ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
+                ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
+                )
     endif ()
 
     # Target link options
     if (WIN32)
         set_target_properties(cgss_jni
                 PROPERTIES
-                LINK_DEF_FILE_FLAG ${LIBCGSS_DEF_FILE})
+                LINK_DEF_FILE_FLAG ${LIBCGSS_DEF_FILE}
+                )
     endif ()
-
-    target_link_libraries(cgss_jni jvm)
 
     # Post-build
     if (${GNU_COMPILER})
         add_custom_command(TARGET cgss_jni
                 POST_BUILD
                 COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:cgss_jni>
-                WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+                WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+                )
     endif ()
 endif ()
 
