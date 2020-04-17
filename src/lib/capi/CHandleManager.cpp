@@ -75,7 +75,8 @@ CGSS_NS_BEGIN
             throw CArgumentException(buffer);
         }
         if (dispose) {
-            delete iter->second.ptr;
+            auto ptr = iter->second.ptr;
+            delete ptr;
         }
         _handles.erase(iter);
     }

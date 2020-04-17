@@ -556,8 +556,8 @@ CGSS_API_IMPL(bool_t) cgssUtfTryParseTable(void *data, size_t dataSize, UTF_TABL
     }
 
     CGSS_HANDLE handle;
-    CMemoryStream memory(static_cast<uint8_t *>(data), dataSize, FALSE);
-    alloc_stream(&handle, &memory, HandleType::CStream);
+    auto memory = new CMemoryStream(static_cast<uint8_t *>(data), dataSize, FALSE);
+    alloc_stream(&handle, memory, HandleType::CStream);
 
     const auto r = cgssUtfReadTable(handle, 0, table);
 

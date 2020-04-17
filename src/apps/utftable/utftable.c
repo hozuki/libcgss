@@ -139,8 +139,8 @@ static void print_table_recursive(UTF_TABLE *table, uint32_t indent) {
             }
 
             PRINT_INDENT();
-            printf("%08" PRIx32 " (row+%08" PRIx32 ") %2x %s [%s] =", currentField->offset, currentField->offsetInRow,
-                   (currentField->storage | currentField->type), currentField->name, columnTypeName);
+            printf("%08" PRIx32 " (row+%08" PRIx32 ") %2" PRIx32 " %s [%s] =", currentField->offset, currentField->offsetInRow,
+                   ((uint32_t)currentField->storage | (uint32_t)currentField->type), currentField->name, columnTypeName);
 
             const char *constantTypeStr;
 
