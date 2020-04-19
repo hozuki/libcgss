@@ -2,9 +2,11 @@
 
 #include <vector>
 #include <map>
+
 #include "../cgss_env.h"
 #include "CUtfTable.h"
 #include "../cdata/ACB_CUE_RECORD.h"
+#include "../cdata/ACB_TRACK_RECORD.h"
 
 CGSS_NS_BEGIN
 
@@ -28,53 +30,61 @@ CGSS_NS_BEGIN
 
         const char *GetFileName() const;
 
-        IStream *OpenDataStream(const char *fileName);
+        IStream *OpenDataStream(const AFS2_FILE_RECORD *fileRecord, bool_t isStreaming) const;
 
-        IStream *OpenDataStream(uint32_t cueId);
+        IStream *OpenDataStream(const char *fileName) const;
+
+        IStream *OpenDataStream(uint32_t cueId) const;
 
         static std::string GetSymbolicFileNameFromCueId(uint32_t cueId);
 
-        std::string GetSymbolicFileNameHintFromCueId(uint32_t cueId);
+        std::string GetSymbolicFileNameHintFromCueId(uint32_t cueId) const;
 
-        std::string GetCueNameFromCueId(uint32_t cueId);
+        std::string GetCueNameFromCueId(uint32_t cueId) const;
 
-        const ACB_CUE_RECORD *GetCueRecord(const char *waveformFileName);
+        const ACB_CUE_RECORD *GetCueRecordByWaveformFileName(const char *waveformFileName) const;
 
-        const ACB_CUE_RECORD *GetCueRecord(uint32_t cueId);
+        const ACB_CUE_RECORD *GetCueRecordByCueId(uint32_t cueId) const;
 
-        const AFS2_FILE_RECORD *GetFileRecord(const char *waveformFileName);
+        const AFS2_FILE_RECORD *GetFileRecordByWaveformFileName(const char *waveformFileName) const;
 
-        const AFS2_FILE_RECORD *GetFileRecord(uint32_t cueId);
+        const AFS2_FILE_RECORD *GetFileRecordByCueId(uint32_t cueId) const;
 
-        bool_t IsCueIdentified(uint32_t cueId);
+        const AFS2_FILE_RECORD *GetFileRecordByTrackIndex(uint32_t trackIndex) const;
+
+        const std::vector<ACB_TRACK_RECORD> &GetTrackRecords() const;
+
+        bool_t IsCueIdentified(uint32_t cueId) const;
 
         void Initialize() override;
 
-        CAfs2Archive *GetInternalAwb();
+        const CAfs2Archive *GetInternalAwb() const;
 
-        CAfs2Archive *GetExternalAwb();
+        const CAfs2Archive *GetExternalAwb() const;
 
         uint32_t GetFormatVersion() const;
 
-        std::string GetFileExtensionHint(uint32_t cueId);
+        std::string GetFileExtensionHint(uint32_t cueId) const;
 
-        std::string GetFileExtensionHint(const char *waveformFileName);
+        std::string GetFileExtensionHint(const char *waveformFileName) const;
 
         static const uint32_t KEY_MODIFIER_ENABLED_VERSION;
 
     private:
 
-        void InitializeAcbTables();
+        void InitializeCueList();
 
-        void InitializeCueNameToWaveformTable();
+        void InitializeCueNameToWaveformMap();
+
+        void InitializeTrackList();
 
         void InitializeAwbArchives();
 
-        const AFS2_FILE_RECORD *GetFileRecord(const ACB_CUE_RECORD *cue);
+        const AFS2_FILE_RECORD *GetFileRecordByCueRecord(const ACB_CUE_RECORD *cue) const;
 
-        IStream *ChooseSourceStream(const ACB_CUE_RECORD *cue);
+        IStream *ChooseSourceStream(const ACB_CUE_RECORD *cue) const;
 
-        std::string FindExternalAwbFileName();
+        std::string FindExternalAwbFileName() const;
 
         /**
          * You do not need to manually delete the pointer retrieved.
@@ -82,15 +92,18 @@ CGSS_NS_BEGIN
          */
         CUtfTable *GetTable(const char *tableName);
 
-        CUtfTable *ResolveTable(const char *tableName);
+        CUtfTable *ResolveTable(const char *tableName) const;
 
-        CAfs2Archive *_internalAwb;
-        CAfs2Archive *_externalAwb;
+        const CAfs2Archive *_internalAwb;
+        const CAfs2Archive *_externalAwb;
 
         std::vector<std::string> _fileNames;
         std::vector<ACB_CUE_RECORD> _cues;
-        std::map<std::string, CUtfTable *> _tables;
+        std::vector<ACB_TRACK_RECORD> _tracks;
+
         std::map<std::string, uint16_t> _cueNameToWaveform;
+
+        std::map<std::string, CUtfTable *> _tables;
 
         uint32_t _formatVersion;
 

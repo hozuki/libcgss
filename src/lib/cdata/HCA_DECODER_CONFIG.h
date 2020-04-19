@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../cgss_env.h"
+#include <stdint.h>
+
+#include "bool_t.h"
 #include "HCA_CIPHER_CONFIG.h"
 
 #ifdef __cplusplus

@@ -42,8 +42,23 @@ string common_utils::ReplaceExtension(const string &s, const string &oldExt, con
 
 string common_utils::ReplaceAnyExtension(const string &s, const string &newExt) {
     auto lastDotPos = s.rfind('.');
+    size_t lastSepPos;
 
-    if (lastDotPos == string::npos) {
+    {
+        const auto lastSepPos1 = s.rfind('/');
+        const auto lastSepPos2 = s.rfind('\\');
+
+        if (lastSepPos1 == string::npos) {
+            lastSepPos = lastSepPos2;
+        } else if (lastSepPos2 == string::npos) {
+            lastSepPos = lastSepPos1;
+        } else {
+            lastSepPos = std::max(lastSepPos1, lastSepPos2);
+        }
+    }
+
+    if (lastDotPos == string::npos || (lastSepPos != string::npos && lastDotPos < lastSepPos)) {
+        // If the file name (like that in basename()) does not contain a '.' char, just append the extension.
         return s + newExt;
     } else {
         return s.substr(0, lastDotPos) + newExt;

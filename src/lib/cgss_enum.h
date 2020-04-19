@@ -9,13 +9,13 @@ CGSS_NS_BEGIN
     enum class StreamSeekOrigin : uint32_t {
         Begin = CGSS_ORIGIN_BEGIN,
         Current = CGSS_ORIGIN_CURRENT,
-        End = CGSS_ORIGIN_END
+        End = CGSS_ORIGIN_END,
     };
 
     enum class HcaCipherType : uint32_t {
         NoCipher = CGSS_HCA_CIPH_NO_CIPHER,
         Static = CGSS_HCA_CIPH_STATIC,
-        WithKey = CGSS_HCA_CIPH_WITH_KEY
+        WithKey = CGSS_HCA_CIPH_WITH_KEY,
     };
 
     enum class UtfColumnType : uint8_t {
@@ -31,7 +31,7 @@ CGSS_NS_BEGIN
         R64 = CGSS_UTF_COLUMN_TYPE_R64,
         String = CGSS_UTF_COLUMN_TYPE_STRING,
         Data = CGSS_UTF_COLUMN_TYPE_DATA,
-        Mask = CGSS_UTF_COLUMN_TYPE_MASK
+        Mask = CGSS_UTF_COLUMN_TYPE_MASK,
     };
 
     enum class UtfColumnStorage : uint8_t {
@@ -39,7 +39,7 @@ CGSS_NS_BEGIN
         Const = CGSS_UTF_COLUMN_STORAGE_CONST,
         PerRow = CGSS_UTF_COLUMN_STORAGE_PER_ROW,
         Const2 = CGSS_UTF_COLUMN_STORAGE_CONST2,
-        Mask = CGSS_UTF_COLUMN_STORAGE_MASK
+        Mask = CGSS_UTF_COLUMN_STORAGE_MASK,
     };
 
     enum class AcbWaveformEncodeType : uint8_t {
@@ -49,7 +49,7 @@ CGSS_NS_BEGIN
         Vag = CGSS_ACB_WAVEFORM_VAG,
         Atrac3 = CGSS_ACB_WAVEFORM_ATRAC3,
         BcWav = CGSS_ACB_WAVEFORM_BCWAV,
-        NintendoDsp = CGSS_ACB_WAVEFORM_NINTENDO_DSP
+        NintendoDsp = CGSS_ACB_WAVEFORM_NINTENDO_DSP,
     };
 
     enum class OpResult : int32_t {
@@ -62,7 +62,7 @@ CGSS_NS_BEGIN
         FormatError = CGSS_OP_FORMAT_ERROR,
         ChecksumError = CGSS_OP_CHECKSUM_ERROR,
         DecodeFailed = CGSS_OP_DECODE_FAILED,
-        InvalidHandle = CGSS_OP_INVALID_HANDLE
+        InvalidHandle = CGSS_OP_INVALID_HANDLE,
     };
 
     enum class FileMode : uint32_t {
@@ -71,7 +71,7 @@ CGSS_NS_BEGIN
         Create = CGSS_FILE_MODE_CREATE,
         CreateNew = CGSS_FILE_MODE_CREATE_NEW,
         OpenExisting = CGSS_FILE_MODE_OPEN_EXISTING,
-        OpenOrCreate = CGSS_FILE_MODE_OPEN_OR_CREATE
+        OpenOrCreate = CGSS_FILE_MODE_OPEN_OR_CREATE,
     };
 
     enum class FileAccess : uint32_t {

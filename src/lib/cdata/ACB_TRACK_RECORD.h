@@ -4,16 +4,13 @@
 
 #include "bool_t.h"
 
-#define ACB_CUE_RECORD_NAME_MAX_LEN (256)
-
 #pragma pack(push)
 #pragma pack(1)
 
-typedef struct _ACB_CUE_RECORD {
+typedef struct _ACB_TRACK_RECORD {
 
-    uint32_t cueId;
-    uint8_t referenceType;
-    uint16_t referenceIndex;
+    uint32_t trackIndex;
+    uint16_t synthIndex;
 
     bool_t isWaveformIdentified;
     uint16_t waveformIndex;
@@ -21,8 +18,6 @@ typedef struct _ACB_CUE_RECORD {
     uint8_t encodeType;
     bool_t isStreaming;
 
-    char cueName[ACB_CUE_RECORD_NAME_MAX_LEN];
-
-} ACB_CUE_RECORD;
+} ACB_TRACK_RECORD;
 
 #pragma pack(pop)

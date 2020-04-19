@@ -1,7 +1,12 @@
 #pragma once
 
-#include "../cgss_env.h"
-#include "../cgss_cenum.h"
+#include <stdint.h>
+
+#include "bool_t.h"
+#include "../cenum/CGSS_HCA_CIPHER_TYPE.h"
+
+#pragma pack(push)
+#pragma pack(1)
 
 typedef struct _HCA_INFO {
     /**
@@ -71,3 +76,5 @@ typedef struct _HCA_INFO {
      */
     uint32_t dataOffset;
 } HCA_INFO;
+
+#pragma pack(pop)

@@ -11,14 +11,9 @@ using namespace std;
 using namespace cgss;
 
 struct Acb2HcasOptions {
-    union {
-        struct {
-            uint32_t key2;
-            uint32_t key1;
-        } keyParts;
-        uint64_t key;
-    };
+    HCA_CIPHER_CONFIG cipherConfig;
     bool_t useCueName;
+    bool_t byTrackIndex;
 };
 
 static void PrintAppTitle(ostream &out);
@@ -31,7 +26,7 @@ static int DoWork(const string &inputFile, const Acb2HcasOptions &options);
 
 static int ProcessHca(AcbWalkCallbackParams *params);
 
-static void WriteHcaKeyFile(const string &fileName, uint64_t key, uint16_t modifier = 0);
+static void WriteHcaKeyFile(const string &fileName, uint64_t key, uint16_t modifier);
 
 int main(int argc, const char *argv[]) {
     string inputFile;
@@ -70,11 +65,12 @@ static void PrintHelp() {
     const auto key = (static_cast<uint64_t>(k2) << 32u) | static_cast<uint64_t>(k1);
 
     cerr << "Usage:\n" << endl;
-    cerr << "acb2hcas <acb file> [-a <key1 = " << hex << k1 << ">] [-b <key2 = " << hex << k2 << ">] [-k <key = " << hex << key << ">] [-n]" << endl << endl;
+    cerr << "acb2hcas <acb file> [-a <key1 = " << hex << k1 << ">] [-b <key2 = " << hex << k2 << ">] [-k <key = " << hex << key << ">] [-n] [-byTrackIndex]" << endl << endl;
     cerr << "\t-a\tKey, lower 32 bits (in hexadecimal)" << endl;
     cerr << "\t-b\tKey, higher 32 bits (in hexadecimal)" << endl;
     cerr << "\t-k\tKey, 64 bits (in hexadecimal)" << endl;
     cerr << "\t-n\tUse cue names for output waveforms" << endl;
+    cerr << "\t-byTrackIndex\tIdentify waveforms by their track indices and prepend indices to file names" << endl;
 }
 
 static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOptions &options) {
@@ -86,35 +82,45 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOp
     inputFile = argv[1];
 
 #if __COMPILE_WITH_CGSS_KEYS
-    options.keyParts.key1 = g_CgssKey1;
-    options.keyParts.key2 = g_CgssKey2;
+    options.cipherConfig.keyParts.key1 = g_CgssKey1;
+    options.cipherConfig.keyParts.key2 = g_CgssKey2;
 #endif
 
     for (int i = 2; i < argc; ++i) {
+        auto currentArgParsed = false;
+
         if (argv[i][0] == '-' || argv[i][0] == '/') {
-            switch (argv[i][1]) {
-                case 'a':
-                    if (i + 1 < argc) {
-                        options.keyParts.key1 = atoh<uint32_t>(argv[++i]);
-                    }
-                    break;
-                case 'b':
-                    if (i + 1 < argc) {
-                        options.keyParts.key2 = atoh<uint32_t>(argv[++i]);
-                    }
-                    break;
-                case 'k':
-                    if (i + 1 < argc) {
-                        options.key = atoh<uint64_t>(argv[++i]);
-                    }
-                    break;
-                case 'n':
-                    options.useCueName = TRUE;
-                    break;
-                default:
-                    fprintf(stderr, "Unknown option: %s\n", argv[i]);
-                    return 2;
+            const char *argName = argv[i] + 1;
+
+            if (stricmp(argName, "a") == 0) {
+                if (i + 1 < argc) {
+                    options.cipherConfig.keyParts.key1 = atoh<uint32_t>(argv[++i]);
+                    currentArgParsed = true;
+                }
+            } else if (stricmp(argName, "b") == 0) {
+                if (i + 1 < argc) {
+                    options.cipherConfig.keyParts.key2 = atoh<uint32_t>(argv[++i]);
+                    currentArgParsed = true;
+                }
+            } else if (stricmp(argName, "k") == 0) {
+                if (i + 1 < argc) {
+                    options.cipherConfig.key = atoh<uint64_t>(argv[++i]);
+                    currentArgParsed = true;
+                }
+            } else if (stricmp(argName, "n") == 0) {
+                options.useCueName = TRUE;
+                currentArgParsed = true;
+            } else if (stricmp(argv[i] + 1, "byTrackIndex") == 0) {
+                options.byTrackIndex = TRUE;
+                currentArgParsed = true;
             }
+
+            if (currentArgParsed) {
+                continue;
+            }
+
+            fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            return 2;
         }
     }
 
@@ -127,8 +133,9 @@ static int DoWork(const string &inputFile, const Acb2HcasOptions &options) {
     AcbWalkOptions o;
 
     o.callback = ProcessHca;
-    o.decoderConfig.cipherConfig.key = options.key;
+    o.decoderConfig.cipherConfig.key = options.cipherConfig.key;
     o.useCueName = options.useCueName;
+    o.byTrackIndex = options.byTrackIndex;
 
     return AcbWalk(inputFile, &o);
 }
@@ -151,7 +158,8 @@ static int ProcessHca(AcbWalkCallbackParams *params) {
 
             common_utils::CopyStream(params->entryDataStream, &hcaFile);
 
-            WriteHcaKeyFile(hcaKeyFilePath, params->walkOptions->decoderConfig.cipherConfig.key, params->walkOptions->decoderConfig.cipherConfig.keyModifier);
+            HCA_CIPHER_CONFIG cipherConfig = params->walkOptions->decoderConfig.cipherConfig;
+            WriteHcaKeyFile(hcaKeyFilePath, cipherConfig.key, cipherConfig.keyModifier);
 
             fprintf(stdout, "exported\n");
         } catch (CException &ex) {

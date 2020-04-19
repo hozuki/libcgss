@@ -1,0 +1,8 @@
+#pragma once
+
+typedef enum _CGSS_HCA_CIPHER_TYPE {
+    CGSS_HCA_CIPH_NO_CIPHER = 0,
+    CGSS_HCA_CIPH_STATIC = 1,
+    CGSS_HCA_CIPH_WITH_KEY = 56,
+    _CGSS_HCA_CIPH_FORCE_DWORD = 0x7fffffff,
+} CGSS_HCA_CIPHER_TYPE;

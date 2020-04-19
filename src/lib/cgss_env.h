@@ -88,7 +88,8 @@
 
 #endif
 
-typedef uint32_t bool_t;
+#include "cdata/bool_t.h"
+
 #ifndef __CGSS_OS_WINDOWS__
 typedef const char *LPCSTR;
 #endif

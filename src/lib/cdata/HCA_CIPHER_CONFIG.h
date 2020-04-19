@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../cgss_env.h"
-#include "../cgss_cenum.h"
+#include <stdint.h>
+
+#include "../cenum/CGSS_HCA_CIPHER_TYPE.h"
 
 #pragma pack(push)
 #pragma pack(1)

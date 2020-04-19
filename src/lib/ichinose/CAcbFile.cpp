@@ -56,23 +56,41 @@ void CAcbFile::Initialize() {
 
     GetFieldValueAsNumber(this, 0, "Version", &_formatVersion);
 
-    InitializeAcbTables();
-    InitializeCueNameToWaveformTable();
+    InitializeCueList();
+    InitializeCueNameToWaveformMap();
+    InitializeTrackList();
     InitializeAwbArchives();
 }
 
-void CAcbFile::InitializeAcbTables() {
+void CAcbFile::InitializeCueList() {
     auto cueTable = GetTable("CueTable");
+
+    if (cueTable == nullptr) {
+        throw CFormatException("Missing 'Cue' table.");
+    }
+
     auto waveformTable = GetTable("WaveformTable");
+
+    if (waveformTable == nullptr) {
+        throw CFormatException("Missing 'Waveform' table.");
+    }
+
     auto synthTable = GetTable("SynthTable");
+
+    if (synthTable == nullptr) {
+        throw CFormatException("Missing 'Synth' table.");
+    }
 
     const auto cueCount = cueTable->GetRows().size();
 
-    _cues.reserve(cueCount);
-
     uint64_t refItemOffset = 0;
-    uint32_t refItemSize = 0, refCorrection = 0;
+    uint32_t refItemSize = 0;
+    uint32_t refSizeCorrection = 0;
+
     CBinaryReader reader(GetStream());
+    auto &cues = _cues;
+
+    cues.reserve(cueCount);
 
     for (uint32_t i = 0; i < cueCount; ++i) {
         ACB_CUE_RECORD cue = {0};
@@ -86,16 +104,16 @@ void CAcbFile::InitializeAcbTables() {
             case 2:
                 synthTable->GetFieldOffset(cue.referenceIndex, "ReferenceItems", &refItemOffset);
                 synthTable->GetFieldSize(cue.referenceIndex, "ReferenceItems", &refItemSize);
-                refCorrection = refItemSize + 2;
+                refSizeCorrection = refItemSize + 2;
                 break;
             case 3:
             case 8:
                 if (i == 0) {
                     synthTable->GetFieldOffset(0, "ReferenceItems", &refItemOffset);
                     synthTable->GetFieldSize(0, "ReferenceItems", &refItemSize);
-                    refCorrection = refItemSize - 2;
+                    refSizeCorrection = refItemSize - 2;
                 } else {
-                    refCorrection += 4;
+                    refSizeCorrection += 4;
                 }
                 break;
             default:
@@ -103,7 +121,7 @@ void CAcbFile::InitializeAcbTables() {
         }
 
         if (refItemSize != 0) {
-            cue.waveformIndex = reader.PeekUInt16BE(refItemOffset + refCorrection);
+            cue.waveformIndex = reader.PeekUInt16BE(refItemOffset + refSizeCorrection);
 
             uint8_t isStreaming;
             auto hasIsStreaming = GetFieldValueAsNumber(waveformTable, cue.waveformIndex, "Streaming", &isStreaming);
@@ -136,12 +154,17 @@ void CAcbFile::InitializeAcbTables() {
             }
         }
 
-        _cues.push_back(cue);
+        cues.push_back(cue);
     }
 }
 
-void CAcbFile::InitializeCueNameToWaveformTable() {
+void CAcbFile::InitializeCueNameToWaveformMap() {
     auto cueNameTable = GetTable("CueNameTable");
+
+    if (cueNameTable == nullptr) {
+        throw CFormatException("Missing 'CueName' table.");
+    }
+
     auto &cues = _cues;
 
     auto cueNameCount = cueNameTable->GetRows().size();
@@ -169,6 +192,131 @@ void CAcbFile::InitializeCueNameToWaveformTable() {
 
             _fileNames.push_back(cue.cueName);
         }
+    }
+}
+
+// TODO: remove duplicate code (see InitializeCueList())
+void CAcbFile::InitializeTrackList() {
+    auto trackTable = GetTable("TrackTable");
+
+    if (trackTable == nullptr) {
+        throw CFormatException("Missing 'Track' table.");
+    }
+
+    auto waveformTable = GetTable("WaveformTable");
+
+    if (waveformTable == nullptr) {
+        throw CFormatException("Missing 'Waveform' table.");
+    }
+
+    auto synthTable = GetTable("SynthTable");
+
+    if (synthTable == nullptr) {
+        throw CFormatException("Missing 'Synth' table.");
+    }
+
+    const auto trackCount = trackTable->GetRows().size();
+    const auto &synthRows = synthTable->GetRows();
+    const auto synthCount = synthRows.size();
+
+    if (trackCount != synthCount) {
+        throw CFormatException("Number of tracks and number of synthesis records do not match.");
+    }
+
+    uint64_t refItemOffset = 0;
+    uint32_t refItemSize = 0;
+    uint32_t refSizeCorrection = 0;
+
+    CBinaryReader reader(GetStream());
+    auto &tracks = _tracks;
+
+    tracks.reserve(trackCount);
+
+    for (uint32_t i = 0; i < trackCount; ++i) {
+        ACB_TRACK_RECORD track = {0};
+
+        track.isWaveformIdentified = FALSE;
+        track.trackIndex = i;
+        track.synthIndex = track.trackIndex;
+
+        const auto &synthRow = synthRows[i];
+        UTF_FIELD *refItemField = nullptr;
+
+        for (const auto &field : synthRow.fields) {
+            if (strcmp(field->name, "ReferenceItems") == 0) {
+                refItemField = field;
+                break;
+            }
+        }
+
+        if (refItemField == nullptr) {
+            throw CFormatException("Missing 'ReferenceItems' field in row.");
+        }
+
+        bool isStoredPerRow;
+
+        switch (refItemField->storage) {
+            case CGSS_UTF_COLUMN_STORAGE_PER_ROW:
+                isStoredPerRow = true;
+                break;
+            case CGSS_UTF_COLUMN_STORAGE_CONST:
+            case CGSS_UTF_COLUMN_STORAGE_CONST2:
+                isStoredPerRow = false;
+                break;
+            default:
+                throw CFormatException("Unsupported field storage type for 'ReferenceItems' field.");
+        }
+
+        if (isStoredPerRow) {
+            synthTable->GetFieldOffset(track.synthIndex, "ReferenceItems", &refItemOffset);
+            synthTable->GetFieldSize(track.synthIndex, "ReferenceItems", &refItemSize);
+            // TODO: I think this should be -2 instead of +2 when looping through synth records.
+            refSizeCorrection = refItemSize - 2;
+        } else {
+            if (i == 0) {
+                synthTable->GetFieldOffset(0, "ReferenceItems", &refItemOffset);
+                synthTable->GetFieldSize(0, "ReferenceItems", &refItemSize);
+                refSizeCorrection = refItemSize - 2;
+            } else {
+                refSizeCorrection += 4;
+            }
+        }
+
+        if (refItemSize != 0) {
+            track.waveformIndex = reader.PeekUInt16BE(refItemOffset + refSizeCorrection);
+
+            uint8_t isStreaming;
+            auto hasIsStreaming = GetFieldValueAsNumber(waveformTable, track.waveformIndex, "Streaming", &isStreaming);
+
+            if (hasIsStreaming) {
+                track.isStreaming = isStreaming;
+
+                uint16_t waveformId;
+
+                if (GetFieldValueAsNumber(waveformTable, track.waveformIndex, "Id", &waveformId)) {
+                    track.waveformId = waveformId;
+                } else {
+                    if (track.isStreaming) {
+                        if (GetFieldValueAsNumber(waveformTable, track.waveformIndex, "StreamAwbId", &waveformId)) {
+                            track.waveformId = waveformId;
+                        }
+                    } else {
+                        if (GetFieldValueAsNumber(waveformTable, track.waveformIndex, "MemoryAwbId", &waveformId)) {
+                            track.waveformId = waveformId;
+                        }
+                    }
+                }
+
+                uint8_t encodeType;
+                if (GetFieldValueAsNumber(waveformTable, track.waveformIndex, "EncodeType", &encodeType)) {
+                    track.encodeType = encodeType;
+                }
+
+                track.isWaveformIdentified = TRUE;
+            }
+        }
+
+        tracks.push_back(track);
     }
 }
 
@@ -202,7 +350,7 @@ CUtfTable *CAcbFile::GetTable(const char *tableName) {
     return table;
 }
 
-CUtfTable *CAcbFile::ResolveTable(const char *tableName) {
+CUtfTable *CAcbFile::ResolveTable(const char *tableName) const {
     uint64_t tableOffset;
 
     if (!GetFieldOffset(0, tableName, &tableOffset)) {
@@ -220,7 +368,7 @@ CUtfTable *CAcbFile::ResolveTable(const char *tableName) {
     return tbl;
 }
 
-CAfs2Archive *CAcbFile::GetInternalAwb() {
+const CAfs2Archive *CAcbFile::GetInternalAwb() const {
     uint64_t internalAwbOffset;
 
     if (!GetFieldOffset(0, "AwbFile", &internalAwbOffset) || internalAwbOffset == 0) {
@@ -238,7 +386,7 @@ CAfs2Archive *CAcbFile::GetInternalAwb() {
     return internalAwb;
 }
 
-CAfs2Archive *CAcbFile::GetExternalAwb() {
+const CAfs2Archive *CAcbFile::GetExternalAwb() const {
     const auto extAwbFileName = FindExternalAwbFileName();
 
     if (extAwbFileName.empty()) {
@@ -257,13 +405,31 @@ const vector<string> &CAcbFile::GetFileNames() const {
     return _fileNames;
 }
 
-IStream *CAcbFile::OpenDataStream(const char *fileName) {
+IStream *CAcbFile::OpenDataStream(const AFS2_FILE_RECORD *fileRecord, bool_t isStreaming) const {
+    IStream *stream;
+
+    if (isStreaming) {
+        if (_externalAwb) {
+            stream = _externalAwb->GetStream();
+        } else {
+            stream = nullptr;
+        }
+    } else {
+        stream = this->GetStream();
+    }
+
+    auto result = CAcbHelper::ExtractToNewStream(stream, fileRecord->fileOffsetAligned, static_cast<uint32_t>(fileRecord->fileSize));
+
+    return result;
+}
+
+IStream *CAcbFile::OpenDataStream(const char *fileName) const {
     IStream *result = nullptr;
 
-    const auto cue = GetCueRecord(fileName);
+    const auto cue = GetCueRecordByWaveformFileName(fileName);
 
     if (cue) {
-        const auto file = GetFileRecord(cue);
+        const auto file = GetFileRecordByCueRecord(cue);
         const auto stream = ChooseSourceStream(cue);
 
         result = CAcbHelper::ExtractToNewStream(stream, file->fileOffsetAligned, static_cast<uint32_t>(file->fileSize));
@@ -272,13 +438,13 @@ IStream *CAcbFile::OpenDataStream(const char *fileName) {
     return result;
 }
 
-IStream *CAcbFile::OpenDataStream(uint32_t cueId) {
+IStream *CAcbFile::OpenDataStream(uint32_t cueId) const {
     IStream *result = nullptr;
 
-    const auto cue = GetCueRecord(cueId);
+    const auto cue = GetCueRecordByCueId(cueId);
 
     if (cue) {
-        const auto file = GetFileRecord(cue);
+        const auto file = GetFileRecordByCueRecord(cue);
         const auto stream = ChooseSourceStream(cue);
 
         result = CAcbHelper::ExtractToNewStream(stream, file->fileOffsetAligned, static_cast<uint32_t>(file->fileSize));
@@ -299,19 +465,19 @@ string CAcbFile::GetSymbolicFileNameFromCueId(uint32_t cueId) {
     return string(buffer);
 }
 
-string CAcbFile::GetSymbolicFileNameHintFromCueId(uint32_t cueId) {
+string CAcbFile::GetSymbolicFileNameHintFromCueId(uint32_t cueId) const {
     char buffer[256] = {0};
 
     const auto extHint = GetFileExtensionHint(cueId);
     const auto ext = extHint.empty() ? DEFAULT_BINARY_FILE_EXTENSION : extHint.c_str();
 
-    sprintf(buffer, "cue_%06" PRIu32 "%s", cueId, ext);
+    sprintf(buffer, "dat_%06" PRIu32 "%s", cueId, ext);
 
     return string(buffer);
 }
 
-string CAcbFile::GetCueNameFromCueId(uint32_t cueId) {
-    for (auto &cue : _cues) {
+string CAcbFile::GetCueNameFromCueId(uint32_t cueId) const {
+    for (const auto &cue : _cues) {
         if (cue.waveformId == cueId) {
             return string(cue.cueName);
         }
@@ -320,8 +486,8 @@ string CAcbFile::GetCueNameFromCueId(uint32_t cueId) {
     return GetSymbolicFileNameHintFromCueId(cueId);
 }
 
-const ACB_CUE_RECORD *CAcbFile::GetCueRecord(const char *waveformFileName) {
-    for (auto &cue : _cues) {
+const ACB_CUE_RECORD *CAcbFile::GetCueRecordByWaveformFileName(const char *waveformFileName) const {
+    for (const auto &cue : _cues) {
         if (strcmp(cue.cueName, waveformFileName) == 0) {
             return &cue;
         }
@@ -330,8 +496,8 @@ const ACB_CUE_RECORD *CAcbFile::GetCueRecord(const char *waveformFileName) {
     return nullptr;
 }
 
-const ACB_CUE_RECORD *CAcbFile::GetCueRecord(uint32_t cueId) {
-    for (auto &cue : _cues) {
+const ACB_CUE_RECORD *CAcbFile::GetCueRecordByCueId(uint32_t cueId) const {
+    for (const auto &cue : _cues) {
         if (cue.cueId == cueId) {
             return &cue;
         }
@@ -340,27 +506,84 @@ const ACB_CUE_RECORD *CAcbFile::GetCueRecord(uint32_t cueId) {
     return nullptr;
 }
 
-const AFS2_FILE_RECORD *CAcbFile::GetFileRecord(const char *waveformFileName) {
-    const auto cue = GetCueRecord(waveformFileName);
+const AFS2_FILE_RECORD *CAcbFile::GetFileRecordByWaveformFileName(const char *waveformFileName) const {
+    const auto cue = GetCueRecordByWaveformFileName(waveformFileName);
 
     if (cue == nullptr) {
         return nullptr;
     }
 
-    return GetFileRecord(cue);
+    return GetFileRecordByCueRecord(cue);
 }
 
-const AFS2_FILE_RECORD *CAcbFile::GetFileRecord(uint32_t cueId) {
-    const auto cue = GetCueRecord(cueId);
+const AFS2_FILE_RECORD *CAcbFile::GetFileRecordByCueId(uint32_t cueId) const {
+    const auto cue = GetCueRecordByCueId(cueId);
 
     if (cue == nullptr) {
         return nullptr;
     }
 
-    return GetFileRecord(cue);
+    return GetFileRecordByCueRecord(cue);
 }
 
-bool_t CAcbFile::IsCueIdentified(uint32_t cueId) {
+const AFS2_FILE_RECORD *CAcbFile::GetFileRecordByTrackIndex(uint32_t trackIndex) const {
+    const ACB_TRACK_RECORD *track = nullptr;
+
+    for (const auto &trackRecord : _tracks) {
+        if (trackRecord.trackIndex == trackIndex) {
+            track = &trackRecord;
+            break;
+        }
+    }
+
+    if (track == nullptr) {
+        return nullptr;
+    }
+
+    // TODO: remove duplicate code (see GetFileRecordByCueRecord())
+    if (!track->isWaveformIdentified) {
+        return nullptr;
+    }
+
+    if (track->isStreaming) {
+        auto externalAwb = _externalAwb;
+
+        if (externalAwb == nullptr) {
+            return nullptr;
+        }
+
+        auto &files = externalAwb->GetFiles();
+        if (files.find(track->waveformId) == files.end()) {
+            return nullptr;
+        }
+
+        auto &file = files.at(track->waveformId);
+
+        return &file;
+    } else {
+        auto internalAwb = _internalAwb;
+
+        if (internalAwb == nullptr) {
+            return nullptr;
+        }
+
+        auto &files = internalAwb->GetFiles();
+
+        if (files.find(track->waveformId) == files.end()) {
+            return nullptr;
+        }
+
+        auto &file = files.at(track->waveformId);
+
+        return &file;
+    }
+}
+
+const std::vector<ACB_TRACK_RECORD> &CAcbFile::GetTrackRecords() const {
+    return _tracks;
+}
+
+bool_t CAcbFile::IsCueIdentified(uint32_t cueId) const {
     for (auto &cue: _cues) {
         if (cue.waveformId == cueId) {
             return cue.isWaveformIdentified;
@@ -374,8 +597,8 @@ uint32_t CAcbFile::GetFormatVersion() const {
     return _formatVersion;
 }
 
-std::string CAcbFile::GetFileExtensionHint(uint32_t cueId) {
-    const auto cue = GetCueRecord(cueId);
+std::string CAcbFile::GetFileExtensionHint(uint32_t cueId) const {
+    const auto cue = GetCueRecordByCueId(cueId);
 
     if (cue == nullptr) {
         return std::string();
@@ -384,8 +607,8 @@ std::string CAcbFile::GetFileExtensionHint(uint32_t cueId) {
     }
 }
 
-std::string CAcbFile::GetFileExtensionHint(const char *waveformFileName) {
-    const auto cue = GetCueRecord(waveformFileName);
+std::string CAcbFile::GetFileExtensionHint(const char *waveformFileName) const {
+    const auto cue = GetCueRecordByWaveformFileName(waveformFileName);
 
     if (cue == nullptr) {
         return std::string();
@@ -394,7 +617,7 @@ std::string CAcbFile::GetFileExtensionHint(const char *waveformFileName) {
     }
 }
 
-std::string CAcbFile::FindExternalAwbFileName() {
+std::string CAcbFile::FindExternalAwbFileName() const {
     const string acbFileName = _fileName;
     const auto awbDirPath = CPath::GetDirectoryName(acbFileName);
 
@@ -423,7 +646,7 @@ std::string CAcbFile::FindExternalAwbFileName() {
     return "";
 }
 
-const AFS2_FILE_RECORD *CAcbFile::GetFileRecord(const ACB_CUE_RECORD *cue) {
+const AFS2_FILE_RECORD *CAcbFile::GetFileRecordByCueRecord(const ACB_CUE_RECORD *cue) const {
     if (cue == nullptr) {
         return nullptr;
     }
@@ -466,7 +689,7 @@ const AFS2_FILE_RECORD *CAcbFile::GetFileRecord(const ACB_CUE_RECORD *cue) {
     }
 }
 
-IStream *CAcbFile::ChooseSourceStream(const ACB_CUE_RECORD *cue) {
+IStream *CAcbFile::ChooseSourceStream(const ACB_CUE_RECORD *cue) const {
     if (cue == nullptr) {
         return nullptr;
     }

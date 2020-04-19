@@ -1,6 +1,9 @@
 #pragma once
 
-#include "../cgss_env.h"
+#include <stdint.h>
+
+#pragma pack(push)
+#pragma pack(1)
 
 typedef struct _UTF_HEADER {
 
@@ -15,3 +18,5 @@ typedef struct _UTF_HEADER {
     uint32_t rowCount;
 
 } UTF_HEADER;
+
+#pragma pack(pop)

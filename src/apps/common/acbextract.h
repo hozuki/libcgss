@@ -6,7 +6,6 @@
 #include "../../lib/cgss_api.h"
 
 struct AcbWalkOptions;
-struct AFS2_FILE_RECORD;
 
 struct AcbWalkCallbackParams {
 
@@ -16,7 +15,7 @@ struct AcbWalkCallbackParams {
     cgss::CAcbFile *acb;
     uint32_t formatVersion;
     std::string extractPathHint;
-    cgss::CAfs2Archive *archive;
+    const cgss::CAfs2Archive *archive;
     cgss::IStream *archiveDataStream;
     cgss::IStream *entryDataStream;
     bool_t isInternal;
@@ -43,6 +42,7 @@ struct AcbWalkOptions {
 
     HCA_DECODER_CONFIG decoderConfig;
     bool_t useCueName;
+    bool_t byTrackIndex;
     AcbWalkCallback callback;
 
 };

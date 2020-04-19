@@ -42,9 +42,9 @@ CGSS_NS_BEGIN
 
         const char *GetName() const;
 
-        bool_t GetFieldOffset(uint32_t rowIndex, const char *fieldName, uint64_t *offset);
+        bool_t GetFieldOffset(uint32_t rowIndex, const char *fieldName, uint64_t *offset) const;
 
-        bool_t GetFieldSize(uint32_t rowIndex, const char *fieldName, uint32_t *size);
+        bool_t GetFieldSize(uint32_t rowIndex, const char *fieldName, uint32_t *size) const;
 
     protected:
 

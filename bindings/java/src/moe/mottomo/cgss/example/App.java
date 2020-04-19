@@ -9,8 +9,8 @@ import moe.mottomo.cgss.takamori.FileStream;
 public class App {
 
     public static void main(String[] args) throws Exception {
-        try (FileStream fsIn = new FileStream("C:\\Users\\M\\Desktop\\cv_0001\\_acb_cv_0001.acb\\external\\cue_000127.hca", FileMode.OPEN_EXISTING, FileAccess.READ)) {
-            try (FileStream fsOut = new FileStream("C:\\Users\\M\\Desktop\\tmp.wav", FileMode.CREATE, FileAccess.WRITE)) {
+        try (FileStream fsIn = new FileStream("C:\\Users\\MIC\\Desktop\\cv_0001\\_acb_cv_0001.acb\\external\\cue_000127.hca", FileMode.OPEN_EXISTING, FileAccess.READ)) {
+            try (FileStream fsOut = new FileStream("C:\\Users\\MIC\\Desktop\\tmp.wav", FileMode.CREATE, FileAccess.WRITE)) {
                 HcaDecoderConfig config = new HcaDecoderConfig();
                 config.cipherConfig.setKey1(0xC59E7114);
                 config.cipherConfig.setKey2(0x00000000);

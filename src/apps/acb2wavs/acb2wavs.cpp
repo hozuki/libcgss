@@ -14,6 +14,7 @@ using namespace cgss;
 struct Acb2WavsOptions {
     HCA_DECODER_CONFIG decoderConfig;
     bool_t useCueName;
+    bool byTrackIndex;
 };
 
 static void PrintAppTitle(ostream &out);
@@ -65,8 +66,9 @@ static void PrintHelp() {
 #endif
 
     cerr << "Usage:\n" << endl;
-    cerr << "acb2wavs <acb file> [-a <key1 = " << hex << k1 << ">[ [-b <key2 = " << hex << k2 << ">] [-n]" << endl << endl;
+    cerr << "acb2wavs <acb file> [-a <key1 = " << hex << k1 << ">[ [-b <key2 = " << hex << k2 << ">] [-n] [-byTrackIndex]" << endl << endl;
     cerr << "\t-n\tUse cue names for output waveforms" << endl;
+    cerr << "\t-byTrackIndex\tIdentify waveforms by their track indices and prepend indices to file names" << endl;
 }
 
 static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOptions &options) {
@@ -88,25 +90,40 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOp
     options.decoderConfig.cipherConfig.keyModifier = 0;
 
     for (int i = 2; i < argc; ++i) {
+        auto currentArgParsed = false;
+
         if (argv[i][0] == '-' || argv[i][0] == '/') {
-            switch (argv[i][1]) {
-                case 'a':
-                    if (i + 1 < argc) {
-                        options.decoderConfig.cipherConfig.keyParts.key1 = atoh<uint32_t>(argv[++i]);
-                    }
-                    break;
-                case 'b':
-                    if (i + 1 < argc) {
-                        options.decoderConfig.cipherConfig.keyParts.key2 = atoh<uint32_t>(argv[++i]);
-                    }
-                    break;
-                case 'n':
-                    options.useCueName = TRUE;
-                    break;
-                default:
-                    fprintf(stderr, "Unknown option: %s\n", argv[i]);
-                    return 2;
+            const char *argName = argv[i] + 1;
+
+            if (stricmp(argName, "a") == 0) {
+                if (i + 1 < argc) {
+                    options.decoderConfig.cipherConfig.keyParts.key1 = atoh<uint32_t>(argv[++i]);
+                    currentArgParsed = true;
+                }
+            } else if (stricmp(argName, "b") == 0) {
+                if (i + 1 < argc) {
+                    options.decoderConfig.cipherConfig.keyParts.key2 = atoh<uint32_t>(argv[++i]);
+                    currentArgParsed = true;
+                }
+            } else if (stricmp(argName, "k") == 0) {
+                if (i + 1 < argc) {
+                    options.decoderConfig.cipherConfig.key = atoh<uint64_t>(argv[++i]);
+                    currentArgParsed = true;
+                }
+            } else if (stricmp(argName, "n") == 0) {
+                options.useCueName = TRUE;
+                currentArgParsed = true;
+            } else if (stricmp(argv[i] + 1, "byTrackIndex") == 0) {
+                options.byTrackIndex = TRUE;
+                currentArgParsed = true;
             }
+
+            if (currentArgParsed) {
+                continue;
+            }
+
+            fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            return 2;
         }
     }
 
@@ -119,6 +136,7 @@ static int DoWork(const string &inputFile, const Acb2WavsOptions &options) {
     o.callback = ProcessHca;
     o.decoderConfig = options.decoderConfig;
     o.useCueName = options.useCueName;
+    o.byTrackIndex = options.byTrackIndex;
 
     return AcbWalk(inputFile, &o);
 }

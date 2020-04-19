@@ -1,9 +1,14 @@
 #pragma once
 
-#include "../cgss_env.h"
-#include "../cgss_cenum.h"
+#include <stdint.h>
+
+#include "../cenum/CGSS_UTF_COLUMN_TYPE.h"
+#include "../cenum/CGSS_UTF_COLUMN_STORAGE.h"
 
 #define UTF_FIELD_MAX_NAME_LEN (1024)
+
+#pragma pack(push)
+#pragma pack(1)
 
 typedef struct _UTF_FIELD {
 
@@ -34,3 +39,5 @@ typedef struct _UTF_FIELD {
     } value;
 
 } UTF_FIELD;
+
+#pragma pack(pop)

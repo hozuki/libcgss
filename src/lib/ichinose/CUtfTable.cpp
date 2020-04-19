@@ -401,7 +401,7 @@ CGSS_NS_BEGIN
         }
     }
 
-    bool_t CUtfTable::GetFieldOffset(uint32_t rowIndex, const char *fieldName, uint64_t *offset) {
+    bool_t CUtfTable::GetFieldOffset(uint32_t rowIndex, const char *fieldName, uint64_t *offset) const {
         if (rowIndex >= _rows.size()) {
             if (offset) {
                 *offset = 0;
@@ -425,7 +425,7 @@ CGSS_NS_BEGIN
         return FALSE;
     }
 
-    bool_t CUtfTable::GetFieldSize(uint32_t rowIndex, const char *fieldName, uint32_t *size) {
+    bool_t CUtfTable::GetFieldSize(uint32_t rowIndex, const char *fieldName, uint32_t *size) const {
         if (rowIndex >= _rows.size()) {
             if (size) {
                 *size = 0;

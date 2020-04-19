@@ -10,6 +10,7 @@ using namespace cgss;
 
 struct AcbUnpackOptions {
     bool_t useCueName;
+    bool_t byTrackIndex;
 };
 
 static void PrintAppTitle(FILE *out);
@@ -46,8 +47,9 @@ static int DoWork(const string &inputFile, const AcbUnpackOptions &options) {
     PrintAppTitle(stdout);
 
     AcbWalkOptions o;
-    o.useCueName = options.useCueName;
     o.callback = ExtractFile;
+    o.useCueName = options.useCueName;
+    o.byTrackIndex = options.byTrackIndex;
 
     return AcbWalk(inputFile, &o);
 }
@@ -73,9 +75,10 @@ static void PrintHelp() {
 
     static const char *helpMessage = "Usage:\n"
                                      "\n"
-                                     "acbunpack <file> [-n]\n"
+                                     "acbunpack <file> [-n] [-byTrackIndex]\n"
                                      "\n"
-                                     "\t-n\tUse cue names for output waveforms\n";
+                                     "\t-n\tUse cue names for output waveforms\n"
+                                     "\t-byTrackIndex\tIdentify waveforms by their track indices and prepend indices to file names\n";
     fprintf(stderr, "%s", helpMessage);
 }
 
@@ -88,15 +91,25 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, AcbUnpackO
     inputFile = argv[1];
 
     for (int i = 2; i < argc; ++i) {
+        auto currentArgParsed = false;
+
         if (argv[i][0] == '-' || argv[i][0] == '/') {
-            switch (argv[i][1]) {
-                case 'n':
-                    options.useCueName = TRUE;
-                    break;
-                default:
-                    fprintf(stderr, "Unknown option: %s\n", argv[i]);
-                    return 2;
+            const char *argName = argv[i] + 1;
+
+            if (stricmp(argName, "n") == 0) {
+                options.useCueName = TRUE;
+                currentArgParsed = true;
+            } else if (stricmp(argv[i] + 1, "byTrackIndex") == 0) {
+                options.byTrackIndex = TRUE;
+                currentArgParsed = true;
             }
+
+            if (currentArgParsed) {
+                continue;
+            }
+
+            fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            return 2;
         }
     }
 
