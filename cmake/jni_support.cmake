@@ -51,11 +51,14 @@ if (${CGSS_BUILD_JNI_LIBRARY})
             )
 
     # Target properties
-    set_target_properties(cgss_jni
-            PROPERTIES
-            VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK}"
-            SOVERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
-            )
+    if ($ENV{CI})
+        # Apply .so version if we are in CI environment
+        set_target_properties(cgss_jni
+                PROPERTIES
+                VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK}"
+                SOVERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+                )
+    endif ()
 
     if (MSVC)
         set_target_properties(cgss_jni

@@ -20,6 +20,17 @@ elseif ($isLinux)
 if ($null -ne $scriptPath)
 {
     . ($scriptPath)
+
+    # Setup version info
+    {
+        [String]$buildVersion = $env:APPVEYOR_BUILD_VERSION
+        [String[]]$versionParts = $buildVersion.Split('.')
+
+        $env:LIBCGSS_VERSION_MAJOR = $versionParts[0]
+        $env:LIBCGSS_VERSION_MINOR = $versionParts[1]
+        $env:LIBCGSS_VERSION_PATCH = $versionParts[2]
+        $env:LIBCGSS_VERSION_TWEAK = "0" # always "0"
+    }
 }
 else
 {
