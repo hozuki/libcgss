@@ -14,6 +14,7 @@ struct Acb2HcasOptions {
     HCA_CIPHER_CONFIG cipherConfig;
     bool_t useCueName;
     bool_t byTrackIndex;
+    bool_t prependId;
 };
 
 static void PrintAppTitle(ostream &out);
@@ -65,12 +66,13 @@ static void PrintHelp() {
     const auto key = (static_cast<uint64_t>(k2) << 32u) | static_cast<uint64_t>(k1);
 
     cerr << "Usage:\n" << endl;
-    cerr << "acb2hcas <acb file> [-a <key1 = " << hex << k1 << ">] [-b <key2 = " << hex << k2 << ">] [-k <key = " << hex << key << ">] [-n] [-byTrackIndex]" << endl << endl;
+    cerr << "acb2hcas <acb file> [-a <key1 = " << hex << k1 << ">] [-b <key2 = " << hex << k2 << ">] [-k <key = " << hex << key << ">] [-n] [-byTrackIndex] [-prependId]" << endl << endl;
     cerr << "\t-a\tKey, lower 32 bits (in hexadecimal)" << endl;
     cerr << "\t-b\tKey, higher 32 bits (in hexadecimal)" << endl;
     cerr << "\t-k\tKey, 64 bits (in hexadecimal)" << endl;
     cerr << "\t-n\tUse cue names for output waveforms" << endl;
-    cerr << "\t-byTrackIndex\tIdentify waveforms by their track indices and prepend indices to file names" << endl;
+    cerr << "\t-byTrackIndex\tIdentify waveforms by their track indices" << endl;
+    cerr << "\t-prependId\tPrepend file ID (cue ID, track index, etc.)" << endl;
 }
 
 static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOptions &options) {
@@ -110,8 +112,11 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOp
             } else if (stricmp(argName, "n") == 0) {
                 options.useCueName = TRUE;
                 currentArgParsed = true;
-            } else if (stricmp(argv[i] + 1, "byTrackIndex") == 0) {
+            } else if (stricmp(argName, "byTrackIndex") == 0) {
                 options.byTrackIndex = TRUE;
+                currentArgParsed = true;
+            } else if (stricmp(argName, "prependId") == 0) {
+                options.prependId = TRUE;
                 currentArgParsed = true;
             }
 
@@ -144,8 +149,14 @@ static int ProcessHca(AcbWalkCallbackParams *params) {
     const auto afsSourceDesc = params->isInternal ? "internal" : "external";
     const auto isHca = CHcaFormatReader::IsPossibleHcaStream(params->entryDataStream);
 
-    fprintf(stdout, "Processing %s AFS: #%" PRIu32 " (offset=%" PRIu32 ", size=%" PRIu32 ")",
-            afsSourceDesc, (uint32_t)params->cueInfo.id, (uint32_t)params->cueInfo.offset, (uint32_t)params->cueInfo.size);
+    fprintf(stdout, "Processing %s AFS: #%"
+    PRIu32
+    " (offset=%"
+    PRIu32
+    ", size=%"
+    PRIu32
+    ")",
+        afsSourceDesc, (uint32_t)params->cueInfo.id, (uint32_t)params->cueInfo.offset, (uint32_t)params->cueInfo.size);
 
     if (isHca) {
         std::string extractFilePath = common_utils::ReplaceAnyExtension(params->extractPathHint, ".hca");

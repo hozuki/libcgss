@@ -18,6 +18,7 @@ using namespace cgss;
 using namespace std;
 
 #define DEFAULT_BINARY_FILE_EXTENSION ".bin"
+static const string DefaultBinaryFileExtension(DEFAULT_BINARY_FILE_EXTENSION);
 
 static string GetExtensionForEncodeType(uint8_t encodeType);
 
@@ -457,7 +458,7 @@ const char *CAcbFile::GetFileName() const {
     return _fileName;
 }
 
-string CAcbFile::GetSymbolicFileNameFromCueId(uint32_t cueId) {
+string CAcbFile::GetSymbolicFileNameByCueId(uint32_t cueId) {
     char buffer[256] = {0};
 
     sprintf(buffer, "cue_%06" PRIu32 DEFAULT_BINARY_FILE_EXTENSION, cueId);
@@ -465,25 +466,62 @@ string CAcbFile::GetSymbolicFileNameFromCueId(uint32_t cueId) {
     return string(buffer);
 }
 
-string CAcbFile::GetSymbolicFileNameHintFromCueId(uint32_t cueId) const {
+string CAcbFile::GetSymbolicFileNameHintByCueId(uint32_t cueId) const {
+    auto baseName = GetSymbolicFileBaseNameByCueId(cueId);
+
+    const auto extHint = GetFileExtensionHintByCueId(cueId);
+    const auto &ext = extHint.empty() ? DefaultBinaryFileExtension : extHint;
+
+    return baseName + ext;
+}
+
+std::string CAcbFile::GetSymbolicFileBaseNameByCueId(uint32_t cueId) {
     char buffer[256] = {0};
 
-    const auto extHint = GetFileExtensionHint(cueId);
-    const auto ext = extHint.empty() ? DEFAULT_BINARY_FILE_EXTENSION : extHint.c_str();
-
-    sprintf(buffer, "dat_%06" PRIu32 "%s", cueId, ext);
+    sprintf(buffer, "cue_%06" PRIu32, cueId);
 
     return string(buffer);
 }
 
-string CAcbFile::GetCueNameFromCueId(uint32_t cueId) const {
+std::string CAcbFile::GetSymbolicFileNameHintByTrackIndex(uint32_t trackIndex) const {
+    auto baseName = GetSymbolicFileBaseNameByTrackIndex(trackIndex);
+
+    const auto extHint = GetFileExtensionHintByTrackIndex(trackIndex);
+    const auto &ext = extHint.empty() ? DefaultBinaryFileExtension : extHint;
+
+    return baseName + ext;
+}
+
+std::string CAcbFile::GetSymbolicFileBaseNameByTrackIndex(uint32_t trackIndex) {
+    char buffer[256] = {0};
+
+    sprintf(buffer, "track_%06" PRIu32, trackIndex);
+
+    return string(buffer);
+}
+
+string CAcbFile::GetCueNameByCueId(uint32_t cueId) const {
     for (const auto &cue : _cues) {
         if (cue.waveformId == cueId) {
             return string(cue.cueName);
         }
     }
 
-    return GetSymbolicFileNameHintFromCueId(cueId);
+    return GetSymbolicFileNameHintByCueId(cueId);
+}
+
+std::string CAcbFile::GetCueNameByTrackIndex(uint32_t trackIndex) const {
+    auto track = GetTrackRecordByTrackIndex(trackIndex);
+
+    if (track != nullptr) {
+        for (const auto &cue : _cues) {
+            if (cue.waveformId == track->waveformId) {
+                return string(cue.cueName);
+            }
+        }
+    }
+
+    return GetSymbolicFileNameHintByTrackIndex(trackIndex);
 }
 
 const ACB_CUE_RECORD *CAcbFile::GetCueRecordByWaveformFileName(const char *waveformFileName) const {
@@ -597,7 +635,7 @@ uint32_t CAcbFile::GetFormatVersion() const {
     return _formatVersion;
 }
 
-std::string CAcbFile::GetFileExtensionHint(uint32_t cueId) const {
+std::string CAcbFile::GetFileExtensionHintByCueId(uint32_t cueId) const {
     const auto cue = GetCueRecordByCueId(cueId);
 
     if (cue == nullptr) {
@@ -607,7 +645,7 @@ std::string CAcbFile::GetFileExtensionHint(uint32_t cueId) const {
     }
 }
 
-std::string CAcbFile::GetFileExtensionHint(const char *waveformFileName) const {
+std::string CAcbFile::GetFileExtensionHintByWaveformFileName(const char *waveformFileName) const {
     const auto cue = GetCueRecordByWaveformFileName(waveformFileName);
 
     if (cue == nullptr) {
@@ -615,6 +653,26 @@ std::string CAcbFile::GetFileExtensionHint(const char *waveformFileName) const {
     } else {
         return GetExtensionForEncodeType(cue->encodeType);
     }
+}
+
+std::string CAcbFile::GetFileExtensionHintByTrackIndex(uint32_t trackIndex) const {
+    auto track = GetTrackRecordByTrackIndex(trackIndex);
+
+    if (track == nullptr) {
+        return DefaultBinaryFileExtension;
+    } else {
+        return GetExtensionForEncodeType(track->encodeType);
+    }
+}
+
+const ACB_TRACK_RECORD *CAcbFile::GetTrackRecordByTrackIndex(uint32_t trackIndex) const {
+    for (const auto &track : _tracks) {
+        if (track.trackIndex == trackIndex) {
+            return &track;
+        }
+    }
+
+    return nullptr;
 }
 
 std::string CAcbFile::FindExternalAwbFileName() const {

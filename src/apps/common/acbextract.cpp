@@ -109,7 +109,14 @@ static void ExtractFilesWithCueInfo(AcbWalkCallbackParams &p, CAcbFile &acb, Acb
                 if (options->useCueName) {
                     extractFileName = fileName;
                 } else {
-                    extractFileName = acb.GetSymbolicFileNameHintFromCueId(fileRecord->cueId);
+                    extractFileName = acb.GetSymbolicFileNameHintByCueId(fileRecord->cueId);
+                }
+
+                if (options->prependId) {
+                    auto prepend = CAcbFile::GetSymbolicFileBaseNameByCueId(fileRecord->cueId);
+
+                    extractFileName.insert(0, "_");
+                    extractFileName.insert(0, prepend);
                 }
 
                 p.extractPathHint = CPath::Combine(extractDir, extractFileName);
@@ -147,9 +154,16 @@ static void ExtractFilesWithCueInfo(AcbWalkCallbackParams &p, CAcbFile &acb, Acb
             string extractFileName;
 
             if (options->useCueName) {
-                extractFileName = acb.GetCueNameFromCueId(record.cueId);
+                extractFileName = acb.GetCueNameByCueId(record.cueId);
             } else {
-                extractFileName = acb.GetSymbolicFileNameHintFromCueId(record.cueId);
+                extractFileName = acb.GetSymbolicFileNameHintByCueId(record.cueId);
+            }
+
+            if (options->prependId) {
+                auto prepend = CAcbFile::GetSymbolicFileBaseNameByCueId(record.cueId);
+
+                extractFileName.insert(0, "_");
+                extractFileName.insert(0, prepend);
             }
 
             auto entryDataStream = CAcbHelper::ExtractToNewStream(archiveDataStream, record.fileOffsetAligned, (uint32_t)record.fileSize);
@@ -176,7 +190,6 @@ static void ExtractFilesWithCueInfo(AcbWalkCallbackParams &p, CAcbFile &acb, Acb
 static void ExtractFilesWithTrackInfo(AcbWalkCallbackParams &p, CAcbFile &acb, AcbWalkOptions *options, const string &extractDir, const CAfs2Archive *archive, IStream *archiveDataStream) {
     const auto &tracks = acb.GetTrackRecords();
     const auto trackCount = tracks.size();
-    char trackIndexStrBuffer[40] = {'\0'};
 
     for (uint32_t i = 0; i < trackCount; i += 1) {
         const auto &track = tracks[i];
@@ -193,8 +206,20 @@ static void ExtractFilesWithTrackInfo(AcbWalkCallbackParams &p, CAcbFile &acb, A
         if (entryDataStream) {
             p.entryDataStream = entryDataStream;
 
-            snprintf(trackIndexStrBuffer, sizeof(trackIndexStrBuffer), "track_%06" PRIu32 ".bin", i);
-            string extractFileName{trackIndexStrBuffer};
+            string extractFileName;
+
+            if (options->useCueName) {
+                extractFileName = acb.GetCueNameByTrackIndex(track.trackIndex);
+            } else {
+                extractFileName = acb.GetSymbolicFileNameHintByTrackIndex(track.trackIndex);
+            }
+
+            if (options->prependId) {
+                auto prepend = CAcbFile::GetSymbolicFileBaseNameByTrackIndex(track.trackIndex);
+
+                extractFileName.insert(0, "_");
+                extractFileName.insert(0, prepend);
+            }
 
             p.extractPathHint = CPath::Combine(extractDir, extractFileName);
 

@@ -36,11 +36,19 @@ CGSS_NS_BEGIN
 
         IStream *OpenDataStream(uint32_t cueId) const;
 
-        static std::string GetSymbolicFileNameFromCueId(uint32_t cueId);
+        static std::string GetSymbolicFileNameByCueId(uint32_t cueId);
 
-        std::string GetSymbolicFileNameHintFromCueId(uint32_t cueId) const;
+        std::string GetSymbolicFileNameHintByCueId(uint32_t cueId) const;
 
-        std::string GetCueNameFromCueId(uint32_t cueId) const;
+        static std::string GetSymbolicFileBaseNameByCueId(uint32_t cueId);
+
+        std::string GetSymbolicFileNameHintByTrackIndex(uint32_t trackIndex) const;
+
+        static std::string GetSymbolicFileBaseNameByTrackIndex(uint32_t trackIndex);
+
+        std::string GetCueNameByCueId(uint32_t cueId) const;
+
+        std::string GetCueNameByTrackIndex(uint32_t trackIndex) const;
 
         const ACB_CUE_RECORD *GetCueRecordByWaveformFileName(const char *waveformFileName) const;
 
@@ -64,9 +72,11 @@ CGSS_NS_BEGIN
 
         uint32_t GetFormatVersion() const;
 
-        std::string GetFileExtensionHint(uint32_t cueId) const;
+        std::string GetFileExtensionHintByCueId(uint32_t cueId) const;
 
-        std::string GetFileExtensionHint(const char *waveformFileName) const;
+        std::string GetFileExtensionHintByWaveformFileName(const char *waveformFileName) const;
+
+        std::string GetFileExtensionHintByTrackIndex(uint32_t trackIndex) const;
 
         static const uint32_t KEY_MODIFIER_ENABLED_VERSION;
 
@@ -93,6 +103,8 @@ CGSS_NS_BEGIN
         CUtfTable *GetTable(const char *tableName);
 
         CUtfTable *ResolveTable(const char *tableName) const;
+
+        const ACB_TRACK_RECORD *GetTrackRecordByTrackIndex(uint32_t trackIndex) const;
 
         const CAfs2Archive *_internalAwb;
         const CAfs2Archive *_externalAwb;

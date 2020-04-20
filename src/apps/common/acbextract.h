@@ -43,6 +43,7 @@ struct AcbWalkOptions {
     HCA_DECODER_CONFIG decoderConfig;
     bool_t useCueName;
     bool_t byTrackIndex;
+    bool_t prependId;
     AcbWalkCallback callback;
 
 };

@@ -14,7 +14,8 @@ using namespace cgss;
 struct Acb2WavsOptions {
     HCA_DECODER_CONFIG decoderConfig;
     bool_t useCueName;
-    bool byTrackIndex;
+    bool_t byTrackIndex;
+    bool_t prependId;
 };
 
 static void PrintAppTitle(ostream &out);
@@ -68,7 +69,8 @@ static void PrintHelp() {
     cerr << "Usage:\n" << endl;
     cerr << "acb2wavs <acb file> [-a <key1 = " << hex << k1 << ">[ [-b <key2 = " << hex << k2 << ">] [-n] [-byTrackIndex]" << endl << endl;
     cerr << "\t-n\tUse cue names for output waveforms" << endl;
-    cerr << "\t-byTrackIndex\tIdentify waveforms by their track indices and prepend indices to file names" << endl;
+    cerr << "\t-byTrackIndex\tIdentify waveforms by their track indices" << endl;
+    cerr << "\t-prependId\tPrepend file ID (cue ID, track index, etc.)" << endl;
 }
 
 static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOptions &options) {
@@ -113,8 +115,11 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOp
             } else if (stricmp(argName, "n") == 0) {
                 options.useCueName = TRUE;
                 currentArgParsed = true;
-            } else if (stricmp(argv[i] + 1, "byTrackIndex") == 0) {
+            } else if (stricmp(argName, "byTrackIndex") == 0) {
                 options.byTrackIndex = TRUE;
+                currentArgParsed = true;
+            } else if (stricmp(argName, "prependId") == 0) {
+                options.prependId = TRUE;
                 currentArgParsed = true;
             }
 

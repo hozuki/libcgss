@@ -11,6 +11,7 @@ using namespace cgss;
 struct AcbUnpackOptions {
     bool_t useCueName;
     bool_t byTrackIndex;
+    bool_t prependId;
 };
 
 static void PrintAppTitle(FILE *out);
@@ -78,7 +79,8 @@ static void PrintHelp() {
                                      "acbunpack <file> [-n] [-byTrackIndex]\n"
                                      "\n"
                                      "\t-n\tUse cue names for output waveforms\n"
-                                     "\t-byTrackIndex\tIdentify waveforms by their track indices and prepend indices to file names\n";
+                                     "\t-byTrackIndex\tIdentify waveforms by their track indices\n"
+                                     "\t-prependId\tPrepend file ID (cue ID, track index, etc.)\n";
     fprintf(stderr, "%s", helpMessage);
 }
 
@@ -99,8 +101,11 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, AcbUnpackO
             if (stricmp(argName, "n") == 0) {
                 options.useCueName = TRUE;
                 currentArgParsed = true;
-            } else if (stricmp(argv[i] + 1, "byTrackIndex") == 0) {
+            } else if (stricmp(argName, "byTrackIndex") == 0) {
                 options.byTrackIndex = TRUE;
+                currentArgParsed = true;
+            } else if (stricmp(argName, "prependId") == 0) {
+                options.prependId = TRUE;
                 currentArgParsed = true;
             }
 
