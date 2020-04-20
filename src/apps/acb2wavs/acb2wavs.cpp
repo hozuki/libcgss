@@ -97,28 +97,28 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOp
         if (argv[i][0] == '-' || argv[i][0] == '/') {
             const char *argName = argv[i] + 1;
 
-            if (stricmp(argName, "a") == 0) {
+            if (strcmp_ignore_case(argName, "a") == 0) {
                 if (i + 1 < argc) {
                     options.decoderConfig.cipherConfig.keyParts.key1 = atoh<uint32_t>(argv[++i]);
                     currentArgParsed = true;
                 }
-            } else if (stricmp(argName, "b") == 0) {
+            } else if (strcmp_ignore_case(argName, "b") == 0) {
                 if (i + 1 < argc) {
                     options.decoderConfig.cipherConfig.keyParts.key2 = atoh<uint32_t>(argv[++i]);
                     currentArgParsed = true;
                 }
-            } else if (stricmp(argName, "k") == 0) {
+            } else if (strcmp_ignore_case(argName, "k") == 0) {
                 if (i + 1 < argc) {
                     options.decoderConfig.cipherConfig.key = atoh<uint64_t>(argv[++i]);
                     currentArgParsed = true;
                 }
-            } else if (stricmp(argName, "n") == 0) {
+            } else if (strcmp_ignore_case(argName, "n") == 0) {
                 options.useCueName = TRUE;
                 currentArgParsed = true;
-            } else if (stricmp(argName, "byTrackIndex") == 0) {
+            } else if (strcmp_ignore_case(argName, "byTrackIndex") == 0) {
                 options.byTrackIndex = TRUE;
                 currentArgParsed = true;
-            } else if (stricmp(argName, "prependId") == 0) {
+            } else if (strcmp_ignore_case(argName, "prependId") == 0) {
                 options.prependId = TRUE;
                 currentArgParsed = true;
             }

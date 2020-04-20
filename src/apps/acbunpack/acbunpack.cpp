@@ -98,13 +98,13 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, AcbUnpackO
         if (argv[i][0] == '-' || argv[i][0] == '/') {
             const char *argName = argv[i] + 1;
 
-            if (stricmp(argName, "n") == 0) {
+            if (strcmp_ignore_case(argName, "n") == 0) {
                 options.useCueName = TRUE;
                 currentArgParsed = true;
-            } else if (stricmp(argName, "byTrackIndex") == 0) {
+            } else if (strcmp_ignore_case(argName, "byTrackIndex") == 0) {
                 options.byTrackIndex = TRUE;
                 currentArgParsed = true;
-            } else if (stricmp(argName, "prependId") == 0) {
+            } else if (strcmp_ignore_case(argName, "prependId") == 0) {
                 options.prependId = TRUE;
                 currentArgParsed = true;
             }

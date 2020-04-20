@@ -12,7 +12,7 @@ set(CGSS_API_HEADER_FILES
         src/apps/cgssh.h)
 
 set(APP_COMMON_SOURCE_FILES
-        src/apps/common/common.h src/apps/common/atoh.hpp src/apps/common/utils.h src/apps/common/utils.cpp)
+        src/apps/common/common.h src/apps/common/atoh.hpp src/apps/common/utils.h src/apps/common/utils.cpp src/apps/common/platform.c src/apps/common/platform.h)
 set(APP_ACB_EXTRACT_COMMON_FILES
         src/apps/common/acbextract.h src/apps/common/acbextract.cpp)
 
