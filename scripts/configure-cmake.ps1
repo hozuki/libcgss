@@ -23,13 +23,20 @@ if ($null -ne $scriptPath)
 
     # Setup version info
     {
-        [String]$buildVersion = $env:APPVEYOR_BUILD_VERSION
-        [String[]]$versionParts = $buildVersion.Split('.')
+        if ($env:CI)
+        {
+            [String]$buildVersion = $env:APPVEYOR_BUILD_VERSION
 
-        $env:LIBCGSS_VERSION_MAJOR = $versionParts[0]
-        $env:LIBCGSS_VERSION_MINOR = $versionParts[1]
-        $env:LIBCGSS_VERSION_PATCH = $versionParts[2]
-        $env:LIBCGSS_VERSION_TWEAK = "0" # always "0"
+            if (-not([String]::IsNullOrWhiteSpace($buildVersion)))
+            {
+                [String[]]$versionParts = $buildVersion.Split('.')
+
+                [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_MAJOR", $versionParts[0], [EnvironmentVariableTarget]::User)
+                [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_MINOR", $versionParts[1], [EnvironmentVariableTarget]::User)
+                [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_PATCH", $versionParts[2], [EnvironmentVariableTarget]::User)
+                [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_TWEAK", "0", [EnvironmentVariableTarget]::User) # alwasy "0"
+            }
+        }
     }
 }
 else
