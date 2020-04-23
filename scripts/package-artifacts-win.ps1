@@ -4,7 +4,7 @@ Set-Location $Env:APPVEYOR_BUILD_FOLDER
 [String]$workerImage = $Env:APPVEYOR_BUILD_WORKER_IMAGE;
 
 [String]$buildArch = [String]::Empty;
-[String]$vsVersion = [String]::Empty;
+[String]$buildToolchain = [String]::Empty;
 
 switch ($arch)
 {
@@ -23,13 +23,13 @@ switch ($arch)
 switch ($workerImage)
 {
     'Visual Studio 2019' {
-        $vsVersion = 'vc14.2';
+        $buildToolchain = 'vc14.2';
     }
     'Visual Studio 2017' {
-        $vsVersion = 'vc14.1';
+        $buildToolchain = 'vc14.1';
     }
     'Visual Studio 2015' {
-        $vsVersion = 'vc14';
+        $buildToolchain = 'vc14';
     }
     default {
         Write-Error "Unsupported worker: $workerImage";
@@ -52,7 +52,8 @@ Invoke-CommandLine -Command $7zcmd
 $7zcmd = "7z a libcgss.zip -r bin\$buildArch\$configuration\*.lib";
 Invoke-CommandLine -Command $7zcmd
 
-[String]$buildVersion = $Env:APPVEYOR_BUILD_VERSION;
+[String]$buildVersion = $Env:APPVEYOR_BUILD_VERSION
+[String]$osCodeName = "win";
 
-Push-AppveyorArtifact "libcgss.zip" -FileName "libcgss-bin-$buildArch-$vsVersion-$buildVersion.zip" -DeploymentName "Binaries"
-Push-AppveyorArtifact "libcgss.zip" -FileName "libcgss-ci-$buildArch-$vsVersion-latest.zip" -DeploymentName "CI auto update"
+Push-AppveyorArtifact "libcgss.zip" -FileName "libcgss-$osCodeName-$buildArch-$buildToolchain-$buildVersion.zip" -DeploymentName "Binaries"
+Push-AppveyorArtifact "libcgss.zip" -FileName "libcgss-$osCodeName-$buildArch-$buildToolchain-latest.zip" -DeploymentName "CI auto update"
