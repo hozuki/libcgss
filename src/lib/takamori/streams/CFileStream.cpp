@@ -27,15 +27,15 @@ using namespace std;
 
 CGSS_NS_BEGIN
 
-    CFileStream::CFileStream(LPCSTR fileName)
+    CFileStream::CFileStream(const char *fileName)
         : MyClass(fileName, FileMode::OpenOrCreate) {
     }
 
-    CFileStream::CFileStream(LPCSTR fileName, FileMode mode)
+    CFileStream::CFileStream(const char *fileName, FileMode mode)
         : MyClass(fileName, mode, FileAccess::ReadWrite) {
     }
 
-    CFileStream::CFileStream(LPCSTR fileName, FileMode mode, FileAccess access)
+    CFileStream::CFileStream(const char *fileName, FileMode mode, FileAccess access)
         : _isReadable(FALSE), _isWritable(FALSE), _isSeekable(FALSE) {
         _mode = mode;
         _access = access;
@@ -133,7 +133,7 @@ CGSS_NS_BEGIN
         fflush(_fp);
     }
 
-    FILE *CFileStream::OpenFile(LPCSTR fileName) {
+    FILE *CFileStream::OpenFile(const char *fileName) {
 #define __OUT() throw CException("Mode/Access: out of range")
 #define __CMB() throw CException("Mode/Access: incompatible")
 #define __EXT() throw CException("File exists: " + std::string(fileName))
@@ -147,7 +147,7 @@ CGSS_NS_BEGIN
         if (m == FileMode::None || a == FileAccess::None) {
             __OUT();
         }
-        LPCSTR fileMode = nullptr;
+        const char *fileMode = nullptr;
         switch (m) {
             case FileMode::Append:
                 switch (a) {
@@ -234,7 +234,7 @@ CGSS_NS_BEGIN
         return fopen(fileName, fileMode);
     }
 
-    void CFileStream::CreateFileInternal(LPCSTR fileName) {
+    void CFileStream::CreateFileInternal(const char *fileName) {
         if (CFileSystem::FileExists(fileName)) {
             return;
         }

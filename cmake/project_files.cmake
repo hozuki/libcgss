@@ -14,7 +14,7 @@ set(CGSS_API_HEADER_FILES
 set(APP_COMMON_SOURCE_FILES
         src/apps/common/common.h src/apps/common/atoh.hpp src/apps/common/utils.h src/apps/common/utils.cpp src/apps/common/platform.c src/apps/common/platform.h)
 set(APP_ACB_EXTRACT_COMMON_FILES
-        src/apps/common/acbextract.h src/apps/common/acbextract.cpp)
+        src/apps/common/acbextract.h src/apps/common/acbextract/acbextract.cpp src/apps/common/acbextract/methods.h src/apps/common/acbextract/methods.cpp)
 
 set(HCACC_SOURCE_FILES
         src/apps/hcacc/hcacc.cpp ${CGSS_API_HEADER_FILES} ${APP_SOURCE_FILES} ${LIBCGSS_API_FILES})

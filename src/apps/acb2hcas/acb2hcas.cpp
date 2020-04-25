@@ -13,8 +13,8 @@ using namespace cgss;
 struct Acb2HcasOptions {
     HCA_CIPHER_CONFIG cipherConfig;
     bool_t useCueName;
-    bool_t byTrackIndex;
     bool_t prependId;
+    ACB_EXTRACT_DISCOVERY discovery;
 };
 
 static void PrintAppTitle(ostream &out);
@@ -66,12 +66,12 @@ static void PrintHelp() {
     const auto key = (static_cast<uint64_t>(k2) << 32u) | static_cast<uint64_t>(k1);
 
     cerr << "Usage:\n" << endl;
-    cerr << "acb2hcas <acb file> [-a <key1 = " << hex << k1 << ">] [-b <key2 = " << hex << k2 << ">] [-k <key = " << hex << key << ">] [-n] [-byTrackIndex] [-prependId]" << endl << endl;
+    cerr << "acb2hcas <acb file> [-a <key1 = " << hex << k1 << ">] [-b <key2 = " << hex << k2 << ">] [-k <key = " << hex << key << ">] [-n] [-discovery:<default|track|cue>] [-prependId]" << endl << endl;
     cerr << "\t-a\tKey, lower 32 bits (in hexadecimal)" << endl;
     cerr << "\t-b\tKey, higher 32 bits (in hexadecimal)" << endl;
     cerr << "\t-k\tKey, 64 bits (in hexadecimal)" << endl;
     cerr << "\t-n\tUse cue names for output waveforms" << endl;
-    cerr << "\t-byTrackIndex\tIdentify waveforms by their track indices" << endl;
+    cerr << "\t-discovery\tSpecify waveform discovery method (default: default/classic strategy; track: by tracks; cue: by cue group)" << endl;
     cerr << "\t-prependId\tPrepend file ID (cue ID, track index, etc.)" << endl;
 }
 
@@ -90,6 +90,8 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOp
 
     for (int i = 2; i < argc; ++i) {
         auto currentArgParsed = false;
+
+        constexpr size_t DiscoveryOptionPrefixLength = sizeof("discovery:") - 1;
 
         if (argv[i][0] == '-' || argv[i][0] == '/') {
             const char *argName = argv[i] + 1;
@@ -112,9 +114,17 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2HcasOp
             } else if (strcmp_ignore_case(argName, "n") == 0) {
                 options.useCueName = TRUE;
                 currentArgParsed = true;
-            } else if (strcmp_ignore_case(argName, "byTrackIndex") == 0) {
-                options.byTrackIndex = TRUE;
-                currentArgParsed = true;
+            } else if (strncmp_ignore_case(argName, "discovery:", DiscoveryOptionPrefixLength) == 0) {
+                if (strcmp_ignore_case(argName + DiscoveryOptionPrefixLength, "default") == 0) {
+                    options.discovery = ACB_EXTRACT_DISCOVER_DEFAULT;
+                    currentArgParsed = true;
+                } else if (strcmp_ignore_case(argName + DiscoveryOptionPrefixLength, "track") == 0) {
+                    options.discovery = ACB_EXTRACT_DISCOVER_BY_TRACK;
+                    currentArgParsed = true;
+                } else if (strcmp_ignore_case(argName + DiscoveryOptionPrefixLength, "cue") == 0) {
+                    options.discovery = ACB_EXTRACT_DISCOVER_BY_CUE;
+                    currentArgParsed = true;
+                }
             } else if (strcmp_ignore_case(argName, "prependId") == 0) {
                 options.prependId = TRUE;
                 currentArgParsed = true;
@@ -140,7 +150,8 @@ static int DoWork(const string &inputFile, const Acb2HcasOptions &options) {
     o.callback = ProcessHca;
     o.decoderConfig.cipherConfig.key = options.cipherConfig.key;
     o.useCueName = options.useCueName;
-    o.byTrackIndex = options.byTrackIndex;
+    o.discovery = options.discovery;
+    o.prependId = options.prependId;
 
     return AcbWalk(inputFile, &o);
 }
@@ -150,13 +161,13 @@ static int ProcessHca(AcbWalkCallbackParams *params) {
     const auto isHca = CHcaFormatReader::IsPossibleHcaStream(params->entryDataStream);
 
     fprintf(stdout, "Processing %s AFS: #%"
-    PRIu32
-    " (offset=%"
-    PRIu32
-    ", size=%"
-    PRIu32
-    ")",
-        afsSourceDesc, (uint32_t)params->cueInfo.id, (uint32_t)params->cueInfo.offset, (uint32_t)params->cueInfo.size);
+                    PRIu32
+                    " (offset=%"
+                    PRIu32
+                    ", size=%"
+                    PRIu32
+                    ")",
+            afsSourceDesc, (uint32_t)params->cueInfo.id, (uint32_t)params->cueInfo.offset, (uint32_t)params->cueInfo.size);
 
     if (isHca) {
         std::string extractFilePath = common_utils::ReplaceAnyExtension(params->extractPathHint, ".hca");

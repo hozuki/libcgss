@@ -12,7 +12,7 @@ CGSS_API_DECL(void) cgssTest();
 CGSS_API_DECL(void) cgssGetOpResultString(CGSS_OP_RESULT error, char *buffer, size_t length);
 CGSS_API_DECL(const char *) cgssGetLastErrorMessage();
 
-CGSS_API_DECL(bool_t) cgssHelperFileExists(LPCSTR fileName);
+CGSS_API_DECL(bool_t) cgssHelperFileExists(const char *fileName);
 
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamRead(CGSS_HANDLE handle, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *read);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamWrite(CGSS_HANDLE handle, void *buffer, uint32_t bufferSize, size_t offset, uint32_t count, _OUT_ uint32_t *written);
@@ -32,9 +32,9 @@ CGSS_API_DECL(CGSS_OP_RESULT) cgssStreamCopyTo2(CGSS_HANDLE source, CGSS_HANDLE 
 
 CGSS_API_DECL(CGSS_OP_RESULT) cgssCloseHandle(CGSS_HANDLE handle);
 
-CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateFileStream(LPCSTR fileName, _OUT_ CGSS_HANDLE *stream);
-CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateFileStream2(LPCSTR fileName, CGSS_FILE_MODE fileMode, _OUT_ CGSS_HANDLE *stream);
-CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateFileStream3(LPCSTR fileName, CGSS_FILE_MODE fileMode, CGSS_FILE_ACCESS fileAccess, _OUT_ CGSS_HANDLE *stream);
+CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateFileStream(const char *fileName, _OUT_ CGSS_HANDLE *stream);
+CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateFileStream2(const char *fileName, CGSS_FILE_MODE fileMode, _OUT_ CGSS_HANDLE *stream);
+CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateFileStream3(const char *fileName, CGSS_FILE_MODE fileMode, CGSS_FILE_ACCESS fileAccess, _OUT_ CGSS_HANDLE *stream);
 
 CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateHcaDecoder(CGSS_HANDLE baseStream, _OUT_ CGSS_HANDLE *decoder);
 CGSS_API_DECL(CGSS_OP_RESULT) cgssCreateHcaDecoder2(CGSS_HANDLE baseStream, const HCA_DECODER_CONFIG *decoderConfig, _OUT_ CGSS_HANDLE *decoder);

@@ -4,8 +4,10 @@
 #include "../cgss_cenum.h"
 #include "CAfs2Archive.h"
 #include "../cgss_cdata.h"
+#include "../common/type_traits.h"
 #include "../takamori/exceptions/CInvalidOperationException.h"
 #include "../takamori/exceptions/CFormatException.h"
+#include "../takamori/exceptions/CArgumentException.h"
 #include "../takamori/streams/CBinaryReader.h"
 #include "../takamori/streams/CFileStream.h"
 #include "../takamori/CFileSystem.h"
@@ -22,7 +24,7 @@ static const string DefaultBinaryFileExtension(DEFAULT_BINARY_FILE_EXTENSION);
 
 static string GetExtensionForEncodeType(uint8_t encodeType);
 
-template<typename T>
+template<typename T, typename TNumber = typename std::enable_if<is_numeric<T>::value, T>::type>
 bool_t GetFieldValueAsNumber(CUtfTable *table, uint32_t rowIndex, const char *fieldName, T *result);
 
 bool_t GetFieldValueAsString(CUtfTable *table, uint32_t rowIndex, const char *fieldName, string &s);
@@ -88,7 +90,6 @@ void CAcbFile::InitializeCueList() {
     uint32_t refItemSize = 0;
     uint32_t refSizeCorrection = 0;
 
-    CBinaryReader reader(GetStream());
     auto &cues = _cues;
 
     cues.reserve(cueCount);
@@ -122,6 +123,8 @@ void CAcbFile::InitializeCueList() {
         }
 
         if (refItemSize != 0) {
+            CBinaryReader reader(GetStream());
+
             cue.waveformIndex = reader.PeekUInt16BE(refItemOffset + refSizeCorrection);
 
             uint8_t isStreaming;
@@ -333,7 +336,7 @@ void CAcbFile::InitializeAwbArchives() {
     }
 }
 
-CUtfTable *CAcbFile::GetTable(const char *tableName) {
+CUtfTable *CAcbFile::GetTable(const char *tableName) const {
     string s(tableName);
 
     CUtfTable *table;
@@ -456,14 +459,6 @@ IStream *CAcbFile::OpenDataStream(uint32_t cueId) const {
 
 const char *CAcbFile::GetFileName() const {
     return _fileName;
-}
-
-string CAcbFile::GetSymbolicFileNameByCueId(uint32_t cueId) {
-    char buffer[256] = {0};
-
-    sprintf(buffer, "cue_%06" PRIu32 DEFAULT_BINARY_FILE_EXTENSION, cueId);
-
-    return string(buffer);
 }
 
 string CAcbFile::GetSymbolicFileNameHintByCueId(uint32_t cueId) const {
@@ -617,6 +612,118 @@ const AFS2_FILE_RECORD *CAcbFile::GetFileRecordByTrackIndex(uint32_t trackIndex)
     }
 }
 
+uint32_t CAcbFile::GetTrackCountOfCueByCueId(uint32_t cueId) const {
+    auto cue = GetCueRecordByCueId(cueId);
+
+    if (cue == nullptr) {
+        return 0;
+    }
+
+    auto sequenceTable = GetTable("SequenceTable");
+
+    if (sequenceTable == nullptr) {
+        throw CFormatException("Missing 'Sequence' table.");
+    }
+
+    uint16_t numTracks = 0;
+
+    GetFieldValueAsNumber(sequenceTable, cue->referenceIndex, "NumTracks", &numTracks);
+
+    return numTracks;
+}
+
+bool_t CAcbFile::GetTrackIndicesOfCueByCueId(uint32_t cueId, uint32_t *numberOfTracks, uint32_t *trackIndices) const {
+    if (trackIndices == nullptr) {
+        if (numberOfTracks != nullptr) {
+            *numberOfTracks = GetTrackCountOfCueByCueId(cueId);
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    if (numberOfTracks == nullptr) {
+        throw CArgumentException("Pointer to number of tracks cannot be null.");
+    }
+
+    const auto givenNumberOfTracks = *numberOfTracks;
+    *numberOfTracks = 0;
+
+    const auto cue = GetCueRecordByCueId(cueId);
+
+    if (cue == nullptr) {
+        return FALSE;
+    }
+
+    const auto sequenceTable = GetTable("SequenceTable");
+
+    if (sequenceTable == nullptr) {
+        throw CFormatException("Missing 'Sequence' table.");
+    }
+
+    const auto expectedNumberOfTracks = GetTrackCountOfCueByCueId(cueId);
+
+    *numberOfTracks = expectedNumberOfTracks;
+
+    if (givenNumberOfTracks < expectedNumberOfTracks) {
+        return FALSE;
+    }
+
+    uint64_t trackIndexOffset = 0;
+    uint32_t trackIndexSize = 0;
+    sequenceTable->GetFieldOffset(cue->referenceIndex, "TrackIndex", &trackIndexOffset);
+    sequenceTable->GetFieldSize(cue->referenceIndex, "TrackIndex", &trackIndexSize);
+
+    if (trackIndexSize != expectedNumberOfTracks * sizeof(uint16_t)) {
+        throw CFormatException("Track index data error: data size and declared count does not match.");
+    }
+
+    CBinaryReader reader(GetStream());
+
+    for (uint32_t i = 0; i < expectedNumberOfTracks; i += 1) {
+        auto trackIndex = reader.PeekUInt16BE(trackIndexOffset + sizeof(uint16_t) * i);
+        trackIndices[i] = trackIndex;
+    }
+
+    return TRUE;
+}
+
+bool_t CAcbFile::GetTrackIndicesOfCueByCueId(uint32_t cueId, std::vector<uint32_t> &trackIndices) const {
+    const auto cue = GetCueRecordByCueId(cueId);
+
+    if (cue == nullptr) {
+        return FALSE;
+    }
+
+    const auto sequenceTable = GetTable("SequenceTable");
+
+    if (sequenceTable == nullptr) {
+        throw CFormatException("Missing 'Sequence' table.");
+    }
+
+    const auto expectedNumberOfTracks = GetTrackCountOfCueByCueId(cueId);
+
+    uint64_t trackIndexOffset = 0;
+    uint32_t trackIndexSize = 0;
+    sequenceTable->GetFieldOffset(cue->referenceIndex, "TrackIndex", &trackIndexOffset);
+    sequenceTable->GetFieldSize(cue->referenceIndex, "TrackIndex", &trackIndexSize);
+
+    if (trackIndexSize != expectedNumberOfTracks * sizeof(uint16_t)) {
+        throw CFormatException("Track index data error: data size and declared count does not match.");
+    }
+
+    trackIndices.resize(expectedNumberOfTracks);
+
+    CBinaryReader reader(GetStream());
+
+    for (uint32_t i = 0; i < expectedNumberOfTracks; i += 1) {
+        auto trackIndex = reader.PeekUInt16BE(trackIndexOffset + sizeof(uint16_t) * i);
+        trackIndices[i] = trackIndex;
+    }
+
+    return TRUE;
+}
+
 const std::vector<ACB_TRACK_RECORD> &CAcbFile::GetTrackRecords() const {
     return _tracks;
 }
@@ -679,7 +786,7 @@ std::string CAcbFile::FindExternalAwbFileName() const {
     const string acbFileName = _fileName;
     const auto awbDirPath = CPath::GetDirectoryName(acbFileName);
 
-    auto awbBaseFileName = CPath::GetFileNameWithoutExtension(acbFileName);
+    auto awbBaseFileName = CPath::GetFileBaseName(acbFileName);
 
     awbBaseFileName = CPath::Combine(awbDirPath, awbBaseFileName);
 
@@ -786,10 +893,10 @@ static string GetExtensionForEncodeType(uint8_t encodeType) {
     return string(buffer);
 }
 
-template<typename T>
+template<typename T, typename TNumber>
 bool_t GetFieldValueAsNumber(CUtfTable *table, uint32_t rowIndex, const char *fieldName, T *result) {
     if (result) {
-        memset(result, 0, sizeof(T));
+        memset(result, 0, sizeof(TNumber));
     }
 
     auto &rows = table->GetRows();

@@ -36,15 +36,22 @@ struct AcbWalkCallbackParams {
 
 typedef int (*AcbWalkCallback)(AcbWalkCallbackParams *params);
 
+typedef enum _ACB_EXTRACT_DISCOVERY {
+    ACB_EXTRACT_DISCOVER_DEFAULT = 0,
+    ACB_EXTRACT_DISCOVER_BY_TRACK = 1,
+    ACB_EXTRACT_DISCOVER_BY_CUE = 2,
+} ACB_EXTRACT_DISCOVERY;
+
 struct AcbWalkOptions {
 
     AcbWalkOptions();
 
     HCA_DECODER_CONFIG decoderConfig;
     bool_t useCueName;
-    bool_t byTrackIndex;
-    bool_t prependId;
     AcbWalkCallback callback;
+
+    ACB_EXTRACT_DISCOVERY discovery;
+    bool_t prependId;
 
 };
 

@@ -13,11 +13,11 @@ CGSS_NS_BEGIN
 
     public:
 
-        explicit CFileStream(LPCSTR fileName);
+        explicit CFileStream(const char *fileName);
 
-        CFileStream(LPCSTR fileName, FileMode mode);
+        CFileStream(const char *fileName, FileMode mode);
 
-        CFileStream(LPCSTR fileName, FileMode mode, FileAccess access);
+        CFileStream(const char *fileName, FileMode mode, FileAccess access);
 
         explicit CFileStream(const std::string &fileName);
 
@@ -57,9 +57,9 @@ CGSS_NS_BEGIN
 
     private:
 
-        FILE *OpenFile(LPCSTR fileName);
+        FILE *OpenFile(const char *fileName);
 
-        static void CreateFileInternal(LPCSTR fileName);
+        static void CreateFileInternal(const char *fileName);
 
     private:
 

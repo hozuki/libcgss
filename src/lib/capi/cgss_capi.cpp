@@ -82,7 +82,7 @@ CGSS_API_IMPL(const char *)cgssGetLastErrorMessage() {
     return g_lastErrorString.c_str();
 }
 
-CGSS_API_IMPL(bool_t) cgssHelperFileExists(LPCSTR fileName) {
+CGSS_API_IMPL(bool_t) cgssHelperFileExists(const char *fileName) {
     if (!fileName) {
         return FALSE;
     }
@@ -313,7 +313,7 @@ static void alloc_stream(CGSS_HANDLE *handle, IStream *stream, HandleType type) 
     *handle = h;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream(LPCSTR fileName, _OUT_ CGSS_HANDLE *stream) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream(const char *fileName, _OUT_ CGSS_HANDLE *stream) {
     if (!stream) {
         return CGSS_OP_INVALID_ARGUMENT;
     }
@@ -321,7 +321,7 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream(LPCSTR fileName, _OUT_ CGSS_H
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream2(LPCSTR fileName, CGSS_FILE_MODE fileMode, _OUT_ CGSS_HANDLE *stream) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream2(const char *fileName, CGSS_FILE_MODE fileMode, _OUT_ CGSS_HANDLE *stream) {
     if (!stream) {
         return CGSS_OP_INVALID_ARGUMENT;
     }
@@ -329,7 +329,7 @@ CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream2(LPCSTR fileName, CGSS_FILE_M
     return CGSS_OP_OK;
 }
 
-CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream3(LPCSTR fileName, CGSS_FILE_MODE fileMode, CGSS_FILE_ACCESS fileAccess, _OUT_ CGSS_HANDLE *stream) {
+CGSS_API_IMPL(CGSS_OP_RESULT) cgssCreateFileStream3(const char *fileName, CGSS_FILE_MODE fileMode, CGSS_FILE_ACCESS fileAccess, _OUT_ CGSS_HANDLE *stream) {
     if (!stream) {
         return CGSS_OP_INVALID_ARGUMENT;
     }

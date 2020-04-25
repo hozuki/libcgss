@@ -70,7 +70,7 @@ std::string CPath::GetDirectoryName(const std::string &path) {
     return path.substr(0, slashPos);
 }
 
-string CPath::GetFileNameWithoutExtension(const string &path) {
+string CPath::GetFileBaseName(const string &path) {
     const auto fileName = GetFileName(path);
 
     const auto dotPos = fileName.rfind('.');

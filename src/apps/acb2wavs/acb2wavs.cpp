@@ -14,8 +14,8 @@ using namespace cgss;
 struct Acb2WavsOptions {
     HCA_DECODER_CONFIG decoderConfig;
     bool_t useCueName;
-    bool_t byTrackIndex;
     bool_t prependId;
+    ACB_EXTRACT_DISCOVERY discovery;
 };
 
 static void PrintAppTitle(ostream &out);
@@ -67,9 +67,9 @@ static void PrintHelp() {
 #endif
 
     cerr << "Usage:\n" << endl;
-    cerr << "acb2wavs <acb file> [-a <key1 = " << hex << k1 << ">[ [-b <key2 = " << hex << k2 << ">] [-n] [-byTrackIndex]" << endl << endl;
+    cerr << "acb2wavs <acb file> [-a <key1 = " << hex << k1 << ">[ [-b <key2 = " << hex << k2 << ">] [-n] [-discovery:<default|track|cue>] [-prependId]" << endl << endl;
     cerr << "\t-n\tUse cue names for output waveforms" << endl;
-    cerr << "\t-byTrackIndex\tIdentify waveforms by their track indices" << endl;
+    cerr << "\t-discovery\tSpecify waveform discovery method (default: default/classic strategy; track: by tracks; cue: by cue group)" << endl;
     cerr << "\t-prependId\tPrepend file ID (cue ID, track index, etc.)" << endl;
 }
 
@@ -94,6 +94,8 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOp
     for (int i = 2; i < argc; ++i) {
         auto currentArgParsed = false;
 
+        constexpr size_t DiscoveryOptionPrefixLength = sizeof("discovery:") - 1;
+
         if (argv[i][0] == '-' || argv[i][0] == '/') {
             const char *argName = argv[i] + 1;
 
@@ -115,9 +117,17 @@ static int ParseArgs(int argc, const char *argv[], string &inputFile, Acb2WavsOp
             } else if (strcmp_ignore_case(argName, "n") == 0) {
                 options.useCueName = TRUE;
                 currentArgParsed = true;
-            } else if (strcmp_ignore_case(argName, "byTrackIndex") == 0) {
-                options.byTrackIndex = TRUE;
-                currentArgParsed = true;
+            } else if (strncmp_ignore_case(argName, "discovery:", DiscoveryOptionPrefixLength) == 0) {
+                if (strcmp_ignore_case(argName + DiscoveryOptionPrefixLength, "default") == 0) {
+                    options.discovery = ACB_EXTRACT_DISCOVER_DEFAULT;
+                    currentArgParsed = true;
+                } else if (strcmp_ignore_case(argName + DiscoveryOptionPrefixLength, "track") == 0) {
+                    options.discovery = ACB_EXTRACT_DISCOVER_BY_TRACK;
+                    currentArgParsed = true;
+                } else if (strcmp_ignore_case(argName + DiscoveryOptionPrefixLength, "cue") == 0) {
+                    options.discovery = ACB_EXTRACT_DISCOVER_BY_CUE;
+                    currentArgParsed = true;
+                }
             } else if (strcmp_ignore_case(argName, "prependId") == 0) {
                 options.prependId = TRUE;
                 currentArgParsed = true;
@@ -141,7 +151,8 @@ static int DoWork(const string &inputFile, const Acb2WavsOptions &options) {
     o.callback = ProcessHca;
     o.decoderConfig = options.decoderConfig;
     o.useCueName = options.useCueName;
-    o.byTrackIndex = options.byTrackIndex;
+    o.discovery = options.discovery;
+    o.prependId = options.prependId;
 
     return AcbWalk(inputFile, &o);
 }

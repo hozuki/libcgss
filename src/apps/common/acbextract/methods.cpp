@@ -1,92 +1,18 @@
 #include <cinttypes>
 #include <unordered_set>
+#include <vector>
 
-#include "acbextract.h"
-#include "../common/utils.h"
+#include "methods.h"
 
 using namespace std;
 using namespace cgss;
 
-AcbWalkCallbackParams::AcbWalkCallbackParams()
-    : walkOptions(nullptr), acb(nullptr), formatVersion(0),
-      archive(nullptr), archiveDataStream(nullptr), entryDataStream(nullptr),
-      isInternal(FALSE) {
-}
-
-AcbWalkOptions::AcbWalkOptions()
-    : decoderConfig({}), useCueName(FALSE), byTrackIndex(FALSE), callback(nullptr) {
-}
-
-static int ProcessAllBinaries(CAcbFile &acb, uint32_t formatVersion, AcbWalkOptions *options, const string &extractDir, const CAfs2Archive *archive, IStream *archiveDataStream, bool_t isInternal, unordered_set<uint32_t> &extractedCueIds);
-
-int AcbWalk(const std::string &inputAcbFile, AcbWalkOptions *options) {
-    const auto baseExtractDirPath = CPath::Combine(CPath::GetDirectoryName(inputAcbFile), "_acb_" + CPath::GetFileName(inputAcbFile));
-
-    CFileStream fileStream(inputAcbFile.c_str(), FileMode::OpenExisting, FileAccess::Read);
-    CAcbFile acb(&fileStream, inputAcbFile.c_str());
-
-    acb.Initialize();
-
-    const CAfs2Archive *archive;
-    const uint32_t formatVersion = acb.GetFormatVersion();
-    int r;
-
-    try {
-        archive = acb.GetInternalAwb();
-    } catch (CException &ex) {
-        fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
-        archive = nullptr;
-    }
-
+void ExtractFilesWithCueInfo(AcbWalkCallbackParams &p, CAcbFile &acb, AcbWalkOptions *options, const string &extractDir, const CAfs2Archive *archive, cgss::IStream *archiveDataStream) {
     unordered_set<uint32_t> extractedCueIds;
 
-    if (archive) {
-        const auto extractDir = CPath::Combine(baseExtractDirPath, "internal");
-
-        try {
-            r = ProcessAllBinaries(acb, formatVersion, options, extractDir, archive, acb.GetStream(), TRUE, extractedCueIds);
-        } catch (CException &ex) {
-            fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
-            r = -1;
-        }
-
-        if (r != 0) {
-            return r;
-        }
-    }
-
-    try {
-        archive = acb.GetExternalAwb();
-    } catch (CException &ex) {
-        fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
-        archive = nullptr;
-    }
-
-    if (archive) {
-        const auto extractDir = CPath::Combine(baseExtractDirPath, "external");
-
-        try {
-            CFileStream fs(archive->GetFileName(), FileMode::OpenExisting, FileAccess::Read);
-
-            r = ProcessAllBinaries(acb, formatVersion, options, extractDir, archive, &fs, FALSE, extractedCueIds);
-        } catch (CException &ex) {
-            fprintf(stderr, "%s (%d)\n", ex.GetExceptionMessage().c_str(), ex.GetOpResult());
-            r = -1;
-        }
-
-        if (r != 0) {
-            return r;
-        }
-    }
-
-    return 0;
-}
-
-static void ExtractFilesWithCueInfo(AcbWalkCallbackParams &p, CAcbFile &acb, AcbWalkOptions *options, const string &extractDir, const CAfs2Archive *archive, IStream *archiveDataStream, unordered_set<uint32_t> &extractedCueIds) {
     // First try to extract files with readable cue names
     {
         const auto &fileNames = acb.GetFileNames();
-        uint32_t i = 0;
 
         for (const auto &fileName : fileNames) {
             if (fileName.empty()) {
@@ -129,10 +55,9 @@ static void ExtractFilesWithCueInfo(AcbWalkCallbackParams &p, CAcbFile &acb, Acb
 
                 extractedCueIds.insert(fileRecord->cueId);
             } else {
-                fprintf(stderr, "Cue #%" PRIu32 " (%s) cannot be retrieved.\n", i + 1, fileName.c_str());
+                fprintf(stderr, "Cue of '%s' cannot be retrieved.\n", fileName.c_str());
             }
 
-            ++i;
             p.entryDataStream = nullptr;
             p.extractPathHint = "";
 
@@ -187,7 +112,100 @@ static void ExtractFilesWithCueInfo(AcbWalkCallbackParams &p, CAcbFile &acb, Acb
     }
 }
 
-static void ExtractFilesWithTrackInfo(AcbWalkCallbackParams &p, CAcbFile &acb, AcbWalkOptions *options, const string &extractDir, const CAfs2Archive *archive, IStream *archiveDataStream) {
+void ExtractFilesWithCueAndSequenceInfo(AcbWalkCallbackParams &p, CAcbFile &acb, AcbWalkOptions *options, const string &extractDir) {
+    // Here we assume that all "meaningful" cues are named, so we don't export unnamed cues.
+    const auto &fileNames = acb.GetFileNames();
+    const auto &tracks = acb.GetTrackRecords();
+    uint32_t i = 0;
+    char trackIndexCounterTextBuffer[10] = {'\0'};
+    char trackIndexTextBuffer[10] = {'\0'};
+
+    for (const auto &fileName : fileNames) {
+        if (fileName.empty()) {
+            continue;
+        }
+
+        const auto cue = acb.GetCueRecordByWaveformFileName(fileName.c_str());
+
+        if (cue == nullptr) {
+            throw CException("Should not happen.");
+        }
+
+        auto extensionHint = acb.GetFileExtensionHintByCueId(cue->cueId);
+
+        string extractCueGroupName;
+
+        if (options->useCueName) {
+            extractCueGroupName = CPath::GetFileBaseName(fileName);
+        } else {
+            extractCueGroupName = CAcbFile::GetSymbolicFileBaseNameByCueId(cue->cueId);
+        }
+
+        if (options->prependId) {
+            auto prepend = CAcbFile::GetSymbolicFileBaseNameByCueId(cue->cueId);
+
+            extractCueGroupName.insert(0, "_");
+            extractCueGroupName.insert(0, prepend);
+        }
+
+        vector<uint32_t> trackIndices;
+        acb.GetTrackIndicesOfCueByCueId(cue->cueId, trackIndices);
+
+        if (trackIndices.empty()) {
+            throw CException("Should not happen.");
+        }
+
+        uint32_t trackIndexCounter = 0;
+
+        for (const auto trackIndex : trackIndices) {
+            if (trackIndex >= tracks.size()) {
+                fprintf(stderr, "Invalid track index '%" PRIu32 "' for cue %" PRIu32 " (%s).\n", trackIndex, cue->cueId, fileName.c_str());
+                continue;
+            }
+
+            const auto fileRecord = acb.GetFileRecordByTrackIndex(trackIndex);
+
+            if (fileRecord == nullptr) {
+                fprintf(stderr, "AFS file record is not found for track #%" PRIu32 ".\n", i + 1);
+                continue;
+            }
+
+            snprintf(trackIndexCounterTextBuffer, sizeof(trackIndexCounterTextBuffer), "%04" PRIu32, trackIndexCounter);
+            snprintf(trackIndexTextBuffer, sizeof(trackIndexTextBuffer), "%06" PRIu32, trackIndex);
+
+            string extractFileName = extractCueGroupName;
+            extractFileName.append("_");
+            extractFileName.append(trackIndexCounterTextBuffer);
+            extractFileName.append("_");
+            extractFileName.append(trackIndexTextBuffer);
+            extractFileName.append(extensionHint);
+
+            auto entryDataStream = acb.OpenDataStream(fileRecord, cue->isStreaming);
+
+            if (entryDataStream != nullptr) {
+                p.entryDataStream = entryDataStream;
+                p.extractPathHint = CPath::Combine(extractDir, extractFileName);
+
+                p.cueInfo.id = cue->cueId;
+                p.cueInfo.offset = fileRecord->fileOffsetAligned;
+                p.cueInfo.size = fileRecord->fileSize;
+
+                options->callback(&p);
+            } else {
+                fprintf(stderr, "Track #%" PRIu32 " cannot be retrieved.\n", trackIndex);
+            }
+
+            delete entryDataStream;
+
+            trackIndexCounter += 1;
+        }
+    }
+
+    p.entryDataStream = nullptr;
+    p.extractPathHint = "";
+}
+
+void ExtractFilesWithTrackInfo(AcbWalkCallbackParams &p, CAcbFile &acb, AcbWalkOptions *options, const string &extractDir) {
     const auto &tracks = acb.GetTrackRecords();
     const auto trackCount = tracks.size();
 
@@ -239,43 +257,3 @@ static void ExtractFilesWithTrackInfo(AcbWalkCallbackParams &p, CAcbFile &acb, A
     }
 }
 
-static int ProcessAllBinaries(CAcbFile &acb, uint32_t formatVersion, AcbWalkOptions *options, const string &extractDir, const CAfs2Archive *archive, IStream *archiveDataStream, bool_t isInternal, unordered_set<uint32_t> &extractedCueIds) {
-    if (!CFileSystem::DirectoryExists(extractDir)) {
-        if (!CFileSystem::MkDir(extractDir)) {
-            fprintf(stderr, "Failed to create directory '%s.\n", extractDir.c_str());
-            return -1;
-        }
-    }
-
-    // Set up key modifier
-    uint16_t keyModifier;
-
-    if (formatVersion >= CAcbFile::KEY_MODIFIER_ENABLED_VERSION) {
-        keyModifier = archive->GetHcaKeyModifier();
-    } else {
-        keyModifier = 0;
-    }
-
-    if (options->callback) {
-        AcbWalkCallbackParams p;
-
-        p.acb = &acb;
-        p.archive = archive;
-        p.archiveDataStream = archiveDataStream;
-        p.formatVersion = formatVersion;
-        p.isInternal = isInternal;
-        p.walkOptions = options;
-
-        p.walkOptions->decoderConfig.cipherConfig.keyModifier = keyModifier;
-
-        if (options->byTrackIndex) {
-            ExtractFilesWithTrackInfo(p, acb, options, extractDir, archive, archiveDataStream);
-        } else {
-            ExtractFilesWithCueInfo(p, acb, options, extractDir, archive, archiveDataStream, extractedCueIds);
-        }
-    }
-
-    options->decoderConfig.cipherConfig.keyModifier = 0;
-
-    return 0;
-}

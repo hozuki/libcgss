@@ -36,8 +36,6 @@ CGSS_NS_BEGIN
 
         IStream *OpenDataStream(uint32_t cueId) const;
 
-        static std::string GetSymbolicFileNameByCueId(uint32_t cueId);
-
         std::string GetSymbolicFileNameHintByCueId(uint32_t cueId) const;
 
         static std::string GetSymbolicFileBaseNameByCueId(uint32_t cueId);
@@ -59,6 +57,12 @@ CGSS_NS_BEGIN
         const AFS2_FILE_RECORD *GetFileRecordByCueId(uint32_t cueId) const;
 
         const AFS2_FILE_RECORD *GetFileRecordByTrackIndex(uint32_t trackIndex) const;
+
+        uint32_t GetTrackCountOfCueByCueId(uint32_t cueId) const;
+
+        bool_t GetTrackIndicesOfCueByCueId(uint32_t cueId, uint32_t *numberOfTracks, uint32_t *trackIndices) const;
+
+        bool_t GetTrackIndicesOfCueByCueId(uint32_t cueId, std::vector<uint32_t> &trackIndices) const;
 
         const std::vector<ACB_TRACK_RECORD> &GetTrackRecords() const;
 
@@ -100,7 +104,7 @@ CGSS_NS_BEGIN
          * You do not need to manually delete the pointer retrieved.
          * @param tableName
          */
-        CUtfTable *GetTable(const char *tableName);
+        CUtfTable *GetTable(const char *tableName) const;
 
         CUtfTable *ResolveTable(const char *tableName) const;
 
@@ -115,7 +119,8 @@ CGSS_NS_BEGIN
 
         std::map<std::string, uint16_t> _cueNameToWaveform;
 
-        std::map<std::string, CUtfTable *> _tables;
+        // TODO: Consider better design to follow constancy. (see GetTable(const char *))
+        mutable std::map<std::string, CUtfTable *> _tables;
 
         uint32_t _formatVersion;
 

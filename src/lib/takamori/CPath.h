@@ -20,7 +20,7 @@ CGSS_NS_BEGIN
 
         static std::string GetDirectoryName(const std::string &path);
 
-        static std::string GetFileNameWithoutExtension(const std::string &path);
+        static std::string GetFileBaseName(const std::string &path);
 
     private:
 

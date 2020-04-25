@@ -19,8 +19,6 @@
 #define NOMINMAX
 #endif
 
-#include <windows.h>
-
 #else
 #define __CGSS_OS_UNIX__
 #endif
@@ -129,7 +127,10 @@ typedef const char *LPCSTR;
 #define PURE_STATIC(className) \
     public: \
         className() = delete; \
-        className(const className &) = delete
+        className(const className &) = delete; \
+        className(className &&) = delete; \
+        className &operator=(const className &) = delete; \
+        className &operator=(className &&) = delete
 #endif
 
 #ifdef __cplusplus
