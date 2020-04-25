@@ -1,14 +1,14 @@
-#include "../cgss_env.h"
+#include "Utilities.h"
 
-#ifdef __CGSS_OS_WINDOWS__
+#if defined(__CGSS_OS_WINDOWS__)
 
 #include <Windows.h>
 
-#elif __CGSS_OS_UNIX__
-#include <dlfcn.h>
-#endif
+#elif defined(__CGSS_OS_UNIX__)
 
-#include "Utilities.h"
+#include <dlfcn.h>
+
+#endif
 
 CGSS_NS_BEGIN
 
@@ -20,7 +20,7 @@ CGSS_NS_BEGIN
 #endif
     }
 
-    void *Utilities::GetFunctionAddress(cgss::Utilities::CHLIB hModule, const char *lpstrFuncName) {
+    void *Utilities::GetFunctionAddress(cgss::Utilities::HLIB hModule, const char *lpstrFuncName) {
 #if defined(__CGSS_OS_WINDOWS__)
         return (void *)GetProcAddress((HMODULE)hModule, lpstrFuncName);
 #elif defined(__CGSS_OS_UNIX__)

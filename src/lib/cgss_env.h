@@ -1,27 +1,6 @@
 #pragma once
 
-#if (defined(_WIN64) || defined(__LP64__) || defined(__LLP64__))
-#define __CGSS_ARCH_X64__
-#else
-#define __CGSS_ARCH_X86__
-#endif
-
-#if (defined(_WIN32) || defined(__CYGWIN__))
-#define __CGSS_OS_WINDOWS__
-#ifndef _MBCS
-#define _MBCS
-#endif
-#define _CRT_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN
-
-// "#ifndef" for warnings in Cygwin/MinGW
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
-#else
-#define __CGSS_OS_UNIX__
-#endif
+#include "cgss_env_platform.h"
 
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__MINGW__)
 #ifdef __CGSS_BUILDING_DLL__
@@ -75,9 +54,11 @@
 #endif
 
 #ifdef __cplusplus
+
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+
 #else
 
 #include <stdlib.h>
@@ -120,10 +101,25 @@ typedef const char *LPCSTR;
 #define _REF_
 #endif
 
-#ifdef __cplusplus
-#define CGSS_NS_BEGIN namespace cgss {
-#define CGSS_NS_END   }
+#include "cgss_env_ns.h"
 
+#ifdef __CGSS_OS_WINDOWS__
+
+#ifndef _MBCS
+#define _MBCS
+#endif
+
+#define _CRT_SECURE_NO_WARNINGS
+#define WIN32_LEAN_AND_MEAN
+
+// "#ifndef" for warnings in Cygwin/MinGW
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#endif
+
+#ifdef __cplusplus
 #define PURE_STATIC(className) \
     public: \
         className() = delete; \

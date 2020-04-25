@@ -1,7 +1,6 @@
 #include <cstdio>
-#include <Windows.h>
 
-#include "../../lib/cgss_api.h"
+#include "../../lib/cgss_env_platform.h"
 
 #define VGAUDIO_APP_LINK "https://github.com/hozuki/vgaudio-cpp"
 #define HCAENC_DLL_FILE_NAME "hcaenc_lite.dll"
@@ -13,6 +12,7 @@
 #ifdef __CGSS_ARCH_X86__
 
 #include <iostream>
+#include <Windows.h>
 
 #include "../../lib/takamori/Utilities.h"
 

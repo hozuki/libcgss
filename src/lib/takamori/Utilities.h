@@ -9,11 +9,10 @@ CGSS_NS_BEGIN
     public:
 
         typedef void *HLIB;
-        typedef const void *CHLIB;
 
         static HLIB LoadDynamicLibrary(const char *lpstrModuleName);
 
-        static void *GetFunctionAddress(CHLIB hModule, const char *lpstrFuncName);
+        static void *GetFunctionAddress(HLIB hModule, const char *lpstrFuncName);
 
         static bool_t FreeDynamicLibrary(HLIB hModule);
 
