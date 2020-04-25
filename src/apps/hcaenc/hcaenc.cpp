@@ -1,4 +1,6 @@
 #include <cstdio>
+#include <Windows.h>
+
 #include "../../lib/cgss_api.h"
 
 #define VGAUDIO_APP_LINK "https://github.com/hozuki/vgaudio-cpp"
@@ -29,7 +31,7 @@ static void PrintAppTitle(FILE *out);
 static void PrintHelp();
 
 int main(int argc, const char *argv[]) {
-    HMODULE hHcaEncDll = nullptr;
+    cgss::Utilities::HLIB hHcaEncDll = nullptr;
     LPCSTR inputFile = nullptr;
     LPCSTR outputFile = nullptr;
     // These are (nearly) the same settings as High audio profile of CGSS.

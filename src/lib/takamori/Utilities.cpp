@@ -12,7 +12,7 @@
 
 CGSS_NS_BEGIN
 
-    void *Utilities::LoadDynamicLibrary(const char *lpstrModuleName) {
+    cgss::Utilities::HLIB Utilities::LoadDynamicLibrary(const char *lpstrModuleName) {
 #if defined(__CGSS_OS_WINDOWS__)
         return LoadLibrary(lpstrModuleName);
 #elif defined(__CGSS_OS_UNIX__)
@@ -20,7 +20,7 @@ CGSS_NS_BEGIN
 #endif
     }
 
-    void *Utilities::GetFunctionAddress(const void *hModule, const char *lpstrFuncName) {
+    void *Utilities::GetFunctionAddress(cgss::Utilities::CHLIB hModule, const char *lpstrFuncName) {
 #if defined(__CGSS_OS_WINDOWS__)
         return (void *)GetProcAddress((HMODULE)hModule, lpstrFuncName);
 #elif defined(__CGSS_OS_UNIX__)
@@ -28,7 +28,7 @@ CGSS_NS_BEGIN
 #endif
     }
 
-    bool_t Utilities::FreeDynamicLibrary(void *hModule) {
+    bool_t Utilities::FreeDynamicLibrary(cgss::Utilities::HLIB hModule) {
 #if defined(__CGSS_OS_WINDOWS__)
         return static_cast<bool_t>(FreeLibrary((HMODULE)hModule));
 #elif defined(__CGSS_OS_UNIX__)
