@@ -1,6 +1,7 @@
 Set-Location build/make
+[Int32]$processorCount = [Environment]::ProcessorCount
 
-& make
+& make -j "$processorCount"
 
 if (!$?) {
     Write-Error "An error occured while trying to invoke ``make``"
