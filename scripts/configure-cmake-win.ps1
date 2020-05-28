@@ -52,6 +52,13 @@ Set-Location build\vc
 
 cmake --version
 
+$cmakeDefs = @{
+    "DVGAUDIO_APPS_DYNAMIC_LINKING" = "ON";
+    "VGAUDIO_NO_CMAKE_OUTPUT_DIRECTORY_OVERRIDE" = "ON";
+}
+
+[String]$cmakeDefString = [String]::Join(" ",[System.Linq.Enumerable]::Select($cmakeDefs.Keys, { param ([String]$key) return "-D${$key}=${cmakeDefs[$key]}" }))
+
 if ($multiPlatform)
 {
     [String]$cmakeGenArch = 'Win32';
@@ -61,13 +68,9 @@ if ($multiPlatform)
         $cmakeGenArch = 'x64';
     }
 
-    [String]$cmakeGenCmd = "cmake ..\.. -G `"$generator`" -A $cmakeGenArch"
+    & cmake ..\.. "$cmakeDefString" -G "`"$generator`"" -A "$cmakeGenArch"
 }
 else
 {
-    [String]$cmakeGenCmd = "cmake ..\.. -G `"$generator`""
+    & cmake ..\.. "$cmakeDefString" -G "`"$generator`""
 }
-
-[ScriptBlock]$script = [ScriptBlock]::Create($cmakeGenCmd);
-
-Invoke-Command -ScriptBlock $script

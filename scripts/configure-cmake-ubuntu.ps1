@@ -63,8 +63,8 @@ if ((Compare-Versions -v1 $cmakeVersionFound -v2 $cmakeVersionMinimum) -lt 0)
 
 New-Item -ItemType Directory -Force -Path build/make
 
-Set-Location build/make
+Push-Location build/make
 
-cmake -DCMAKE_BUILD_TYPE=MinSizeRel ../..
+& cmake -DCMAKE_BUILD_TYPE=MinSizeRel -DVGAUDIO_APPS_DYNAMIC_LINKING=ON -DVGAUDIO_NO_CMAKE_OUTPUT_DIRECTORY_OVERRIDE=ON ../..
 
-Set-Location ../..
+Pop-Location
