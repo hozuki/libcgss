@@ -29,6 +29,11 @@ elseif ($workerImage -eq 'Visual Studio 2017')
     $generator = "Visual Studio 15 2017$arch";
     $multiPlatform = $false;
 }
+elseif ($workerImage -eq 'Visual Studio 2015')
+{
+    $generator = "Visual Studio 14 2015$arch";
+    $multiPlatform = $false;
+}
 else
 {
     Write-Error 'Error: Unsupported worker image.';

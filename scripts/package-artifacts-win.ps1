@@ -28,6 +28,9 @@ switch ($workerImage)
     'Visual Studio 2017' {
         $buildToolchain = 'vc14.1';
     }
+    'Visual Studio 2015' {
+        $buildToolchain = 'vc14';
+    }
     default {
         Write-Error "Unsupported worker: $workerImage";
         exit 1;
