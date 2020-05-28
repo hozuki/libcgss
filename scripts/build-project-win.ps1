@@ -10,7 +10,7 @@ if (!$?)
 {
     $zlibDll = Join-Path $PSScriptRoot "../lib/vgaudio-cpp/ext/zlib/build/bin/zlib1.dll" -Resolve
 
-    [string]$arch = $Env:ARCH
+    [String]$arch = $Env:ARCH
     [String]$buildArch = [String]::Empty
     [String]$configuration = $Env:CONFIGURATION
 
