@@ -57,7 +57,7 @@ $cmakeDefs = @{
     "VGAUDIO_NO_CMAKE_OUTPUT_DIRECTORY_OVERRIDE" = "ON";
 }
 
-[String]$cmakeDefString = [String]::Join(" ",[System.Linq.Enumerable]::Select($cmakeDefs.Keys, { param ([String]$key) return "-D${$key}=${cmakeDefs[$key]}" }))
+[String]$cmakeDefString = [String]::Join(" ",[System.Linq.Enumerable]::Select($cmakeDefs.Keys, [Func[String, String]]{ param ([String]$key) return "-D${$key}=${cmakeDefs[$key]}" }))
 
 if ($multiPlatform)
 {
