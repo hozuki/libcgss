@@ -1,12 +1,6 @@
 version: '0.3.6.{build}'
 environment:
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      CONFIGURATION: Release
-      ARCH: Win64
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      CONFIGURATION: Release
-      ARCH: Win32
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CONFIGURATION: Release
       ARCH: Win64
