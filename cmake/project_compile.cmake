@@ -1,6 +1,6 @@
 target_compile_definitions(cgss PRIVATE __CGSS_BUILDING_DLL__)
 target_compile_definitions(hcacc PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
-target_compile_definitions(hcaenc PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
+target_compile_definitions(hcaenc_obsolete PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
 target_compile_definitions(hca2wav PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
 target_compile_definitions(acb2wavs PRIVATE __COMPILE_WITH_CGSS_KEYS=1)
 target_compile_definitions(acb2hcas PRIVATE __COMPILE_WITH_CGSS_KEYS=1)

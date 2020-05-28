@@ -1,4 +1,3 @@
-
 if ($isWindows)
 {
     $scriptPath = [System.IO.Path]::Combine($PSScriptRoot, "build-project-win.ps1")

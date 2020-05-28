@@ -1,0 +1,3 @@
+[submodule "lib/vgaudio-cpp"]
+	path = lib/vgaudio-cpp
+	url = https://github.com/hozuki/vgaudio-cpp

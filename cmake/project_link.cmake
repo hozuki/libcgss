@@ -9,7 +9,7 @@ if (UNIX AND NOT (MINGW OR CYGWIN))
 endif ()
 
 target_link_libraries(hcacc cgss)
-target_link_libraries(hcaenc cgss)
+target_link_libraries(hcaenc_obsolete cgss)
 target_link_libraries(hca2wav cgss)
 target_link_libraries(hcainfo cgss)
 target_link_libraries(utftable cgss)

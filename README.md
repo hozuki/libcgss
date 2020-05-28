@@ -16,7 +16,7 @@ The project consists of a library (*libcgss*) and several other applications.
   - [*ichinose*](http://www.project-imas.com/wiki/Shiki_Ichinose): CRI ACB/AWB archive reader.
   - [*kawashima*](http://www.project-imas.com/wiki/Mizuki_Kawashima): HCA decoder, migrated from [kawashima](https://github.com/hozuki/kawashima).
 - Applications
-  - *hcaenc*: HCA encoder. Requires `hcaenc_lite.dll`<sup>\[1\]</sup>. [C# equivalent](https://github.com/OpenCGSS/DereTore/tree/master/Apps/Hcaenc)
+  - *hcaenc (obsolete)*: HCA encoder. Requires `hcaenc_lite.dll`<sup>\[1\]</sup>. [C# equivalent](https://github.com/OpenCGSS/DereTore/tree/master/Apps/Hcaenc)
   - *hcacc*: HCA cipher converter. [C# equivalent](https://github.com/OpenCGSS/DereTore/tree/master/Apps/Hcacc)
   - *hca2wav*: HCA decoder. [C# equivalent](https://github.com/OpenCGSS/DereTore/tree/master/Apps/Hca2Wav)
   - *hcainfo*: HCA info viewer.
@@ -24,6 +24,8 @@ The project consists of a library (*libcgss*) and several other applications.
   - *acbunpack*: ACB archive unpacker. [C# equivalent](https://github.com/OpenCGSS/DereTore/tree/master/Apps/AcbUnzip)
   - *acb2wavs*: Batch converter for HCAs in ACB. [C# equivalent](https://github.com/OpenCGSS/DereTore/tree/master/Apps/Acb2Wavs)
   - *acb2hcas*: Batch exporter for HCAs in ACB. Generates companion `.hcakey` files for [vgmstream](https://github.com/losnoco/vgmstream).
+  - *hcaenc*: HCA encoder based on [VGAudio](https://github.com/Thealexbarney/VGAudio)/[VGAudio-CPP](https://github.com/hozuki/vgaudio-cpp). Does not rely on `hcaenc_lite.dll`.
+  - *hcadec*: HCA decoder based on VGAudio/VGAudio-CPP.
 
 
 Related projects:

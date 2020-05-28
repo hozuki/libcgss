@@ -5,7 +5,7 @@ if (${GNU_COMPILER})
             POST_BUILD
             COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hcacc>
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    add_custom_command(TARGET hcaenc
+    add_custom_command(TARGET hcaenc_obsolete
             POST_BUILD
             COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:hcaenc>
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

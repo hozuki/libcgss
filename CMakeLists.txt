@@ -22,3 +22,5 @@ include(cmake/project_postbuild.cmake)
 #set(CGSS_BUILD_JNI_LIBRARY ON)
 
 include(cmake/jni_support.cmake)
+
+add_subdirectory(lib/vgaudio-cpp)
