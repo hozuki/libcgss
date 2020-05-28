@@ -59,7 +59,7 @@ Requirements:
 - General:
   - CMake (>=3.2)
 - Windows:
-  - MSVC (>=14.1, VC++ 2017)
+  - MSVC (>=14.0, VC++ 2015)
 - macOS and Linux:
   - GCC (>=6.0)
 
