@@ -63,12 +63,6 @@ Requirements:
 - macOS and Linux:
   - GCC (>=6.0)
 
-> **Remarks:**
->
-> 1. I personally recommend you to use Cygwin rather than MinGW. The latter seems to lack
-> support of properly handling `try...catch` statements.
-> 2. Linux build is tested on Windows Subsystem for Linux (WSL) using GCC 6.2.0.
-
 Steps:
 
 1. Run PowerShell script: `scripts/configure-cmake.ps1`;
