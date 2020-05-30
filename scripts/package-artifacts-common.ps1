@@ -7,7 +7,7 @@ function Copy-CommonTextFilesTo([String] $destDir)
     $sourceFiles.Add((Join-Path $PSScriptRoot "../lib/vgaudio-cpp/LICENSE.txt" -Resolve), "LICENSE-libvgaudio.txt")
     $sourceFiles.Add((Join-Path $PSScriptRoot "../lib/vgaudio-cpp/ext/zlib/README" -Resolve), "README-zlib")
 
-    foreach ($srcFile in $sourceFiles)
+    foreach ($srcFile in $sourceFiles.Keys)
     {
         [String]$dstFile = Join-Path $destDir $sourceFiles[$srcFile]
         Copy-Item $srcFile $dstFile
