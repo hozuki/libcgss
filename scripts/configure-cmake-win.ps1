@@ -88,4 +88,4 @@ else
 $cmakeParamsLit = [String]::Join(' ', $cmakeParams)
 Write-Host "CMake parameters: $cmakeParamsLit"
 
-& cmake $cmakeParams.ToArray()
+cmake $cmakeParams.ToArray()

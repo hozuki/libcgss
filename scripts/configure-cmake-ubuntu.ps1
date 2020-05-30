@@ -87,6 +87,6 @@ $cmakeParams.AddRange([String[]]@("-DCMAKE_BUILD_TYPE=MinSizeRel", "../.."))
 $cmakeParamsLit = [String]::Join(' ', $cmakeParams)
 Write-Host "CMake parameters: $cmakeParamsLit"
 
-& cmake $cmakeParams.ToArray()
+cmake $cmakeParams.ToArray()
 
 Pop-Location
