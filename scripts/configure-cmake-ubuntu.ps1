@@ -71,13 +71,21 @@ $cmakeDefs = @{
     "VGAUDIO_DONT_GENERATE_TEST_TARGETS" = "ON";
 }
 
-# Must specify types explicitly otherwise PowerShell can't find the correct overload
-[String]$cmakeDefString = [String]::Join(" ",[System.Linq.Enumerable]::Select([String[]]$cmakeDefs.Keys, [Func[String, String]]{
-    param ([String]$key)
-    [String]$value = $cmakeDefs[$key]
-    return "-D$key=$value"
-}))
+[System.Collections.Generic.List[String]]$cmakeParams = New-Object System.Collections.Generic.List[String]
 
-& cmake -DCMAKE_BUILD_TYPE=MinSizeRel "$cmakeDefString" ../..
+# Must specify types explicitly otherwise PowerShell can't find the correct overload
+$cmakeParams.AddRange([System.Linq.Enumerable]::Select(
+        [String[]]$cmakeDefs.Keys, [Func[String, String]]{
+            param ([String]$key)
+            [String]$value = $cmakeDefs[$key]
+            return "-D$key=$value"
+        })
+)
+
+$cmakeParams.AddRange(@("-DCMAKE_BUILD_TYPE=MinSizeRel", "../.."))
+
+Write-Host "CMake parameters: ${[String]::Join(" ", $cmakeParams)}"
+
+& cmake $cmakeParams.ToArray()
 
 Pop-Location
