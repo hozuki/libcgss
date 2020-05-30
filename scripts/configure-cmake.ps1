@@ -19,6 +19,8 @@ elseif ($isLinux)
 
 if ($null -ne $scriptPath)
 {
+    . (Join-Path $PSScriptRoot "environment-variable.ps1")
+
     # Setup version info
     if ($env:CI)
     {
@@ -30,10 +32,10 @@ if ($null -ne $scriptPath)
         {
             [String[]]$versionParts = $buildVersion.Split('.')
 
-            [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_MAJOR", $versionParts[0], [EnvironmentVariableTarget]::User)
-            [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_MINOR", $versionParts[1], [EnvironmentVariableTarget]::User)
-            [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_PATCH", $versionParts[2], [EnvironmentVariableTarget]::User)
-            [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_TWEAK", "0", [EnvironmentVariableTarget]::User) # alwasy "0"
+            Set-PersistentEnvironmentVariable("LIBCGSS_VERSION_MAJOR", $versionParts[0])
+            Set-PersistentEnvironmentVariable("LIBCGSS_VERSION_MINOR", $versionParts[1])
+            Set-PersistentEnvironmentVariable("LIBCGSS_VERSION_PATCH", $versionParts[2])
+            Set-PersistentEnvironmentVariable("LIBCGSS_VERSION_TWEAK", "0") # alwasy "0"
         }
     }
 
