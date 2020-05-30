@@ -39,18 +39,9 @@ switch ($workerImage)
 
 [String]$configuration = $Env:CONFIGURATION;
 
-function Invoke-CommandLine([String]$Command)
-{
-    [ScriptBlock]$script = [ScriptBlock]::Create($Command);
-    Invoke-Command -ScriptBlock $script
-}
+Copy-CommonTextFilesTo((Join-Path $PSScriptRoot "..\bin\$buildArch\$configuration" -Resolve))
 
-$7zcmd = "7z a libcgss.zip -r bin\$buildArch\$configuration\*.exe";
-Invoke-CommandLine -Command $7zcmd
-$7zcmd = "7z a libcgss.zip -r bin\$buildArch\$configuration\*.dll";
-Invoke-CommandLine -Command $7zcmd
-$7zcmd = "7z a libcgss.zip -r bin\$buildArch\$configuration\*.lib";
-Invoke-CommandLine -Command $7zcmd
+& 7z a libcgss.zip -r "bin\$buildArch\$configuration\*"
 
 [String]$buildVersion = $Env:APPVEYOR_BUILD_VERSION
 [String]$osCodeName = "win";

@@ -85,6 +85,7 @@ else
     $cmakeParams.AddRange([String[]]@("-G", "`"$generator`"", "..\.."))
 }
 
-Write-Host "CMake parameters: ${[String]::Join(" ", $cmakeParams)}"
+$cmakeParamsLit = [String]::Join(' ', $cmakeParams)
+Write-Host "CMake parameters: $cmakeParamsLit"
 
 & cmake $cmakeParams.ToArray()

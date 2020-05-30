@@ -19,12 +19,16 @@ function Get-UbuntuCodeName()
     return "ubuntu_unknown"
 }
 
+. (Join-Path $PSScriptRoot "package-artifacts-common.ps1" -Resolve)
+
 Set-Location $env:APPVEYOR_BUILD_FOLDER
 
 # Detected in common_defines.cmake; but Ubuntu 18.04+ only supports 64-bit apps so it's a constant
 [String]$cmakeArch = "x64"
 # Set in build.sh
 [String]$cmakeBuildType = "MinSizeRel"
+
+Copy-CommonTextFilesTo((Join-Path $PSScriptRoot "../bin/$cmakeArch/$cmakeBuildType" -Resolve))
 
 & 7z a libcgss.zip -r "bin/$cmakeArch/$cmakeBuildType/*"
 
