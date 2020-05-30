@@ -19,8 +19,6 @@ elseif ($isLinux)
 
 if ($null -ne $scriptPath)
 {
-    . (Join-Path $PSScriptRoot "environment-variable.ps1")
-
     # Setup version info
     if ($env:CI)
     {
