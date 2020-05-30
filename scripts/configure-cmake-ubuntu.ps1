@@ -82,7 +82,7 @@ $cmakeParams.AddRange([System.Linq.Enumerable]::Select(
         })
 )
 
-$cmakeParams.AddRange(@("-DCMAKE_BUILD_TYPE=MinSizeRel", "../.."))
+$cmakeParams.AddRange([String[]]@("-DCMAKE_BUILD_TYPE=MinSizeRel", "../.."))
 
 Write-Host "CMake parameters: ${[String]::Join(" ", $cmakeParams)}"
 

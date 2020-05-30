@@ -78,11 +78,11 @@ if ($multiPlatform)
         $cmakeGenArch = 'x64';
     }
 
-    $cmakeParams.AddRange(@("-G", "`"$generator`"", "-A", $cmakeGenArch, "..\.."))
+    $cmakeParams.AddRange([String[]]@("-G", "`"$generator`"", "-A", $cmakeGenArch, "..\.."))
 }
 else
 {
-    $cmakeParams.AddRange(@("-G", "`"$generator`"", "..\.."))
+    $cmakeParams.AddRange([String[]]@("-G", "`"$generator`"", "..\.."))
 }
 
 Write-Host "CMake parameters: ${[String]::Join(" ", $cmakeParams)}"
