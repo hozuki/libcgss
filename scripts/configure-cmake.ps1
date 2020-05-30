@@ -24,6 +24,8 @@ if ($null -ne $scriptPath)
     {
         [String]$buildVersion = $env:APPVEYOR_BUILD_VERSION
 
+        Write-Host "Using build version: $buildVersion"
+
         if (-not([String]::IsNullOrWhiteSpace($buildVersion)))
         {
             [String[]]$versionParts = $buildVersion.Split('.')
