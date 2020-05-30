@@ -66,7 +66,7 @@ New-Item -ItemType Directory -Force -Path build/make
 Push-Location build/make
 
 $cmakeDefs = @{
-    "DVGAUDIO_APPS_DYNAMIC_LINKING" = "ON";
+    "VGAUDIO_APPS_DYNAMIC_LINKING" = "ON";
     "VGAUDIO_NO_CMAKE_OUTPUT_DIRECTORY_OVERRIDE" = "ON";
     "VGAUDIO_DONT_GENERATE_TEST_TARGETS" = "ON";
 }

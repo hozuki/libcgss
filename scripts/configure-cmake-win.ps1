@@ -53,7 +53,7 @@ Set-Location build\vc
 cmake --version
 
 $cmakeDefs = @{
-    "DVGAUDIO_APPS_DYNAMIC_LINKING" = "ON";
+    "VGAUDIO_APPS_DYNAMIC_LINKING" = "ON";
     "VGAUDIO_NO_CMAKE_OUTPUT_DIRECTORY_OVERRIDE" = "ON";
     "VGAUDIO_DONT_GENERATE_TEST_TARGETS" = "ON";
 }
@@ -74,9 +74,9 @@ if ($multiPlatform)
         $cmakeGenArch = 'x64';
     }
 
-    & cmake ..\.. "$cmakeDefString" -G "`"$generator`"" -A "$cmakeGenArch"
+    & cmake "$cmakeDefString" -G "`"$generator`"" -A "$cmakeGenArch" ..\..
 }
 else
 {
-    & cmake ..\.. "$cmakeDefString" -G "`"$generator`""
+    & cmake "$cmakeDefString" -G "`"$generator`"" ..\..
 }
