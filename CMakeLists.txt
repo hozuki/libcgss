@@ -9,6 +9,8 @@ include(cmake/common_defines.cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/${TARGET_ARCH}/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
+include(cmake/project_options.cmake)
+
 include(cmake/project_files.cmake)
 include(cmake/project_targets.cmake)
 include(cmake/project_properties.cmake)

@@ -30,12 +30,8 @@ if ($null -ne $scriptPath)
 
         if (-not([String]::IsNullOrWhiteSpace($buildVersion)))
         {
-            [String[]]$versionParts = $buildVersion.Split('.')
-
-            Set-PersistentEnvironmentVariable("LIBCGSS_VERSION_MAJOR", $versionParts[0])
-            Set-PersistentEnvironmentVariable("LIBCGSS_VERSION_MINOR", $versionParts[1])
-            Set-PersistentEnvironmentVariable("LIBCGSS_VERSION_PATCH", $versionParts[2])
-            Set-PersistentEnvironmentVariable("LIBCGSS_VERSION_TWEAK", "0") # alwasy "0"
+            # OK I give up.
+            $env:LIBCGSS_LIBRARY_VERSION = $buildVersion
         }
     }
 

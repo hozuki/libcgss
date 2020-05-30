@@ -69,6 +69,18 @@ $cmakeParams.AddRange([System.Linq.Enumerable]::Select(
         })
 )
 
+if ($env:CI)
+{
+    if (-not [String]::IsNullOrWhiteSpace($env:LIBCGSS_LIBRARY_VERSION))
+    {
+        $cmakeParams.Add("-DLIBCGSS_LIBRARY_VERSION=`"$env:LIBCGSS_LIBRARY_VERSION`"")
+    }
+    else
+    {
+        Write-Error "Should not happen."
+    }
+}
+
 if ($multiPlatform)
 {
     [String]$cmakeGenArch = 'Win32';
