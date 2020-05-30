@@ -22,20 +22,18 @@ if ($null -ne $scriptPath)
     . ($scriptPath)
 
     # Setup version info
+    if ($env:CI)
     {
-        if ($env:CI)
+        [String]$buildVersion = $env:APPVEYOR_BUILD_VERSION
+
+        if (-not([String]::IsNullOrWhiteSpace($buildVersion)))
         {
-            [String]$buildVersion = $env:APPVEYOR_BUILD_VERSION
+            [String[]]$versionParts = $buildVersion.Split('.')
 
-            if (-not([String]::IsNullOrWhiteSpace($buildVersion)))
-            {
-                [String[]]$versionParts = $buildVersion.Split('.')
-
-                [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_MAJOR", $versionParts[0], [EnvironmentVariableTarget]::User)
-                [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_MINOR", $versionParts[1], [EnvironmentVariableTarget]::User)
-                [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_PATCH", $versionParts[2], [EnvironmentVariableTarget]::User)
-                [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_TWEAK", "0", [EnvironmentVariableTarget]::User) # alwasy "0"
-            }
+            [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_MAJOR", $versionParts[0], [EnvironmentVariableTarget]::User)
+            [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_MINOR", $versionParts[1], [EnvironmentVariableTarget]::User)
+            [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_PATCH", $versionParts[2], [EnvironmentVariableTarget]::User)
+            [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_TWEAK", "0", [EnvironmentVariableTarget]::User) # alwasy "0"
         }
     }
 }
