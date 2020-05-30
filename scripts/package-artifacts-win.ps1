@@ -39,6 +39,7 @@ switch ($workerImage)
 
 [String]$configuration = $Env:CONFIGURATION;
 
+. (Join-Path $PSScriptRoot "package-artifacts-common.ps1" -Resolve)
 Copy-CommonTextFilesTo((Join-Path $PSScriptRoot "..\bin\$buildArch\$configuration" -Resolve))
 
 & 7z a libcgss.zip -r "bin\$buildArch\$configuration\*"
