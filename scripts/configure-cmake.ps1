@@ -19,8 +19,6 @@ elseif ($isLinux)
 
 if ($null -ne $scriptPath)
 {
-    . ($scriptPath)
-
     # Setup version info
     if ($env:CI)
     {
@@ -36,6 +34,8 @@ if ($null -ne $scriptPath)
             [Environment]::SetEnvironmentVariable("LIBCGSS_VERSION_TWEAK", "0", [EnvironmentVariableTarget]::User) # alwasy "0"
         }
     }
+
+    . ($scriptPath)
 }
 else
 {
