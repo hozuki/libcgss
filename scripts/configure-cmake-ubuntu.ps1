@@ -65,6 +65,19 @@ New-Item -ItemType Directory -Force -Path build/make
 
 Push-Location build/make
 
-& cmake -DCMAKE_BUILD_TYPE=MinSizeRel -DVGAUDIO_APPS_DYNAMIC_LINKING=ON -DVGAUDIO_NO_CMAKE_OUTPUT_DIRECTORY_OVERRIDE=ON ../..
+$cmakeDefs = @{
+    "DVGAUDIO_APPS_DYNAMIC_LINKING" = "ON";
+    "VGAUDIO_NO_CMAKE_OUTPUT_DIRECTORY_OVERRIDE" = "ON";
+    "VGAUDIO_DONT_GENERATE_TEST_TARGETS" = "ON";
+}
+
+# Must specify types explicitly otherwise PowerShell can't find the correct overload
+[String]$cmakeDefString = [String]::Join(" ",[System.Linq.Enumerable]::Select([String[]]$cmakeDefs.Keys, [Func[String, String]]{
+    param ([String]$key)
+    [String]$value = $cmakeDefs[$key]
+    return "-D$key=$value"
+}))
+
+& cmake -DCMAKE_BUILD_TYPE=MinSizeRel "$cmakeDefString" ../..
 
 Pop-Location
